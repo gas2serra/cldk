@@ -1,0 +1,10 @@
+* Test
+
+| Platform | Lisp | Backend | Status |
+|----------+------+---------+--------|
+| linux    | sbcl | clx     | ok     |
+|          |      | sdl2    | ok     |
+|          | ccl  | clx     | fail   |
+|          |      | sdl2    | fail   |
+|          | elc  | clx     | ok     |
+|          |      | sdl2    | fail   |
