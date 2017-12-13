@@ -10,7 +10,7 @@
 |#
 
 (defun simple-01 (backend)
-  (let ((*s* (cldk:find-server :server-path backend)))
+  (let ((*s* (cldk:find-display-server :server-path backend)))
     (let ((num (cldk:screen-num *s*)))
       (format *debug-io* "pixel: ~A~%" (cldk:screen-size *s*))
       (format *debug-io* "mm: ~A~%" (cldk:screen-size *s* nil :millimeters))

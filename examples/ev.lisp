@@ -10,7 +10,7 @@
 |#
 
 (defun simple-ev-window (backend &optional (sec 10))
-  (let ((*s* (cldk:find-server :server-path backend)))
+  (let ((*s* (cldk:find-display-server :server-path backend)))
     (setf (cldk:server-event-handler *s*)
                                      (make-instance 'cldk:event-handler))
     (let ((w (cldk:create-window *s* "Pippo" :mode :managed)))

@@ -186,7 +186,7 @@
 (defmethod driver-process-next-event ((driver sdl2-driver) kernel &key timeout)
   (setf sdl2::*event-loop* t)
   (let ((ret
-         (sdl2-event-handler driver kernel (event-handler kernel) timeout)))
+         (sdl2-event-handler driver kernel timeout)))
     (if ret
         t
         nil)))

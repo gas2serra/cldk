@@ -64,17 +64,17 @@
                         request first-keycode count
                             &allow-other-keys)
   (handler-case
-      (let ((win (lookup-server-object *clx-driver* window)))
+      (let ((win window))
      (setf (driver-error *clx-driver*) nil)
      (case event-key
        ((:button-press :button-release)
         (if (and (>= code 4) (<= code 7))
-            (khandle-wheel-event *clx-kernel* 
+            (k-handle-wheel-event *clx-kernel* 
                                  (decode-x-button-code code)
                                  0
                                  win
                                  time)
-            (khandle-button-event *clx-kernel* 
+            (k-handle-button-event *clx-kernel* 
                                   (if (eq event-key :button-press)
                                       :press
                                       :release)
@@ -83,7 +83,7 @@
                                   win
                                   time)))
        (:motion-notify
-        (khandle-motion-event *clx-kernel* 
+        (k-handle-motion-event *clx-kernel* 
                               0
                               x y
                               root-x root-y
@@ -93,7 +93,7 @@
         (multiple-value-bind (keyname modifier-state keysym-name)
             (x-event-to-key-name-and-modifiers *clx-driver* 
                                                event-key code state)
-          (khandle-key-event *clx-kernel* 
+          (k-handle-key-event *clx-kernel* 
                              (if (eq event-key :key-press)
                                  :press
                                  :release)
@@ -105,7 +105,7 @@
                              win
                              time)))
        ((:enter-notify :leave-notify)
-        (khandle-enter-leave-event *clx-kernel*
+        (k-handle-enter-leave-event *clx-kernel*
                                    (if (eq event-key :enter-notify)
                                        :enter
                                        :leave)
@@ -113,14 +113,14 @@
                                    win
                                    time))
        (:destroy-notify
-        (khandle-destroy-event *clx-kernel* win time))
+        (k-handle-destroy-event *clx-kernel* win time))
        (:configure-notify
         (with-slots (root-window) *clx-driver*
           (multiple-value-bind (x y)
               (xlib:translate-coordinates window 0 0 root-window)
-            (khandle-window-configuration-event *clx-kernel* win x y width height time))))
+            (k-handle-window-configuration-event *clx-kernel* win x y width height time))))
        ((:exposure :display :graphics-exposure)
-        (khandle-repaint-event *clx-kernel* win x y width height time))
+        (k-handle-repaint-event *clx-kernel* win x y width height time))
        (:client-message
         (port-client-message win time type data))
        (t
@@ -153,7 +153,7 @@
 
 (defmethod port-wm-protocols-message (win time (message (eql :wm_delete_window)) data)
   (declare (ignore data))
-  (khandle-wm-delete-event *clx-kernel*
+  (k-handle-wm-delete-event *clx-kernel*
                          win
                          time))
 

@@ -8,10 +8,10 @@
 (log:info (bt:all-threads))
 
 (defparameter *s* nil)
-(setf *s* (cldk:find-server))
-(setf *s* (cldk:find-server :server-path '(:null)))
-(setf *s* (cldk:find-server :server-path '(:clx)))
-(setf *s* (cldk:find-server :server-path '(:sdl2)))
+(setf *s* (cldk:find-display-server))
+(setf *s* (cldk:find-display-server :server-path '(:null)))
+(setf *s* (cldk:find-display-server :server-path '(:clx)))
+(setf *s* (cldk:find-display-server :server-path '(:sdl2)))
 
 (let ((r (cldk:screen-size *s*)))
   (log:info r))

@@ -44,7 +44,7 @@
       )))
 
 (defun simple-buffered-window-01 (backend)
-  (let ((*s* (cldk:find-server :server-path backend)))
+  (let ((*s* (cldk:find-display-server :server-path backend)))
     (let ((w (cldk:create-buffered-window *s* "Pippo" :mode :managed)))
       (cldk:show-window w)
       (fill-window w 255 0 0)

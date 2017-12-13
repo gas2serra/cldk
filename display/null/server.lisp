@@ -1,6 +1,6 @@
 (in-package :cldk-null)
 
-(defclass null-server (server)
+(defclass null-server (display-server)
   ())
 
 (defmethod initialize-instance :after ((server null-server) &rest args)

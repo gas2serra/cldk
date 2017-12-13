@@ -44,7 +44,7 @@
     ((> x 0)
      +pointer-wheel-right+)))
 
-(defun sdl2-event-handler (driver kernel event-handler timeout)
+(defun sdl2-event-handler (driver kernel timeout)
   (sdl2:with-sdl-event (event)
     (let ((r (sdl2:next-event event)))
       ;; :wait-with-timeout (if timeout (round (* 1000 timeout)) nil))))
@@ -64,9 +64,9 @@
                     (button (sdl2::c-ref event sdl2-ffi:sdl-event :button :button))	  
                     (which (sdl2::c-ref event sdl2-ffi:sdl-event :button :which))
                     (state (sdl2::c-ref event sdl2-ffi:sdl-event :button :state))
-                    (win (lookup-server-object driver w)))
+                    (win w))
                (declare (ignore state))
-               (khandle-button-event kernel
+               (k-handle-button-event kernel
                                      (if (eq etype :mousebuttondown)
                                          :press
                                          :release)
@@ -81,9 +81,9 @@
                     (y (sdl2::c-ref event sdl2-ffi:sdl-event :wheel :y))
                     (which (sdl2::c-ref event sdl2-ffi:sdl-event :wheel :which))
                     (direction (sdl2::c-ref event sdl2-ffi:sdl-event :wheel :direction))
-                    (win (lookup-server-object driver w)))
+                    (win w))
                (declare (ignore direction))
-               (khandle-wheel-event kernel
+               (k-handle-wheel-event kernel
                                     (decode-sdl2-wheel-code x y)
                                     which
                                     win
@@ -97,10 +97,10 @@
                     (yrel (sdl2::c-ref event sdl2-ffi:sdl-event :motion :yrel))
                     (which (sdl2::c-ref event sdl2-ffi:sdl-event :motion :which))
                     (state (sdl2::c-ref event sdl2-ffi:sdl-event :motion :state))
-                    (win (lookup-server-object driver w)))
+                    (win w))
                (multiple-value-bind (pos-x pos-y)
                    (sdl2:get-window-position (sdl2-ffi.functions::sdl-get-window-from-id w))
-                 (khandle-motion-event kernel
+                 (k-handle-motion-event kernel
                                        which
                                        x y
                                        (+ x pos-x) (+ y pos-y)
@@ -111,7 +111,7 @@
                     (time (sdl2::c-ref event sdl2-ffi:sdl-event :key :timestamp))
                     (keysym (sdl2::c-ref event sdl2-ffi:sdl-event :key :keysym))	  
                     (state (sdl2::c-ref event sdl2-ffi:sdl-event :key :state))
-                    (win (lookup-server-object driver w)))
+                    (win w))
                (multiple-value-bind (keyname modifier-state keysym-name)
                    (sdl2-event-to-key-name-and-modifiers driver
                                                          etype
@@ -121,7 +121,7 @@
                            (not (= (logior +shift-key+
                                           (decode-sdl2-mod-state (sdl2:mod-value keysym)))
                                    +shift-key+)))
-                   (khandle-key-event kernel
+                   (k-handle-key-event kernel
                                       (if (eq etype :keydown)
                                           :press
                                           :release)
@@ -134,15 +134,15 @@
              (let* ((w (sdl2::c-ref event sdl2-ffi:sdl-event :text :window-id))
                     (time (sdl2::c-ref event sdl2-ffi:sdl-event :text :timestamp))
                     (text (sdl2::c-ref event sdl2-ffi:sdl-event :text :text))	  
-                    (win (lookup-server-object driver w)))
-               (khandle-key-event kernel
+                    (win w))
+               (k-handle-key-event kernel
                                   :press
                                   (make-symbol (string (code-char text)))
                                   (code-char text)
                                   0
                                   win
                                   time)
-               (khandle-key-event kernel
+               (k-handle-key-event kernel
                                   :release
                                   (make-symbol (string (code-char text)))
                                   (code-char text)
@@ -157,12 +157,12 @@
                     (time (sdl2::c-ref event sdl2-ffi:sdl-event :window :timestamp))
                     (data1 (sdl2::c-ref event sdl2-ffi:sdl-event :window :data1))	  
                     (data2 (sdl2::c-ref event sdl2-ffi:sdl-event :window :data2))
-                    (win (lookup-server-object driver w)))
+                    (win w))
                #+nil (log:info "Window Event:: ~A ~A ~A ~A ~A~%" e (list w win) time data1 data2)
                (cond
                  ((= e sdl2-ffi::+sdl-windowevent-close+)
                   (when win
-                    (khandle-wm-delete-event kernel
+                    (k-handle-wm-delete-event kernel
                                              win
                                              time)))
                  ((= e sdl2-ffi::+sdl-windowevent-enter+)
@@ -195,7 +195,7 @@
                     (multiple-value-bind (w h)
                         (sdl2:get-window-size (sdl2-ffi.functions::sdl-get-window-from-id w))
                    
-                    (khandle-window-configuration-event kernel win
+                    (k-handle-window-configuration-event kernel win
                                              data1 data2
                                              w h time)))
                   )
@@ -207,7 +207,7 @@
                   (when win
                     (multiple-value-bind (pos-x pos-y)
                         (sdl2:get-window-position (sdl2-ffi.functions::sdl-get-window-from-id w))
-                      (khandle-window-configuration-event kernel win
+                      (k-handle-window-configuration-event kernel win
                                                pos-x pos-y
                                                data1 data2 time)))
                   ;;(log:info "Window Resized:: ~A ~A ~A ~A ~A~%" e win time data1 data2)
@@ -223,11 +223,12 @@
                   (when win
                     (multiple-value-bind (pos-x pos-y)
                         (sdl2:get-window-position (sdl2-ffi.functions::sdl-get-window-from-id w))
-                      (khandle-window-configuration-event kernel win
+                      (k-handle-window-configuration-event kernel win
                                                pos-x pos-y
                                                data1 data2 time))))
                  (t
-                  (log:info "Bo: ~a~%" e)
+                  
+                  (log:info "Bo: ~a ~A ~A ~A ~A~%" e (list w win) time data1 data2)
                   nil))))
             (t
              (log:debug "event ~A" etype))))

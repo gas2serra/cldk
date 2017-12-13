@@ -287,7 +287,6 @@
 
 ;;; events
 
-(defvar *event-handler*)
 (defvar *clx-driver*)
 (defvar *clx-kernel*)
 
@@ -295,21 +294,15 @@
   (with-slots (display) driver
     (if (not (xlib:event-listen display))
         nil
-        (let ((*event-handler* (event-handler kernel))
-              (*clx-driver* driver)
+        (let ((*clx-driver* driver)
               (*clx-kernel* kernel))
-          (if *event-handler*
-              (progn
-                (setf (driver-error driver) nil)
-                (xlib:process-event display :timeout timeout
-                                    :handler #'clx-event-handler :discard-p t)
-                (when (driver-error driver)
-                  (error (driver-error driver))))
-              (progn
-                (sleep timeout)
-                nil))
+          (progn
+            (setf (driver-error driver) nil)
+            (xlib:process-event display :timeout 0
+                                :handler #'clx-event-handler :discard-p t)
+            (when (driver-error driver)
+              (error (driver-error driver))))
           t))))
-
 
 (defclass clx-buffer (driver-buffer)
   ((image :initarg :image)

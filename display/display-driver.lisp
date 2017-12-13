@@ -1,47 +1,13 @@
 (in-package :cldk-internals)
 
-(defclass display-driver (driver)
-  ((options :initform nil
-            :initarg :options
-            :reader driver-options)
-   (default-screen-index :initform 0
+(defclass display-driver (event-driver)
+  ((default-screen-index :initform 0
      :initarg :screen
-     :accessor driver-default-screen-index)
-   (driver-object-id->server-object :initform (make-hash-table))))
-
-;;; driver objects
-(defclass driver-object ()
-  ())
-
-(defgeneric driver-object-id (object)
-  (:method ((object driver-object))
-    object))
-
-(defun register-server-object (driver driver-object server-object)
-  (with-slots (driver-object-id->server-object) driver
-    (setf (gethash (driver-object-id driver-object) driver-object-id->server-object)
-          server-object)))
-
-(defun unregister-server-object (driver driver-object)
-  (with-slots (driver-object-id->server-object) driver
-    (setf (gethash (driver-object-id driver-object) driver-object-id->server-object)
-          nil)))
-
-(defun lookup-server-object (driver driver-object-id)
-  (with-slots (driver-object-id->server-object) driver
-    (gethash driver-object-id driver-object-id->server-object)))
+     :accessor driver-default-screen-index)))
 
 ;;;
 ;;; API
 ;;;
-
-(defgeneric driver-start (driver))
-(defgeneric driver-stop (driver))
-(defgeneric driver-ping (driver)
-  (:method ((driver display-driver))
-    t))
-(defgeneric driver-force-output (driver))
-(defgeneric driver-process-next-event (driver kernel &key timeout))
 
 ;;; screen
 (defgeneric driver-screen-num (driver))

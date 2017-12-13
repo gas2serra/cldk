@@ -19,7 +19,7 @@
 (defmethod initialize-instance :after ((port fb-port) &rest args)
   (declare (ignore args))
   (let ((options (cdr (port-server-path port))))
-    (let ((server (cldk:find-server :server-path (cons (getf options :cldk-driver :null)
+    (let ((server (cldk:find-display-server :server-path (cons (getf options :cldk-driver :null)
                                                        options))))
       (setf (fb-port-server port) server)
       (setf (cldk:server-event-handler server)
@@ -182,7 +182,7 @@
                (when (typep key 'fb-mirrored-sheet-mixin)
                  (mcclim-render-internals::%mirror-force-output (sheet-mirror key))))
            (slot-value port 'climi::sheet->mirror))
-  (cldki::driver-force-output (cldki::server-driver (fb-port-server port))))
+  (cldki::driver-force-output (cldki::driver (fb-port-server port))))
 
 (defmethod synthesize-pointer-motion-event ((pointer fb-pointer))
   (let* ((port (port pointer))

@@ -11,7 +11,7 @@
 |#
 
 (defun simple-window-01 (backend)
-  (let ((*s* (cldk:find-server :server-path backend)))
+  (let ((*s* (cldk:find-display-server :server-path backend)))
     (format *debug-io* "pixel: ~A~%" (cldk:screen-size *s*))
     (format *debug-io* "mm: ~A~%" (cldk:screen-size *s* 0 :millimeters))
     (format *debug-io* "in: ~A~%" (cldk:screen-size *s* 0 :inches))
@@ -58,7 +58,7 @@
       )))
 
 (defun simple-window-02 (backend)
-  (let ((*s* (cldk:find-server :server-path backend)))
+  (let ((*s* (cldk:find-display-server :server-path backend)))
     (let ((w (cldk:create-window *s* "Pippo" :mode :managed)))
       (cldk:show-window w)
       (sleep 1)
@@ -71,7 +71,7 @@
 
 
 (defun simple-window-03 (backend)
-  (let ((*s* (cldk:find-server :server-path backend)))
+  (let ((*s* (cldk:find-display-server :server-path backend)))
     (let ((w (cldk:create-window *s* "Pippo" :mode :managed))
           (cursors (cldk:avaiable-cursor-names *s*)))
       (format *debug-io* "~A~%" cursors)
@@ -84,7 +84,7 @@
       (cldk:destroy-window w))))
 
 (defun simple-window-04 (backend &optional (sec 10))
-  (let ((*s* (cldk:find-server :server-path backend)))
+  (let ((*s* (cldk:find-display-server :server-path backend)))
     (setf (cldk:server-event-handler *s*)
                                      (make-instance 'cldk:event-handler))
     (let ((w (cldk:create-window *s* "Pippo" :mode :managed)))
@@ -93,7 +93,7 @@
       (cldk:destroy-window w))))
 
 (defun simple-window-05 (backend)
-  (let ((*s* (cldk:find-server :server-path backend)))
+  (let ((*s* (cldk:find-display-server :server-path backend)))
     (setf (cldk:server-event-handler *s*)
                                      (make-instance 'cldk:event-handler))
     (let ((w (cldk:create-window *s* "Pippo" :mode :managed)))

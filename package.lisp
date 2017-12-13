@@ -5,6 +5,7 @@
   (:export
    #:*default-server-path*
    #:find-server
+   #:find-display-server
    #:server-path
    #:server-event-handler
    #:restart-server
@@ -141,15 +142,15 @@
    #:driver-copy-buffer-to-window
    #:driver-copy-image-to-buffer
 
-   #:khandle-window-configuration-event
-   #:khandle-repaint-event
-   #:khandle-wheel-event
-   #:khandle-button-event
-   #:khandle-motion-event
-   #:khandle-key-event
-   #:khandle-enter-leave-event
-   #:khandle-destroy-event
-   #:khandle-wm-delete-event
+   #:k-handle-window-configuration-event
+   #:k-handle-repaint-event
+   #:k-handle-wheel-event
+   #:k-handle-button-event
+   #:k-handle-motion-event
+   #:k-handle-key-event
+   #:k-handle-enter-leave-event
+   #:k-handle-destroy-event
+   #:k-handle-wm-delete-event
    ))
 
 (defpackage :cldk-internals
