@@ -34,16 +34,16 @@
    #:event-handler-cur-root-y
    #:event-handler-modifier-state
    #:event-handler-pressed-buttons
-   #:handler-button-event
-   #:handler-wheel-event
-   #:handler-motion-event
-   #:handler-key-event
-   #:handler-key-modifier-event
-   #:handler-enter-leave-event
-   #:handler-configure-event
-   #:handler-repaint-event
-   #:handler-destroy-event
-   #:handler-wm-delete-event
+   #:handle-button-event
+   #:handle-wheel-event
+   #:handle-motion-event
+   #:handle-key-event
+   #:handle-key-modifier-event
+   #:handle-enter-leave-event
+   #:handle-configure-event
+   #:handle-repaint-event
+   #:handle-destroy-event
+   #:handle-wm-delete-event
    
    #:screen-num
    #:screen-size

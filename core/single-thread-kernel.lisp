@@ -2,6 +2,10 @@
 
 (defvar *kernel-mode* nil)
 
+(defun check-kernel-mode ()
+  (unless *kernel-mode*
+    (error "a thread not in kernel mode is calling a kernel function")))
+
 (defclass single-thread-kernel-mixin (kernel-mixin)
   ((call-queue :initform (lparallel.queue:make-queue))
    (callback-queue :initform (lparallel.queue:make-queue))))
@@ -48,10 +52,10 @@
                (error (condition)
                  (log:error "~A ~A" (cdr com) condition)))))
     (if (cdr command)
-        (lparallel:fulfill (cdr command)
-                           (lparallel:chain
-                            (lparallel:delay
-                             (exec (car command)))))
+        (let ((res (exec (car command))))
+          (lparallel:fulfill (cdr command)
+            (lparallel:chain
+             (lparallel:delay res))))
         (exec (car command)))))
 
 (defmethod call ((kernel single-thread-kernel-mixin) command &key block-p)
@@ -109,11 +113,13 @@
 
 (defgeneric process-next-calles (kernel &key maxtime))
 
-(defmethod process-next-calles ((kernel single-thread-kernel-mixin) &key (maxtime 0.01))
-  (let ((end-time (+ (get-internal-real-time) (* maxtime internal-time-units-per-second))))
+(defmethod process-next-calles ((kernel single-thread-kernel-mixin) &key (maxtime 0.03))
+  (let ((end-time (+ (get-internal-real-time) (* maxtime internal-time-units-per-second)))
+        (count 0))
     (with-slots (call-queue) kernel
       (loop with command-and-promise = nil do
            (setq command-and-promise (lparallel.queue:peek-queue call-queue))
+           (setq count (1+ count))
            (when command-and-promise
              (unless (eql (car command-and-promise) :stop)
                (lparallel.queue:pop-queue call-queue)
@@ -122,7 +128,7 @@
                     (< (get-internal-real-time) end-time)
                     (not (eql (car command-and-promise) :stop)))))
     (when (> (get-internal-real-time) end-time)
-      (log:info "next calls time exceded"))))
+      (log:info "next calls time exceded after ~A steps" count))))
 
 ;;;
 ;;; callback loop

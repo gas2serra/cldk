@@ -84,10 +84,9 @@
 (defmethod driver-destroy-window ((driver sdl2-driver) window)
   (with-slots (sdlwindow render) window
     (sdl2::sdl-destroy-window sdlwindow)
+    (sdl2:destroy-renderer render)
     (setf sdlwindow nil)
-    (setf render nil)
-    ;; destroy render
-    ))
+    (setf render nil)))
 
 (defmethod driver-show-window ((driver sdl2-driver) window)
   (with-slots (sdlwindow) window
@@ -183,10 +182,10 @@
 
 ;;; process events
 
-(defmethod driver-process-next-event ((driver sdl2-driver) kernel &key timeout)
+(defmethod driver-process-next-event ((driver sdl2-driver) kernel)
   (setf sdl2::*event-loop* t)
   (let ((ret
-         (sdl2-event-handler driver kernel timeout)))
+         (sdl2-event-handler driver kernel)))
     (if ret
         t
         nil)))
@@ -213,35 +212,46 @@
 
 (defmethod driver-destroy-buffer ((driver sdl2-driver) buffer)
   (with-slots (surface) buffer
-    (sdl2:free-surface surface)
-    (setf surface nil)))
+    (when surface
+      (sdl2:free-surface surface)
+      (setf surface nil))))
 
 (defmethod driver-copy-buffer-to-window ((driver sdl2-driver) buffer x y width height
                                          window to-x to-y)
-  #+nil (log:info x y to-x to-y width height)
   (with-slots (sdlwindow render) window
     (with-slots (surface) buffer
-      (when surface
-        (let ((texture (sdl2:create-texture-from-surface render surface)))
-          (sdl2:with-rects
-              ((src x y
-                    width height))
+      (when (and surface sdlwindow)
+        (let ((w (min width
+                      (- (driver-buffer-width buffer) x)
+                      (- (sdl2:surface-width surface) to-x)))
+              (h (min height
+                      (- (driver-buffer-height buffer) y)
+                      (- (sdl2:surface-height surface) to-y))))
+          (let ((texture (sdl2:create-texture-from-surface render surface)))
             (sdl2:with-rects
-                ((dst to-x to-y
-                      width height))
-              (sdl2:render-copy render
-                                texture :source-rect src
-                                :dest-rect dst)))
-          (sdl2::sdl-destroy-texture texture)
-          (sdl2:render-present render))))))
+                ((src x y w h))
+              (sdl2:with-rects
+                  ((dst to-x to-y w h))
+                (sdl2:render-copy render
+                                  texture :source-rect src
+                                  :dest-rect dst)))
+            (sdl2::sdl-destroy-texture texture)
+            (sdl2:render-present render)))))))
 
 (defmethod driver-copy-image-to-buffer ((driver sdl2-driver) image x y width height buffer)
-  (let ((w (driver-buffer-width buffer)))
+  (let ((bw (driver-buffer-width buffer)))
     (with-slots (surface) buffer
-      (let ((data (sdl2:surface-pixels surface)))
-              (when data
-                (loop for j from y to (+ y height -1) do
-                     (loop for i from x to (+ x width -1) do
+      (when surface
+        (let ((data (sdl2:surface-pixels surface))
+              (w (min width
+                      (- (driver-buffer-width buffer) x)
+                      (- (sdl2:surface-width surface) x)))
+              (h (min height
+                      (- (driver-buffer-height buffer) y)
+                      (- (sdl2:surface-height surface) y))))
+          (when data
+                (loop for j from y to (+ y h -1) do
+                     (loop for i from x to (+ x w -1) do
                           (let* ((pixel (aref (image-pixels image) j i)))
                             (let ((red (ldb (byte 8 0) pixel))
                                   (green (ldb (byte 8 8) pixel))
@@ -255,8 +265,8 @@
                                               (dpb alpha (byte 8 24) 0))))
                                data :UNSIGNED-INT (* 4
                                                      (+
-                                                      (* j w)
-                                                      i))))))))))))
+                                                      (* j bw)
+                                                      i)))))))))))))
 
 (defmethod driver-grab-pointer ((driver sdl2-driver) window pointer)
   (with-slots (sdlwindow) window

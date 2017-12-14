@@ -3,4 +3,4 @@
 (defclass event-driver (driver)
   ())
 
-(defgeneric driver-process-next-event (driver kernel &key timeout))
+(defgeneric driver-process-next-event (driver kernel))

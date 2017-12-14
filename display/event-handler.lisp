@@ -78,7 +78,7 @@
         (setf ks (cons (aref button-mapping i) ks))))
     ks))
 
-(defgeneric handler-button-event (handler kind pointer button
+(defgeneric handle-button-event (handler kind pointer button
                                   window timestamp)
   (:method ((handler event-handler) kind pointer button
             window timestamp)
@@ -105,7 +105,7 @@
                (setf cur-pressed-buttons (logxor button cur-pressed-buttons))))))
 
 
-(defgeneric handler-wheel-event (handler kind pointer
+(defgeneric handle-wheel-event (handler kind pointer
                                  window timestamp)
   (:method ((handler event-handler) kind pointer window timestamp)
     #+nil (with-slots (cur-x cur-y cur-root-x cur-root-y cur-pressed-buttons cur-modifier-state) handler
@@ -116,7 +116,7 @@
       (log:info (modifiers2keywords cur-modifier-state)
                 (buttons2keywords cur-pressed-buttons)))))
 
-(defgeneric handler-motion-event (handler pointer x y
+(defgeneric handle-motion-event (handler pointer x y
                                   root-x root-y
                                   window timestamp)
   (:method ((handler event-handler) pointer x y
@@ -134,7 +134,7 @@
                    cur-root-x root-x
                    cur-root-y root-y))))
 
-(defgeneric handler-key-event (handler kind keyname character modifiers
+(defgeneric handle-key-event (handler kind keyname character modifiers
                                window timestamp)
   (:method ((handler event-handler) kind keyname character modifiers
             window timestamp)
@@ -147,7 +147,7 @@
              (setf cur-modifier-state modifiers))))
     
 
-(defgeneric handler-enter-leave-event (handler kind pointer win time)
+(defgeneric handle-enter-leave-event (handler kind pointer win time)
   (:method ((handler event-handler) kind pointer
             window timestamp)
     #+nil (log:info "enter/leave: ~A ~A ~A ~A"
@@ -160,19 +160,19 @@
               cur-root-x nil
               cur-root-y nil)))))
 
-(defgeneric handler-configure-event (handler win x y w h time)
+(defgeneric handle-configure-event (handler win x y w h time)
   (:method ((handler event-handler) win x y w h time)
     ))
 
-(defgeneric handler-repaint-event (handler win x y w h time)
+(defgeneric handle-repaint-event (handler win x y w h time)
   (:method ((handler event-handler) win x y w h time)
     ))
 
-(defgeneric handler-destroy-event (handler win time)
+(defgeneric handle-destroy-event (handler win time)
   (:method ((handler event-handler) win time)
     ))
 
-(defgeneric handler-wm-delete-event (handler win time)
+(defgeneric handle-wm-delete-event (handler win time)
   (:method ((handler event-handler) win time)
     ))
 

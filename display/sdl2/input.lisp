@@ -44,10 +44,9 @@
     ((> x 0)
      +pointer-wheel-right+)))
 
-(defun sdl2-event-handler (driver kernel timeout)
+(defun sdl2-event-handler (driver kernel)
   (sdl2:with-sdl-event (event)
     (let ((r (sdl2:next-event event)))
-      ;; :wait-with-timeout (if timeout (round (* 1000 timeout)) nil))))
       (when (< r 0)
         (log:error))
       (when (= r 0)

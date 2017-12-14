@@ -5,7 +5,7 @@
   ((port :initarg :port
          :reader handler-port)))
 
-(defmethod cldk:handler-button-event ((handler fb-event-handler) kind pointer button
+(defmethod cldk:handle-button-event ((handler fb-event-handler) kind pointer button
                                       win time)
   (let ((event
          (make-instance (if (eq kind :press)
@@ -24,7 +24,7 @@
 			:timestamp time)))
     (clim:distribute-event (handler-port handler) event)))
 
-(defmethod cldk:handler-wheel-event ((handler fb-event-handler) kind pointer win time)
+(defmethod cldk:handle-wheel-event ((handler fb-event-handler) kind pointer win time)
   (let ((event
          (make-instance 'pointer-button-press-event
                         :pointer pointer
@@ -39,7 +39,7 @@
 			:timestamp time)))
     (clim:distribute-event (handler-port handler) event)))
 
-(defmethod cldk:handler-motion-event ((handler fb-event-handler) pointer x y
+(defmethod cldk:handle-motion-event ((handler fb-event-handler) pointer x y
                                       root-x root-y win time)
     (let ((event
            (make-instance 'pointer-motion-event
@@ -55,7 +55,7 @@
                           :timestamp time)))
       (clim:distribute-event (handler-port handler) event)))
 
-(defmethod cldk:handler-key-event ((handler fb-event-handler) kind keyname character modifiers
+(defmethod cldk:handle-key-event ((handler fb-event-handler) kind keyname character modifiers
                                    win time)
   (let* ((sheet (climi::port-lookup-sheet (handler-port handler) win))
          (event
@@ -73,7 +73,7 @@
                          :timestamp time)))
       (clim:distribute-event (handler-port handler) event)))
 
-(defmethod cldk:handler-enter-leave-event ((handler fb-event-handler) kind pointer
+(defmethod cldk:handle-enter-leave-event ((handler fb-event-handler) kind pointer
                                            win time)
   (let* ((sheet (climi::port-lookup-sheet (handler-port handler) win))
          (button (cldk:event-handler-pressed-buttons handler))
@@ -101,7 +101,7 @@
                              :timestamp time))))
     (clim:distribute-event (handler-port handler) event)))
 
-(defmethod cldk:handler-configure-event ((handler fb-event-handler) win x y w h time)
+(defmethod cldk:handle-configure-event ((handler fb-event-handler) win x y w h time)
     (let* ((sheet (climi::port-lookup-sheet (handler-port handler) win))
            (event
             (make-instance 'window-configuration-event
@@ -111,7 +111,7 @@
                            :width w :height h)))
       (clim:distribute-event (handler-port handler) event)))
 
-(defmethod cldk:handler-repaint-event ((handler fb-event-handler) win x y w h time)
+(defmethod cldk:handle-repaint-event ((handler fb-event-handler) win x y w h time)
   (let* ((sheet (climi::port-lookup-sheet (handler-port handler) win))
          (event   (make-instance 'window-repaint-event
                                  :timestamp time
@@ -119,10 +119,10 @@
                                  :region (make-rectangle* x y (+ x w) (+ y h)))))
     (clim:distribute-event (handler-port handler) event)))
 
-(defmethod cldk:handler-destroy-event ((handler fb-event-handler) win time)
+(defmethod cldk:handle-destroy-event ((handler fb-event-handler) win time)
   (log:info "destroy"))
 
-(defmethod cldk:handler-wm-delete-event ((handler fb-event-handler) win time)
+(defmethod cldk:handle-wm-delete-event ((handler fb-event-handler) win time)
   (let ((event
          (make-instance 'window-manager-delete-event
                         :sheet (climi::port-lookup-sheet (handler-port handler) win)

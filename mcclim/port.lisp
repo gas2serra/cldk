@@ -146,6 +146,7 @@
   (let* ((port (port pointer))
 	 (sheet (port-pointer-sheet port)))
     (when sheet
+      (log:info sheet (sheet-mirror sheet))
       (multiple-value-bind (x y)
           (values-list (cldk:window-pointer-position (sheet-mirror sheet)))
         (untransform-position (sheet-native-transformation sheet) x y)))))

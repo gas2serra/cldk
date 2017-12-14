@@ -1,6 +1,6 @@
 (in-package :cldk-internals)
 
-(defclass buffered-window (window buffered-kwindow-mixin)
+(defclass buffered-window (window k-buffered-window-mixin)
   ((buffer-lock :initform (bt:make-lock "buffer"))))
 
 (defmethod initialize-instance :after ((win buffered-window) &key width height &allow-other-keys)

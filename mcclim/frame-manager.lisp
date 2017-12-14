@@ -84,6 +84,16 @@
 	 :port (port frame)
 	 args))
 
+(defmethod adopt-frame :before ((fm fb-frame-manager) (frame menu-frame))
+  ;; Temporary kludge.
+  (when (eq (slot-value frame 'climi::top) nil)
+    (multiple-value-bind (x y)
+        (values-list (cldk:screen-pointer-position (fb-port-server (port fm))))
+        ;;(xlib:query-pointer (clx-port-window (port fm)))
+      (incf x 10)
+      (setf (slot-value frame 'climi::left) x
+            (slot-value frame 'climi::top) y))))
+
 (defmethod adopt-frame :after ((fm fb-frame-manager) (frame menu-frame))
   (when (sheet-enabled-p (slot-value frame 'climi::top-level-sheet))
     (cldk:show-window (sheet-direct-mirror (slot-value frame 'top-level-sheet)))))

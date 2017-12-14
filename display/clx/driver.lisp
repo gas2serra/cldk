@@ -151,8 +151,9 @@
 
 (defmethod driver-destroy-window ((driver clx-driver) window)
   (with-slots (xwindow gcontext) window
-    (xlib:destroy-window xwindow)
-    ;; destroy gcontext
+    (when xwindow 
+      (xlib:destroy-window xwindow)
+      (xlib:free-gcontext gcontext))
     (setf window nil
           gcontext nil)))
 
@@ -290,7 +291,7 @@
 (defvar *clx-driver*)
 (defvar *clx-kernel*)
 
-(defmethod driver-process-next-event ((driver clx-driver) kernel &key timeout)
+(defmethod driver-process-next-event ((driver clx-driver) kernel)
   (with-slots (display) driver
     (if (not (xlib:event-listen display))
         nil
@@ -342,8 +343,12 @@
                          image
                          :src-x x :src-y y
                          :x to-x :y to-y
-                         :width  width
-                         :height height)))))
+                         :width  (min width
+                                      (- (driver-buffer-width buffer) x)
+                                      (- (xlib:image-width image) to-x))
+                         :height (min height
+                                      (- (driver-buffer-height buffer) y)
+                                      (- (xlib:image-height image) to-y)))))))
 
 (defmethod driver-copy-image-to-buffer ((driver clx-driver) image x y width height
                                         buffer)

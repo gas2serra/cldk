@@ -12,7 +12,7 @@
 (defmethod driver-force-output ((driver null-driver))
   (log:info driver))
 
-(defmethod driver-process-next-event ((driver null-driver) event-handler &key timeout)
+(defmethod driver-process-next-event ((driver null-driver) event-handler)
   (log:info driver)
   (sleep timeout))
 
