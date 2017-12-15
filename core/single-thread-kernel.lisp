@@ -51,6 +51,7 @@
                    result)
                (error (condition)
                  (log:error "~A ~A" (cdr com) condition)))))
+    (log:trace "~A" command)
     (if (cdr command)
         (let ((res (exec (car command))))
           (lparallel:fulfill (cdr command)
@@ -78,6 +79,7 @@
 (defmethod exec-callback ((kernel single-thread-kernel-mixin) command)
   (when *kernel-mode*
     (log:warn "a thread in kernel mode is calling the kernel: ~A" command))
+  (log:trace "~A" command)
   (%exec-call kernel command))
 
 ;;;

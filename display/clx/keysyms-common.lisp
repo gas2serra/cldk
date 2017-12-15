@@ -120,22 +120,20 @@
 
 ;;; This dictionary maps CLX keysym names to the power-of-two
 ;;; constants that the CLIM II specification requires.
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (defconstant +modifiers+
-    '(((:meta-left :meta-right) #.+meta-key+)
-      ((:hyper-left :hyper-right) #.+hyper-key+)
-      ((:super-left :super-right) #.+super-key+)
-      ((:shift-left :shift-right) #.+shift-key+)
-      ((:control-left :control-right) #.+control-key+))))
+(defconstant +modifiers+
+  '(((:meta-left :meta-right) #.+meta-key+)
+    ((:hyper-left :hyper-right) #.+hyper-key+)
+    ((:super-left :super-right) #.+super-key+)
+    ((:shift-left :shift-right) #.+shift-key+)
+    ((:control-left :control-right) #.+control-key+)))
 
 ;;; This dictionary maps CLX keysym names to the power-of-two
 ;;; constants that are not required by the CLIM II specification, but
 ;;; that we need anyway, in order to determine what keysym to choose
 ;;; based on current modifiers.
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (defconstant +other-modifiers+
-    '((:caps-lock #.+caps-lock+)
-      (:mode-switch #.+mode-switch+))))
+(defconstant +other-modifiers+
+  '((:caps-lock #.+caps-lock+)
+    (:mode-switch #.+mode-switch+)))
 
 ;;; We need a way to interpret the individual bits of an X11 modifier
 ;;; mask.  This is not a trivial thing to do, because X11 uses

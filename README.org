@@ -8,3 +8,8 @@
 |          |      | sdl2    | fail   |
 |          | elc  | clx     | ok     |
 |          |      | sdl2    | fail   |
+
+* Bug
+- enjoy 
+- SDL
+very broken. SDL error -1, configure is wrang. ecc ecc

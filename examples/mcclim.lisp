@@ -4,6 +4,10 @@
 (ql:quickload :clim-examples)
 
 #|
+(log:config '(cldki) :trace :daily "/tmp/cldk.log")
+|#
+
+#|
 (log:info (cldk:map-over-servers #'cldk:server-path))
 (cldk:map-over-servers #'cldk:destroy-server)
 (clim:map-over-ports #'clim:destroy-port)
@@ -14,3 +18,4 @@
 (defun demo (backend)
   (let ((clim:*default-server-path*  (list :cldk :cldk-driver backend)))
     (clim-demo:demodemo)))
+

@@ -71,7 +71,6 @@
                                         (if (eql mode :managed)
                                             '(:resizable :hidden)
                                             '(:hidden :borderless)))))
-    (log:info name pretty-name)
     (let ((window (sdl2::sdl-create-window pretty-name
                                            x
                                            y
@@ -229,9 +228,9 @@
                       (- (sdl2:surface-height surface) to-y))))
           (let ((texture (sdl2:create-texture-from-surface render surface)))
             (sdl2:with-rects
-                ((src x y w h))
+                ((src x y (1- w) (1- h)))
               (sdl2:with-rects
-                  ((dst to-x to-y w h))
+                  ((dst to-x to-y (1- w) (1- h)))
                 (sdl2:render-copy render
                                   texture :source-rect src
                                   :dest-rect dst)))
@@ -242,6 +241,7 @@
   (let ((bw (driver-buffer-width buffer)))
     (with-slots (surface) buffer
       (when surface
+        (sdl2-ffi.functions::sdl-lock-surface surface)
         (let ((data (sdl2:surface-pixels surface))
               (w (min width
                       (- (driver-buffer-width buffer) x)
@@ -266,14 +266,14 @@
                                data :UNSIGNED-INT (* 4
                                                      (+
                                                       (* j bw)
-                                                      i)))))))))))))
+                                                      i))))))))
+          (sdl2-ffi.functions::sdl-unlock-surface surface))))))
 
 (defmethod driver-grab-pointer ((driver sdl2-driver) window pointer)
   (with-slots (sdlwindow) window
     (let ((grab-result (SDL2-FFI.FUNCTIONS:SDL-SET-WINDOW-GRAB 
                         sdlwindow
                         1)))
-      (log:info grab-result)
       (if (eq grab-result :success)
           :success
           nil)
@@ -283,6 +283,5 @@
   (with-slots (sdlwindow) window
     (let ((grab-result (SDL2-FFI.FUNCTIONS:SDL-SET-WINDOW-GRAB 
                         sdlwindow
-                        0)))
-      (log:info grab-result))))
+                        0))))))
 

@@ -18,9 +18,11 @@
 
 (defmethod initialize-instance :after ((port fb-port) &rest args)
   (declare (ignore args))
-  (let ((options (cdr (port-server-path port))))
-    (let ((server (cldk:find-display-server :server-path (cons (getf options :cldk-driver :null)
-                                                       options))))
+  (let* ((options (cdr (port-server-path port)))
+         (driver (getf options :cldk-driver :null)))
+    (remf options :cldk-driver)
+    (let ((server (cldk:find-display-server :server-path (cons driver
+                                                               options))))
       (setf (fb-port-server port) server)
       (setf (cldk:server-event-handler server)
             (make-instance 'clim-fb::fb-event-handler :port port))))
