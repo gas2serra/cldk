@@ -226,16 +226,20 @@
               (h (min height
                       (- (driver-buffer-height buffer) y)
                       (- (sdl2:surface-height surface) to-y))))
-          (let ((texture (sdl2:create-texture-from-surface render surface)))
+          (let ((windsurf (sdl2-ffi.functions:sdl-get-window-surface sdlwindow)))
             (sdl2:with-rects
-                ((src x y (1- w) (1- h)))
-              (sdl2:with-rects
-                  ((dst to-x to-y (1- w) (1- h)))
+             ((src x y (1- w) (1- h)))
+             (sdl2:with-rects
+              ((dst to-x to-y (1- w) (1- h)))
+              (sdl2:blit-surface  surface src windsurf dst)
+              (sdl2:update-window sdlwindow))))
+          #+nil (let ((texture (sdl2:create-texture-from-surface render surface)))
+            
                 (sdl2:render-copy render
                                   texture :source-rect src
                                   :dest-rect dst)))
-            (sdl2::sdl-destroy-texture texture)
-            (sdl2:render-present render)))))))
+            #+nil(sdl2::sdl-destroy-texture texture)
+            #+nil(sdl2:render-present render)))))
 
 (defmethod driver-copy-image-to-buffer ((driver sdl2-driver) image x y width height buffer)
   (let ((bw (driver-buffer-width buffer)))

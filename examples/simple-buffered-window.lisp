@@ -16,7 +16,7 @@
                  (dpb red (byte 8 16)
                       (dpb alpha (byte 8 24) 0))))))
 
-(defun fill-bueffer (pixels w h r g b)
+(defun fill-buffer (pixels w h r g b)
   (loop for x from 0 to (1- w) do 
        (loop for y from 0 to (1- h) do
             (set-pixel pixels x y r g b 0))))

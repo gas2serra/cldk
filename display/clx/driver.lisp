@@ -377,32 +377,3 @@
 (defmethod driver-ungrab-pointer ((driver clx-driver) window pointer)
   (xlib:ungrab-pointer (clx-driver-display driver)))
 
-
-#|
-void SDL_SetWindowGrab(SDL_Window* window,
-                       SDL_bool    grabbed)
-SDL_bool SDL_GetWindowGrab(SDL_Window* window)
-SDL_Window* SDL_GetGrabbedWindow(void)
-
-
-XGrabKeyboard
-XUngrabKeyboard
-(defmethod port-grab-pointer ((port fb-clx-port) pointer sheet)
-  ;; FIXME: Use timestamps?
-  (let ((grab-result (xlib:grab-pointer
-		      (sheet-xmirror sheet)
-		      '(:button-press :button-release
-			:leave-window :enter-window
-			:pointer-motion :pointer-motion-hint)
-		      ;; Probably we want to set :cursor here..
-		      :owner-p t)))
-    (if (eq grab-result :success)
-	(setf (pointer-grab-sheet port) sheet)
-	nil)))
-
-(defmethod port-ungrab-pointer ((port fb-clx-port) pointer sheet)
-  (declare (ignore pointer))
-  (when (eq (pointer-grab-sheet port) sheet)
-    (xlib:ungrab-pointer (clx-port-display port))
-    (setf (pointer-grab-sheet port) nil)))
-|#
