@@ -1,4 +1,4 @@
-(in-package cldk-internals)
+(in-package cldk-image-internals)
 
 (defclass rectangle-set () 
   ((regions :initarg :regions :reader rectangle-set-regions)
