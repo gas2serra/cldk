@@ -8,14 +8,17 @@
   (let ((kwindow (lookup-server-object kernel window)))
     (when (and (typep kwindow 'k-buffered-window-mixin)
                (window-buffer kwindow))
-      (with-slots (dbuffer dbuffer-width dbuffer-height) kwindow
+      (with-slots (dbuffer dbuffer-width dbuffer-height image) kwindow
         (k-flush-buffered-window kwindow)
-        (driver-destroy-buffer (driver kwindow) dbuffer)
-        (setf dbuffer (driver-create-buffer
-                       (driver kwindow)
-                       width height)
-              dbuffer-width width
-              dbuffer-height height)))
+        (with-slots (pixels-lock) (k-buffered-window-image kwindow)
+          (bt:with-lock-held (pixels-lock)
+            (driver-destroy-buffer (driver kwindow) dbuffer)
+            (setf dbuffer (driver-create-buffer
+                           (driver kwindow)
+                           width height)
+                  dbuffer-width width
+                  dbuffer-height height)
+            (driver-update-image (driver kwindow) image dbuffer)))))
     (<e- kernel #'handle-configure-event kwindow x y width height time)))
 
 (defun k-handle-repaint-event (kernel window x y width height time)

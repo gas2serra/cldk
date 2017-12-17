@@ -191,23 +191,16 @@
 
 (defclass sdl2-buffer (driver-buffer)
   ((surface :initarg :surface
-            :initform nil)
-   (width :initarg :width
-          :reader driver-buffer-width)
-   (height :initarg :height
-           :reader driver-buffer-height)))
+            :initform nil)))
 
 (defmethod driver-create-buffer ((driver sdl2-driver) width height)
-  (let ((surface (sdl2:create-rgb-surface width height 32
-                                          :r-mask #x000000ff
-                                          :g-mask #x0000ff00
-                                          :b-mask #x00ff0000
-                                          :a-mask #xff000000)))
-    
+  (let* ((surface (sdl2:create-rgb-surface width height 32
+                                           :r-mask #x000000ff
+                                           :g-mask #x0000ff00
+                                           :b-mask #x00ff0000
+                                           :a-mask #xff000000)))
     (make-instance 'sdl2-buffer
-                   ;;:data (sdl2:surface-pixels surface)
-                   :surface surface
-                   :width width :height height)))
+                   :surface surface)))
 
 (defmethod driver-destroy-buffer ((driver sdl2-driver) buffer)
   (with-slots (surface) buffer
@@ -221,57 +214,31 @@
     (with-slots (surface) buffer
       (when (and surface sdlwindow)
         (let ((w (min width
-                      (- (driver-buffer-width buffer) x)
-                      (- (sdl2:surface-width surface) to-x)))
+                      (- (sdl2:surface-width surface) x)))
               (h (min height
-                      (- (driver-buffer-height buffer) y)
-                      (- (sdl2:surface-height surface) to-y))))
+                      (- (sdl2:surface-height surface) y))))
           (let ((windsurf (sdl2-ffi.functions:sdl-get-window-surface sdlwindow)))
             (sdl2:with-rects
              ((src x y (1- w) (1- h)))
              (sdl2:with-rects
               ((dst to-x to-y (1- w) (1- h)))
               (sdl2:blit-surface  surface src windsurf dst)
-              (sdl2:update-window sdlwindow))))
-          #+nil (let ((texture (sdl2:create-texture-from-surface render surface)))
-            
-                (sdl2:render-copy render
-                                  texture :source-rect src
-                                  :dest-rect dst)))
-            #+nil(sdl2::sdl-destroy-texture texture)
-            #+nil(sdl2:render-present render)))))
+              (sdl2:update-window sdlwindow)))))))))
 
-(defmethod driver-copy-image-to-buffer ((driver sdl2-driver) image x y width height buffer)
-  (let ((bw (driver-buffer-width buffer)))
-    (with-slots (surface) buffer
-      (when surface
-        (sdl2-ffi.functions::sdl-lock-surface surface)
-        (let ((data (sdl2:surface-pixels surface))
-              (w (min width
-                      (- (driver-buffer-width buffer) x)
-                      (- (sdl2:surface-width surface) x)))
-              (h (min height
-                      (- (driver-buffer-height buffer) y)
-                      (- (sdl2:surface-height surface) y))))
-          (when data
-                (loop for j from y to (+ y h -1) do
-                     (loop for i from x to (+ x w -1) do
-                          (let* ((pixel (aref (image-pixels image) j i)))
-                            (let ((red (ldb (byte 8 0) pixel))
-                                  (green (ldb (byte 8 8) pixel))
-                                  (blue (ldb (byte 8 16) pixel))
-                                  (alpha (ldb (byte 8 24) pixel)))
-                              (setf alpha 255)
-                              (cffi-sys:%mem-set
-                               (dpb blue (byte 8 0)
-                                    (dpb green (byte 8 8)
-                                         (dpb red (byte 8 16)
-                                              (dpb alpha (byte 8 24) 0))))
-                               data :UNSIGNED-INT (* 4
-                                                     (+
-                                                      (* j bw)
-                                                      i))))))))
-          (sdl2-ffi.functions::sdl-unlock-surface surface))))))
+
+(defmethod driver-create-image ((driver sdl2-driver)buffer)
+  (with-slots (surface) buffer
+    (make-instance 'cldki::sdl2-rgb-image
+                   :pixels (sdl2:surface-pixels surface)
+                   :width (sdl2:surface-width surface)
+                   :height (sdl2:surface-height surface))))
+
+(defmethod driver-update-image ((driver sdl2-driver) image buffer)
+  (with-slots (surface) buffer
+    (with-slots (cldki::pixels cldki::width cldki::height) image
+      (setf cldki::pixels (sdl2:surface-pixels surface)
+            cldki::width (sdl2:surface-width surface)
+            cldki::height (sdl2:surface-height surface)))))
 
 (defmethod driver-grab-pointer ((driver sdl2-driver) window pointer)
   (with-slots (sdlwindow) window

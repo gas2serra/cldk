@@ -31,10 +31,7 @@
         (make-instance 'fb-pointer :port port))
   (clim-extensions:port-all-font-families port)
   (push (make-instance 'fb-frame-manager :port port)
-	(slot-value port 'frame-managers))
-  (log:info (port-server-path port)))
-
-
+	(slot-value port 'frame-managers)))
 
   
 (defun round-coordinate (x)
@@ -148,7 +145,6 @@
   (let* ((port (port pointer))
 	 (sheet (port-pointer-sheet port)))
     (when sheet
-      (log:info sheet (sheet-mirror sheet))
       (multiple-value-bind (x y)
           (values-list (cldk:window-pointer-position (sheet-mirror sheet)))
         (untransform-position (sheet-native-transformation sheet) x y)))))
@@ -194,7 +190,6 @@
       (let ((mirror (sheet-direct-mirror sheet))
             (eh (cldk:server-event-handler
                  (fb-port-server port))))
-        (log:info (cldk:event-handler-cur-x eh) (cldk:event-handler-cur-y eh))
 	(when mirror
 	  (multiple-value-bind (x y)
 	      (values-list (cldk:window-pointer-position mirror))

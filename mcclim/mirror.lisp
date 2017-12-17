@@ -3,6 +3,7 @@
 (defclass fb-mirror (image-mirror-mixin cldk:buffered-window)
   ((width :initform 0)
    (height :initform 0)
+   (image-family :initform :two-dim-array)
    (xlib-image :initform nil)
    (buffer :initarg buffer)
    (dirty-xr :initform +nowhere+)
@@ -97,7 +98,7 @@
 
 (defun image-mirror-pre-put (width height window sheet xlib-image dirty-r)
   (let ((pixels (image-pixels (image-mirror-image sheet))))
-    (declare (type opticl-rgb-image-pixels pixels))
+    (declare (type rgb-image-pixels pixels))
     (let ((rs  nil))
       (map-over-region-set-regions
        #'(lambda (region)
@@ -111,14 +112,31 @@
                                                      (max 0 max-x)
                                                      (max 0 max-y))))
                                           #+nil (log:info "pre: " min-x min-y max-x max-y window)
-                                          (when (and window)
+                                          #+nil (when (and window)
                                             (opticl:do-region-pixels (y x min-y min-x max-y max-x)
                                                 pixels
                                               (multiple-value-bind (red green blue)
                                                   (opticl:pixel pixels y x)
                                                 (xlib-image-data-set-pixel xlib-image x y red green blue))))))
        dirty-r)
-      (cldki::copy-image-to-buffered-window* window (make-instance 'cldk:image
+      (let ((img (make-instance 'cldk:rgb-image
+                                :pixels pixels
+                                :width width
+                                :height height)))
+        (cldki::copy-image* img rs (cldk:buffered-window-image window) 0 0)
+        #+nil (cldki::map-over-rectangle-set-regions 
+         #'(lambda (x1 y1 x2 y2)
+             (cldk:copy-image img
+                              (max x1 0)
+                              (max y1 0)
+                              (- x2 x1)
+                              (- y2 y1)
+                              (cldk:buffered-window-image window)
+                              (max x1 0)
+                              (max y1 0)
+                              ))
+         rs))
+      #+nil (cldki::copy-image-to-buffered-window* window (make-instance 'cldk:rgb-image
                                                            :pixels xlib-image
                                                            :width width
                                                            :height height)

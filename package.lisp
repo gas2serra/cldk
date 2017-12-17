@@ -69,6 +69,8 @@
    #:ungrab-window-pointer
    #:set-window-cursor
 
+   #:rgb-image
+   #:copy-image
    #:image
    #:image-width
    #:image-height
@@ -78,6 +80,7 @@
    #:create-buffered-window
    #:copy-image-to-buffered-window
    #:flush-buffered-window
+   #:buffered-window-image
    ))
 
 (defpackage :cldk-extension
@@ -140,7 +143,8 @@
    #:driver-create-buffer
    #:driver-destroy-buffer
    #:driver-copy-buffer-to-window
-   #:driver-copy-image-to-buffer
+   #:driver-create-image
+   #:driver-update-image
 
    #:k-handle-window-configuration-event
    #:k-handle-repaint-event

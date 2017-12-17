@@ -14,5 +14,6 @@
                (:file "keysyms" :depends-on ("package" "keysyms-common"))
                (:file "server" :depends-on ("package" "driver"))
                (:file "input" :depends-on ("package"))
-               (:file "driver" :depends-on ("package" "input")))
+               (:file "image" :depends-on ("package"))
+               (:file "driver" :depends-on ("package" "input" "image")))
   :description "SDL2 Backend for Common Lisp Drawing Kit")

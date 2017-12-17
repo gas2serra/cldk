@@ -308,11 +308,7 @@
 (defclass clx-buffer (driver-buffer)
   ((image :initarg :image)
    (data :initarg :data
-         :reader driver-buffer-data)
-   (width :initarg :width
-          :reader driver-buffer-width)
-   (height :initarg :height
-           :reader driver-buffer-height)))
+         :reader driver-buffer-data)))
 
 (defmethod driver-create-buffer ((driver clx-driver) width height)
   (let* ((data (make-array (list height width)
@@ -323,9 +319,16 @@
                                    :depth 24
                                    :width width
                                    :height height
+                                   :blue-mask #x000000ff
+                                   :green-mask #x0000ff00
+                                   :red-mask #x00ff0000
                                    :format :z-pixmap)))
-    (make-instance 'clx-buffer :data data :image image :width width :height height)))
-                   
+    (make-instance 'clx-buffer :data data :image image)))
+
+(defmethod driver-update-buffer ((driver clx-driver) buffer)
+  (with-slots (data image) buffer
+    (setf data nil
+          image nil)))
 
 (defmethod driver-destroy-buffer ((driver clx-driver) buffer)
   (with-slots (data image) buffer
@@ -344,21 +347,23 @@
                          :src-x x :src-y y
                          :x to-x :y to-y
                          :width  (min width
-                                      (- (driver-buffer-width buffer) x)
-                                      (- (xlib:image-width image) to-x))
+                                      (- (xlib:image-width image) x))
                          :height (min height
-                                      (- (driver-buffer-height buffer) y)
-                                      (- (xlib:image-height image) to-y)))))))
+                                      (- (xlib:image-height image) y)))))))
 
-(defmethod driver-copy-image-to-buffer ((driver clx-driver) image x y width height
-                                        buffer)
-  (let ((data (driver-buffer-data buffer)))
-    (when data
-      (loop for j from y to (+ y height -1) do
-           (loop for i from x to (+ x width -1) do
-                (let* ((pixel (aref (image-pixels image) j i)))
-                  (setf (aref data j i)
-                        pixel)))))))
+(defmethod driver-create-image ((driver clx-driver) buffer)
+  (with-slots (data image) buffer
+    (make-instance 'cldki::clx-rgb-image
+                   :pixels data 
+                   :width (xlib:image-width image)
+                   :height (xlib:image-height image))))
+
+(defmethod driver-update-image ((driver clx-driver) img buffer)
+  (with-slots (image data) buffer
+    (with-slots (cldki::pixels cldki::width cldki::height) img
+      (setf cldki::pixels data
+            cldki::width (xlib:image-width image)
+            cldki::height (xlib:image-height image)))))
 
 (defmethod driver-grab-pointer ((driver clx-driver) window pointer)
   (with-slots (xwindow) window
@@ -376,4 +381,3 @@
 
 (defmethod driver-ungrab-pointer ((driver clx-driver) window pointer)
   (xlib:ungrab-pointer (clx-driver-display driver)))
-
