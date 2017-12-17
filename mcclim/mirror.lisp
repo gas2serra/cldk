@@ -4,10 +4,7 @@
   ((width :initform 0)
    (height :initform 0)
    (image-family :initform :two-dim-array)
-   (xlib-image :initform nil)
-   (buffer :initarg buffer)
-   (dirty-xr :initform +nowhere+)
-   (skip-count :initform 0)))
+   (img :initform nil)))
 
 (defmethod destroy-mirror ((port fb-port) (sheet mirrored-sheet-mixin))
   (when (port-lookup-mirror port sheet)
@@ -49,143 +46,41 @@
 (defmethod mcclim-render-internals::%create-mirror-image :after ((sheet fb-mirror) w h)
   (with-slots (mcclim-render-internals::dirty-region) sheet
     (setf mcclim-render-internals::dirty-region nil))
-  ;;(let ((data (mcclim-render::image-pixels (image-mirror-image sheet))))
-    (with-slots (width height xlib-image buffer) sheet
+    (with-slots (width height img) sheet
       (setf width w
-	    height h)
-      (setf xlib-image (make-array (list height width)
-                                   :element-type '(unsigned-byte 32)
-                                   :initial-element #x00FFFFFF))
-      ))
+	    height h
+            img (make-instance 'cldk:rgb-image
+                                :pixels (image-pixels (image-mirror-image sheet))
+                                :width w
+                                :height h))))
 
-(defgeneric image-mirror-to-x (sheet))
-
-(defmethod image-mirror-to-x ((sheet image-mirror-mixin))
-  )
-
-(defun image-mirror-put (width height window xlib-image dirty-r)
-  #+nil (map-over-region-set-regions #'(lambda (region)
-				   (clim:with-bounding-rectangle* (min-x min-y max-x max-y)
-				     (region-intersection region
-							  (make-rectangle* 0 0 width height))
-				     (let ((w (round (- max-x min-x)))
-					   (h (round (- max-y min-y))))
-				       (when (and window xlib-image)
-					 (cldk:copy-image-to-buffered-window
-                                          window
-                                          (make-instance 'cldk:image
-                                                         :pixels xlib-image
-                                                         :width width
-                                                         :height height)
-                                          (round (max min-x 0))
-                                          (round (max min-y 0))
-                                          w 
-                                          h 
-                                          (round (max min-x 0))
-                                          (round (max min-y 0))
-                                          )))))
-
-                               dirty-r)
-  #+nil (when dirty-r
-    (cldk:flush-buffered-window window)))
-
-(declaim (inline xlib-image-data-set-pixel))
-(defun xlib-image-data-set-pixel (data x y red green blue)
-  (setf (aref data y x)
-	(dpb blue (byte 8 0)
-	     (dpb green (byte 8 8)
-		  (dpb red (byte 8 16) 0)))))
-
-(defun image-mirror-pre-put (width height window sheet xlib-image dirty-r)
-  (let ((pixels (image-pixels (image-mirror-image sheet))))
+(defun image-mirror-pre-put (width height mirror dirty-r)
+  (let ((pixels (image-pixels (image-mirror-image mirror))))
     (declare (type rgb-image-pixels pixels))
     (let ((rs  nil))
       (map-over-region-set-regions
        #'(lambda (region)
            (clim:with-bounding-rectangle* (min-x min-y max-x max-y)
-                                          (region-intersection region (make-rectangle* 0 0 (1- width) (1- height)))
-                                          (setf rs (cldki::rectangle-set-union
-                                                    rs
-                                                    (cldki::rectangle->rectangle-set
-                                                     (max 0 min-x)
-                                                     (max 0 min-y)
-                                                     (max 0 max-x)
-                                                     (max 0 max-y))))
-                                          #+nil (log:info "pre: " min-x min-y max-x max-y window)
-                                          #+nil (when (and window)
-                                            (opticl:do-region-pixels (y x min-y min-x max-y max-x)
-                                                pixels
-                                              (multiple-value-bind (red green blue)
-                                                  (opticl:pixel pixels y x)
-                                                (xlib-image-data-set-pixel xlib-image x y red green blue))))))
+               (region-intersection region
+                                    (make-rectangle* 0 0 (1- width) (1- height)))
+             (setf rs (cldki::rectangle-set-union
+                       rs
+                       (cldki::rectangle->rectangle-set
+                        (max 0 min-x)
+                        (max 0 min-y)
+                        (max 0 max-x)
+                        (max 0 max-y))))))
        dirty-r)
-      (let ((img (make-instance 'cldk:rgb-image
-                                :pixels pixels
-                                :width width
-                                :height height)))
-        (cldki::copy-image* img rs (cldk:buffered-window-image window) 0 0)
-        #+nil (cldki::map-over-rectangle-set-regions 
-         #'(lambda (x1 y1 x2 y2)
-             (cldk:copy-image img
-                              (max x1 0)
-                              (max y1 0)
-                              (- x2 x1)
-                              (- y2 y1)
-                              (cldk:buffered-window-image window)
-                              (max x1 0)
-                              (max y1 0)
-                              ))
-         rs))
-      #+nil (cldki::copy-image-to-buffered-window* window (make-instance 'cldk:rgb-image
-                                                           :pixels xlib-image
-                                                           :width width
-                                                           :height height)
-                                           rs))))
-    #+nil (map-over-region-set-regions #'(lambda (region)
-                                     (clim:with-bounding-rectangle* (min-x min-y max-x max-y)
-                                       (region-intersection region
-                                                            (make-rectangle* 0 0 width height))
-                                       (let ((w (round (- max-x min-x)))
-                                             (h (round (- max-y min-y))))
-                                         (when (and window xlib-image)
-                                           (cldk:copy-image-to-buffered-window
-                                            window
-                                            (make-instance 'cldk:image
-                                                           :pixels xlib-image
-                                                           :width width
-                                                           :height height)
-                                            (round (max min-x 0))
-                                            (round (max min-y 0))
-                                            w 
-                                            h 
-                                            (round (max min-x 0))
-                                            (round (max min-y 0))
-                                            )))))
-                                 dirty-r)
-
-(defmethod image-mirror-to-x ((sheet fb-mirror))
-  (declare (optimize speed))
-  (with-slots (xlib-image mcclim-render-internals::image-lock
-		       mcclim-render-internals::dirty-region  mcclim-render-internals::finished-output MCCLIM-RENDER-INTERNALS::updating-p
-		       width height dirty-xr skip-count)
-      sheet
-    (when (not (region-equal dirty-xr +nowhere+))
-      (let ((reg))
-        (climi::with-lock-held (mcclim-render-internals::image-lock)
-          (setf reg dirty-xr)
-          (setf dirty-xr +nowhere+))
-        (image-mirror-put width height sheet xlib-image reg)))))
-
-
-
+      (with-slots (img) mirror
+        (cldki::copy-image* img rs (cldk:buffered-window-image mirror) 0 0)))))
 
 (defmethod mcclim-render-internals::%mirror-force-output ((mirror fb-mirror))
-  (with-slots (mcclim-render-internals::image-lock mcclim-render-internals::dirty-region dirty-xr width height 
-                          xlib-image)
+  (with-slots (mcclim-render-internals::image-lock
+               mcclim-render-internals::dirty-region
+               dirty-xr width height)
       mirror
     (when mcclim-render-internals::dirty-region
       (climi::with-lock-held (mcclim-render-internals::image-lock)
         (when mcclim-render-internals::dirty-region
-          (setf dirty-xr (region-union dirty-xr mcclim-render-internals::dirty-region))
-          (image-mirror-pre-put width height mirror mirror xlib-image dirty-xr)
+          (image-mirror-pre-put width height mirror mcclim-render-internals::dirty-region)
           (setf mcclim-render-internals::dirty-region nil))))))

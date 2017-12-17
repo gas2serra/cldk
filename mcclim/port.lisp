@@ -60,7 +60,7 @@
 
 (defmethod destroy-mirror ((port fb-port) (pixmap image-pixmap-mixin))
   (when (port-lookup-mirror port pixmap)
-    (destroy-mirror port pixmap)))
+    (port-unregister-mirror port pixmap (port-lookup-mirror port pixmap))))
 
 (defmethod realize-mirror ((port fb-port) (pixmap image-pixmap-mixin))
   (setf (sheet-parent pixmap) (graft port))
@@ -127,7 +127,8 @@
     pixmap))
 
 (defmethod port-deallocate-pixmap ((port fb-port) pixmap)
-  )
+  (when (climi::port-lookup-mirror port pixmap)
+    (destroy-mirror port pixmap)))
 
 (defmethod port-set-mirror-region ((port fb-port) mirror mirror-region)
   (cldk:set-window-size mirror

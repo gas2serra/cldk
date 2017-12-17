@@ -212,21 +212,23 @@
                                          window to-x to-y)
   (with-slots (sdlwindow render) window
     (with-slots (surface) buffer
-      (when (and surface sdlwindow)
+      (when (and surface sdlwindow
+                 (>= x 0) (>= y 0) (> width 0) (> height 0) (>= to-x 0) (>= to-y 0))
         (let ((w (min width
                       (- (sdl2:surface-width surface) x)))
               (h (min height
                       (- (sdl2:surface-height surface) y))))
           (let ((windsurf (sdl2-ffi.functions:sdl-get-window-surface sdlwindow)))
             (sdl2:with-rects
-             ((src x y (1- w) (1- h)))
+             ((src x y  w h))
              (sdl2:with-rects
-              ((dst to-x to-y (1- w) (1- h)))
-              (sdl2:blit-surface  surface src windsurf dst)
-              (sdl2:update-window sdlwindow)))))))))
+              ((dst to-x to-y  w h))
+               (sdl2:blit-surface  surface src windsurf dst)
+               (sdl2-ffi.functions:sdl-update-window-surface-rects sdlwindow dst 1)
+                #+nil (sdl2:update-window sdlwindow)))))))))
 
 
-(defmethod driver-create-image ((driver sdl2-driver)buffer)
+(defmethod driver-create-image ((driver sdl2-driver) buffer)
   (with-slots (surface) buffer
     (make-instance 'cldki::sdl2-rgb-image
                    :pixels (sdl2:surface-pixels surface)

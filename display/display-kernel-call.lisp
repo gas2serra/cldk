@@ -121,8 +121,7 @@
    (dbuffer-width :initform nil)
    (dbuffer-height :initform nil)
    (image :initform nil)
-   (last-refresh-time :initform nil)
-   (updated-region-set :initform nil)))
+   (last-refresh-time :initform nil)))
 
 (defun k-initialize-buffered-window (kwindow width height)
   (check-kernel-mode)
@@ -134,40 +133,10 @@
 (defun k-destroy-buffered-window (window)
   (check-kernel-mode)
   (driver-destroy-buffer (driver window) (window-buffer window)))
-#|  
-(defun k-copy-image-to-buffered-window* (kwindow image rectangle-set)
-  (check-kernel-mode)
-  (with-slots (dbuffer dbuffer-width dbuffer-height updated-region-set) kwindow
-    (when dbuffer
-      (map-over-rectangle-set-regions 
-       #'(lambda (x1 y1 x2 y2)
-           (driver-copy-image-to-buffer (driver kwindow) image
-                                        (max x1 0)
-                                        (max y1 0)
-                                        (min (- x2 x1) dbuffer-width)
-                                        (min (- y2 y1) dbuffer-height)
-                                        dbuffer))
-       rectangle-set))
-    (setf updated-region-set (rectangle-set-union
-                              updated-region-set
-                              rectangle-set))))
-|#
-(defun k-copy-image-to-buffered-window (kwindow image x y width height)
-  (check-kernel-mode)
-  (with-slots (dbuffer dbuffer-width dbuffer-height updated-region-set) kwindow
-    (setf width (min width dbuffer-width)
-          height (min height dbuffer-height)
-          x (max x 0)
-          y (max y 0))
-    (driver-copy-image-to-buffer (driver kwindow) image x y width height dbuffer)
-    (setf updated-region-set (rectangle-set-union
-                              updated-region-set
-                              (rectangle->rectangle-set x y
-                                                        (+ x width) (+ y height))))))
 
 (defun k-flush-buffered-window (kwindow)
   (check-kernel-mode)
-  (with-slots (dbuffer updated-region-set) kwindow
+  (with-slots (dbuffer) kwindow
     (when (and dbuffer (k-buffered-window-image kwindow))
       (with-slots (updated-region-set pixels-lock) (k-buffered-window-image kwindow)
         (bt:with-lock-held (pixels-lock)

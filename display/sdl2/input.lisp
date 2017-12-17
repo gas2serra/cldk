@@ -226,9 +226,11 @@
                                                pos-x pos-y
                                                data1 data2 time))))
                  (t
-                  
-                  (log:info "Bo: ~a ~A ~A ~A ~A~%" e (list w win) time data1 data2)
-                  nil))))
+                   (multiple-value-bind (w h)
+                       (sdl2:get-window-size (sdl2-ffi.functions::sdl-get-window-from-id w))
+                     (k-handle-repaint-event kernel win 0 0 w h time))
+                   (log:info "Bo: ~a ~A ~A ~A ~A~%" e (list w win) time data1 data2)
+                   nil))))
             (t
              (log:debug "event ~A" etype))))
         t))))

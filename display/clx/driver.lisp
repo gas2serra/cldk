@@ -340,16 +340,17 @@
                                          window to-x to-y)
   (with-slots (xwindow gcontext) window
     (with-slots (image) buffer
-      (when image
+      (when (and image
+                 (>= x 0) (>= y 0) (> width 0) (> height 0) (>= to-x 0) (>= to-y 0))
         (xlib::put-image xwindow
                          gcontext
                          image
                          :src-x x :src-y y
                          :x to-x :y to-y
-                         :width  (min width
-                                      (- (xlib:image-width image) x))
-                         :height (min height
-                                      (- (xlib:image-height image) y)))))))
+                         :width  (max 0 (min width
+                                             (- (xlib:image-width image) x)))
+                         :height (max 0 (min height
+                                             (- (xlib:image-height image) y))))))))
 
 (defmethod driver-create-image ((driver clx-driver) buffer)
   (with-slots (data image) buffer
@@ -374,7 +375,6 @@
                           :pointer-motion :pointer-motion-hint)
                         ;; Probably we want to set :cursor here..
                         :owner-p t)))
-      (log:info grab-result)
       (if (eq grab-result :success)
           :success
           nil))))

@@ -149,10 +149,10 @@
 (defmethod %copy-image :around ((src-img image-mixin) sx sy width height
                                (dst-img image-mixin) x y)
   ;; TO FIX: check image bounds
-  (call-next-method src-img (round sx) (round sy)
-                    (min (round width) (- (image-width dst-img) (round x)))
-                    (min (round height) (- (image-height dst-img) (round y)))
-                    dst-img (round x) (round y)))
+  (call-next-method src-img (max (round sx) 0) (max (round sy) 0)
+                    (max 0 (min (round width) (- (image-width dst-img) (max (round x) 0))))
+                    (max 0 (min (round height) (- (image-height dst-img) (max (round y) 0))))
+                    dst-img (max (round x) 0) (max (round y) 0)))
 
 (defmethod copy-image :around (src-img sx sy width height
                                (dst-img buffer-image-mixin) x y)
