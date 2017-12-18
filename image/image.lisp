@@ -51,9 +51,9 @@
 
 (defmethod copy-image* (src-image rectangle-set dst-image dx dy)
   (map-over-rectangle-set-regions
-    #'(lambda (x1 y1 x2 y2)
-        (%copy-image src-image x1 y1 (- x2 x1) (- y2 y1) dst-image (+ dx x1) (+ dy y1)))
-    rectangle-set))
+   #'(lambda (x1 y1 x2 y2)
+       (%copy-image src-image x1 y1 (- x2 x1) (- y2 y1) dst-image (+ dx x1) (+ dy y1)))
+   rectangle-set))
 
 ;;;
 ;;; Two dimensional array of pixels

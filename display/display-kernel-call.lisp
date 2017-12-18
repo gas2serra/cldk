@@ -171,5 +171,6 @@
 (defun k-buffered-window-image (window)
   (with-slots (image dbuffer) window
     (unless image
-      (setf image (driver-create-image (driver window) dbuffer)))
+      (when dbuffer
+        (setf image (driver-create-image (driver window) dbuffer))))
     image))

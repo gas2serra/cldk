@@ -57,7 +57,8 @@
 (defun image-mirror-pre-put (width height mirror dirty-r)
   (let ((pixels (image-pixels (image-mirror-image mirror))))
     (declare (type rgb-image-pixels pixels))
-    (let ((rs  nil))
+    (let ((rs  nil)
+          (cldki::*epsilon* 2))
       (map-over-region-set-regions
        #'(lambda (region)
            (clim:with-bounding-rectangle* (min-x min-y max-x max-y)
@@ -72,7 +73,9 @@
                         (max 0 max-y))))))
        dirty-r)
       (with-slots (img) mirror
-        (cldki::copy-image* img rs (cldk:buffered-window-image mirror) 0 0)))))
+        (let ((dimg (cldk:buffered-window-image mirror)))
+          (when dimg
+            (cldki::copy-image* img rs (cldk:buffered-window-image mirror) 0 0)))))))
 
 (defmethod mcclim-render-internals::%mirror-force-output ((mirror fb-mirror))
   (with-slots (mcclim-render-internals::image-lock

@@ -1,4 +1,6 @@
-(in-package cldk-internals)
+(in-package :cldk-internals)
+
+(defparameter *epsilon* 0)
 
 (defclass rectangle-set () 
   ((regions :initarg :regions :reader rectangle-set-regions)
@@ -67,29 +69,33 @@
                     (rectangle-set-bands ys)))))
 
 (defun bands-op (as bs isum-op z0 a b)
-  (let (z1)
+  (let ((z1)
+        (rest)
+        (isum))
     (cond ((and (null as) (null bs))
            (if z0
                (list (cons z0 nil))
              nil))
           (t
-           (setq z1 (cond ((null as) (caar bs))
-                          ((null bs) (caar as))
-                          (t (min (caar as) (caar bs)))))
-           (let ((rest (bands-op (if (and as (= z1 (caar as))) (cdr as) as)
-                                 (if (and bs (= z1 (caar bs))) (cdr bs) bs)
-                                 isum-op
-                                 z1
-                                 (if (and as (= z1 (caar as))) (cdar as) a)
-                                 (if (and bs (= z1 (caar bs))) (cdar bs) b)))
-                 (isum (funcall isum-op a b)))
+           (progn
+             (setq z1 (cond ((null as) (caar bs))
+                            ((null bs) (caar as))
+                            (t (min (caar as) (caar bs)))))
+             (setq rest (bands-op (if (and as (= (- z1 (caar as)) 0)) (cdr as) as)
+                                  (if (and bs (= (- z1 (caar bs)) 0)) (cdr bs) bs)
+                                  isum-op
+                                  z1
+                                  (if (and as (= (- z1 (caar as)) 0)) (cdar as) a)
+                                  (if (and bs (= (- z1 (caar bs)) 0)) (cdar bs) b))))
+           (setq isum (funcall isum-op a b))
+           
              (if z0  
                  (if (and rest (equal isum (cdar rest)))
                      (cons (cons z0 isum)
                            (cdr rest))
                    (cons (cons z0 isum)
                          rest))
-               rest))) )))
+               rest))) ))
 
 (defun canon-empty-bands (x)
   (cond ((null (cdr x)) nil)
@@ -99,7 +105,8 @@
   (canon-empty-bands (bands-op as bs #'isum-union* nil nil nil)))
 
 (defun isum-union* (xs ys)
-  (isum-op xs ys boole-ior 0 0 nil))
+  (let ((res (isum-op xs ys boole-ior 0 0 nil)))
+    res))
 
 (defun isum-op (as bs boole-op in-a in-b x0)
   (let (x)
@@ -114,20 +121,22 @@
                   (setq in-b (- 1 in-b))
                   (setq x (pop bs)))
 
-                 ((< (first as) (first bs))
+                 ((< (- (first as) (first bs)) (- *epsilon*))
                   (setq in-a (- 1 in-a))
                   (setq x (pop as)))
                  
-                 ((< (first bs) (first as))
+                 ((< (- (first bs) (first as)) (- *epsilon*))
                   (setq in-b (- 1 in-b))
                   (setq x (pop bs)))
 
                  (t
                   (setq in-a (- 1 in-a)
                         in-b (- 1 in-b))
-                  (setq x (pop as))
-                  (pop bs)))
-           
+                  (if x0
+                      (setq x (max (pop bs)
+                                   (pop as)))
+                      (setq x (min (pop bs)
+                                   (pop as))))))
            (cond ((zerop (boole boole-op in-a in-b))
                   (if x0 
                       (list* x0 x (isum-op as bs boole-op in-a in-b nil))
@@ -141,11 +150,18 @@
 ;;;;;
 
 #|
-(defparameter rs (rectangle->rectangle-set 0 0  20 20)) 
-(setf rs (rectangle-set-union rs (rectangle->rectangle-set 10 10  30 30)))
-(setf rs (rectangle-set-union rs (rectangle->rectangle-set 10 0  30 10)))
+(defparameter *rects* (list 
+                       '(0 0 20 30) 
+                       '(30 0 50 40)
+                       ;;'(50 0 80 20)))
+                       ))
+(defparameter rs nil)
+(dolist (rect *rects*)
+  (setf rs (rectangle-set-union rs (rectangle->rectangle-set (elt rect 0) (elt rect 1) (elt rect 2) (elt rect 3)))))
 (map-over-rectangle-set-regions #'(lambda (x1 y1 x2 y2) (format t "~A" (list x1 y1 x2 y2))) rs)
 
+(0 0 20 20)(30 0 80 20)(0 20 20 30)(30 20 50 30)(30 30 50 40)
 
-
+(0 0 20 20)(30 0 50 20)(50 0 80 20)(0 20 20 30)(30 20 50 30)(30 30 50 40)
 |#
+
