@@ -3,22 +3,14 @@
 (defclass clx-driver (display-driver keysym-driver-mixin)
   ((display :initform nil :reader clx-driver-display)
    (screen :initform nil)
-   (root-window :initform nil)
-   (derror :initform nil
-           :accessor driver-error)))
+   (root-window :initform nil)))
 
 (defun clx-error-handler (display error-name
 			  &rest args
-			  &key major asynchronous &allow-other-keys)
+			  &key major &allow-other-keys)
   (warn "Received CLX ~A (~A) in process ~W for display ~W."
         error-name major (bt:thread-name (bt:current-thread)) display)
-  ;; We ignore all asynchronous errors to keep the connection.
-  ;; 42 is SetInputFocus, we ignore match-errors from that.
-  (apply #'xlib::x-error error-name :display display args)
-  #+nil (unless (or asynchronous
-              (and (eql major 42)
-                   (eq error-name 'xlib:match-error)))
-    (apply #'xlib:default-error-handler display error-name args)))
+  (apply #'xlib:default-error-handler display error-name args))
 
 (defmethod driver-start ((driver clx-driver))
   (with-slots (display screen root-window) driver
@@ -30,33 +22,57 @@
       (setf screen (nth (getf options :screen-id 0)
                         (xlib:display-roots display)))
       (setf root-window (xlib:screen-root screen))
-      (setf (xlib:display-error-handler display)
-            #'clx-error-handler))))
+      (setf (xlib:display-error-handler display) #'clx-error-handler))))
 
 (defmethod driver-stop ((driver clx-driver))
   (with-slots (display screen root-window) driver
-    (handler-case
-        (xlib:close-display display)
-      (stream-error ()
-        (xlib:close-display display :abort t)))
-    (setf display nil
-          screen nil
-          root-window nil)))
+    (when display
+      (handler-case
+          (xlib:close-display display)
+        (stream-error ()
+          (xlib:close-display display :abort t)))
+      (setf display nil
+            screen nil
+            root-window nil))))
+
+(defmethod driver-kill ((driver clx-driver))
+  (with-slots (display) driver
+    (xlib:close-display display :abort t)
+    (setf display nil)))
+
+(defmethod driver-ping ((driver clx-driver))
+  (with-slots (display) driver
+    (and display (xlib:display-xid display))))
 
 (defmethod driver-force-output ((driver clx-driver))
   (with-slots (display) driver
     (xlib:display-force-output display)))
 
+;;; events
+
+(defvar *clx-driver*)
+(defvar *clx-kernel*)
+(defvar *clx-error*)
+
+(defmethod driver-process-next-event ((driver clx-driver) kernel)
+  (with-slots (display) driver
+    (if (not (xlib:event-listen display))
+        nil
+        (let ((*clx-driver* driver)
+              (*clx-kernel* kernel)
+              (*clx-error* nil))
+          (xlib:process-event display :timeout 0
+                              :handler #'clx-event-handler :discard-p t)
+          (when *clx-error*
+            (error *clx-error*))
+          t))))
+
+;;; screens
 (defmethod driver-screen-num ((driver clx-driver))
   (with-slots (display) driver
     (length (xlib:display-roots display))))
 
 (defmethod driver-screen-size ((driver clx-driver) screen-index units)
-  #|
-  (log:info (xlib:display-roots display))
-  (log:info (xlib:screen-root screen))
-  (log:info (xlib:drawable-width (xlib:screen-root screen)))
-  |#
   (let ((screen (if screen-index
                     (with-slots (display) driver
                       (nth screen-index
@@ -110,7 +126,7 @@
 
 (defmethod driver-create-window ((driver clx-driver) name pretty-name x y
                                  width height mode)
-  (let ((background '(0.5 0.3 0.1)))
+  (let ((background '(1 1 1)))
     (with-slots (screen) driver
       (let* ((color (multiple-value-bind (r g b)
                         (values-list background)
@@ -144,7 +160,8 @@
             (xlib:change-property window
                                   :WM_CLIENT_LEADER (list (xlib:window-id window))
                                   :WINDOW 32))
-          (make-instance 'clx-window :xwindow window
+          (make-instance 'clx-window
+                         :xwindow window
                          :gcontext (xlib:create-gcontext :drawable window
                                                          :background (values 0 0 0)
                                                          :foreground (values 255 255 255))))))))
@@ -286,85 +303,64 @@
     (with-slots (xcursor) cursor
     (setf (xlib:window-cursor xwindow) xcursor))))
 
-;;; events
-
-(defvar *clx-driver*)
-(defvar *clx-kernel*)
-
-(defmethod driver-process-next-event ((driver clx-driver) kernel)
-  (with-slots (display) driver
-    (if (not (xlib:event-listen display))
-        nil
-        (let ((*clx-driver* driver)
-              (*clx-kernel* kernel))
-          (progn
-            (setf (driver-error driver) nil)
-            (xlib:process-event display :timeout 0
-                                :handler #'clx-event-handler :discard-p t)
-            (when (driver-error driver)
-              (error (driver-error driver))))
-          t))))
+;;; buffer
 
 (defclass clx-buffer (driver-buffer)
-  ((image :initarg :image)
-   (data :initarg :data
-         :reader driver-buffer-data)))
+  ((ximage :initarg :ximage)
+   (pixels :initarg :pixels
+           :reader driver-buffer-pixels)))
 
 (defmethod driver-create-buffer ((driver clx-driver) width height)
-  (let* ((data (make-array (list height width)
-                           :element-type '(unsigned-byte 32)
-                           :initial-element #x00FFFFFF))
-         (image (xlib:create-image :bits-per-pixel 32
-                                   :data data
-                                   :depth 24
-                                   :width width
-                                   :height height
-                                   :blue-mask #x000000ff
-                                   :green-mask #x0000ff00
-                                   :red-mask #x00ff0000
-                                   :format :z-pixmap)))
-    (make-instance 'clx-buffer :data data :image image)))
-
-(defmethod driver-update-buffer ((driver clx-driver) buffer)
-  (with-slots (data image) buffer
-    (setf data nil
-          image nil)))
+  (let* ((pixels (make-array (list height width)
+                             :element-type '(unsigned-byte 32)
+                             :initial-element #x00FFFFFF))
+         (ximage (xlib:create-image :bits-per-pixel 32
+                                    :data pixels
+                                    :depth 24
+                                    :width width
+                                    :height height
+                                    :blue-mask #x000000ff
+                                    :green-mask #x0000ff00
+                                    :red-mask #x00ff0000
+                                    :format :z-pixmap)))
+    (make-instance 'clx-buffer :pixels pixels :ximage ximage)))
 
 (defmethod driver-destroy-buffer ((driver clx-driver) buffer)
-  (with-slots (data image) buffer
-    ;; xlib:destroy-image is missing
-    (setf data nil
-          image nil)))
+  (with-slots (pixels ximage) buffer
+    (setf pixels nil
+          ximage nil)))
 
 (defmethod driver-copy-buffer-to-window ((driver clx-driver) buffer x y width height
                                          window to-x to-y)
   (with-slots (xwindow gcontext) window
-    (with-slots (image) buffer
-      (when (and image
+    (with-slots (ximage) buffer
+      (when (and ximage
                  (>= x 0) (>= y 0) (> width 0) (> height 0) (>= to-x 0) (>= to-y 0))
         (xlib::put-image xwindow
                          gcontext
-                         image
+                         ximage
                          :src-x x :src-y y
                          :x to-x :y to-y
                          :width  (max 0 (min width
-                                             (- (xlib:image-width image) x)))
+                                             (- (xlib:image-width ximage) x)))
                          :height (max 0 (min height
-                                             (- (xlib:image-height image) y))))))))
+                                             (- (xlib:image-height ximage) y))))))))
 
 (defmethod driver-create-image ((driver clx-driver) buffer)
-  (with-slots (data image) buffer
+  (with-slots (pixels ximage) buffer
     (make-instance 'cldki::clx-rgb-image
-                   :pixels data 
-                   :width (xlib:image-width image)
-                   :height (xlib:image-height image))))
+                   :pixels pixels 
+                   :width (xlib:image-width ximage)
+                   :height (xlib:image-height ximage))))
 
 (defmethod driver-update-image ((driver clx-driver) img buffer)
-  (with-slots (image data) buffer
+  (with-slots (pixels ximage) buffer
     (with-slots (cldki::pixels cldki::width cldki::height) img
-      (setf cldki::pixels data
-            cldki::width (xlib:image-width image)
-            cldki::height (xlib:image-height image)))))
+      (setf cldki::pixels pixels
+            cldki::width (xlib:image-width ximage)
+            cldki::height (xlib:image-height ximage)))))
+
+;;; pointers
 
 (defmethod driver-grab-pointer ((driver clx-driver) window pointer)
   (with-slots (xwindow) window

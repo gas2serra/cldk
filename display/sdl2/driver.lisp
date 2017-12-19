@@ -6,15 +6,28 @@
 (defmethod driver-start ((driver sdl2-driver))
   (let ((options (driver-options driver)))
     (setf (driver-default-screen-index driver) (getf options :screen-id 0)))
-  (with-slots (render) driver
-    (sdl2:init :everything)))
+  (sdl2:init :everything))
      
 (defmethod driver-stop ((driver sdl2-driver))
   (sdl2:quit))
 
+(defmethod driver-kill ((driver sdl2-driver))
+  (and sdl2::*the-main-thread*
+       (bt:thread-alive-p sdl2::*the-main-thread*)
+       (bt:destroy-thread sdl2::*the-main-thread*)))
+
+(defmethod driver-ping ((driver sdl2-driver))
+  (and sdl2::*the-main-thread*
+       (bt:thread-alive-p sdl2::*the-main-thread*)))
+
 (defmethod driver-force-output ((driver sdl2-driver))
-  ;; it is no required
   )
+
+;;; events
+
+(defmethod driver-process-next-event ((driver sdl2-driver) kernel)
+  (setf sdl2::*event-loop* t)
+  (sdl2-event-handler driver kernel))
 
 ;;; screens
 (defmethod driver-screen-num ((driver sdl2-driver))
@@ -59,8 +72,7 @@
 ;;; window
 
 (defclass sdl2-window (driver-window)
-  ((sdlwindow :initarg :sdlwindow)
-   (render :initarg :render)))
+  ((sdlwindow :initarg :sdlwindow)))
 
 (defmethod driver-object-id ((window sdl2-window))
   (with-slots (sdlwindow) window
@@ -69,23 +81,23 @@
 (defmethod driver-create-window ((driver sdl2-driver) name pretty-name x y width height mode)
   (let ((window-flags (sdl2::mask-apply 'sdl2::sdl-window-flags
                                         (if (eql mode :managed)
-                                            '(:resizable :hidden)
+                                            '(:hidden :resizable)
                                             '(:hidden :borderless)))))
+    ;; INPUT_GRABBED INPUT_FOCUS MOUSE_FOCUSSDL_WINDOW_ALWAYS_ON_TOP
+    ;; SKIP_TASKBAR WINDOW_UTILITY WINDOW_TOOLTIP
+    ;; WINDOW_POPUP_MENU
     (let ((window (sdl2::sdl-create-window pretty-name
                                            x
                                            y
                                            width
                                            height
                                            window-flags)))
-      (make-instance 'sdl2-window :sdlwindow window
-                     :render (sdl2:create-renderer window)))))
+      (make-instance 'sdl2-window :sdlwindow window))))
 
 (defmethod driver-destroy-window ((driver sdl2-driver) window)
-  (with-slots (sdlwindow render) window
+  (with-slots (sdlwindow) window
     (sdl2::sdl-destroy-window sdlwindow)
-    (sdl2:destroy-renderer render)
-    (setf sdlwindow nil)
-    (setf render nil)))
+    (setf sdlwindow nil)))
 
 (defmethod driver-show-window ((driver sdl2-driver) window)
   (with-slots (sdlwindow) window
@@ -113,7 +125,7 @@
 
 (defmethod driver-set-window-hints ((driver sdl2-driver) window x y width height max-width max-height
                                          min-width min-height)
-  (with-slots (sdlwindow render) window
+  (with-slots (sdlwindow) window
     (when (and x y)
       (sdl2:set-window-position sdlwindow x y))
     (when (or width height)
@@ -128,15 +140,14 @@
                                                       (or min-height 0)))))
 
 (defmethod driver-bury-window ((driver sdl2-driver) window)
-  (with-slots (sdlwindow render) window
-    ))
+  nil)
 
 (defmethod driver-raise-window ((driver sdl2-driver) window)
-  (with-slots (sdlwindow render) window
+  (with-slots (sdlwindow) window
     (sdl2-ffi.functions:sdl-raise-window sdlwindow)))
 
 (defmethod driver-window-pointer-position ((driver sdl2-driver) window)
-  (with-slots (sdlwindow render) window
+  (with-slots (sdlwindow) window
     (cffi:with-foreign-objects ((xpos :int)
                                 (ypos :int))
       (sdl2-ffi.functions:sdl-get-mouse-state xpos ypos)
@@ -179,15 +190,7 @@
   (with-slots (sdlcursor) cursor
     (sdl2-ffi.functions:sdl-set-cursor sdlcursor)))
 
-;;; process events
-
-(defmethod driver-process-next-event ((driver sdl2-driver) kernel)
-  (setf sdl2::*event-loop* t)
-  (let ((ret
-         (sdl2-event-handler driver kernel)))
-    (if ret
-        t
-        nil)))
+;;; buffer
 
 (defclass sdl2-buffer (driver-buffer)
   ((surface :initarg :surface
@@ -199,8 +202,7 @@
                                            :g-mask #x0000ff00
                                            :b-mask #x00ff0000
                                            :a-mask #xff000000)))
-    (make-instance 'sdl2-buffer
-                   :surface surface)))
+    (make-instance 'sdl2-buffer :surface surface)))
 
 (defmethod driver-destroy-buffer ((driver sdl2-driver) buffer)
   (with-slots (surface) buffer
@@ -210,7 +212,7 @@
 
 (defmethod driver-copy-buffer-to-window ((driver sdl2-driver) buffer x y width height
                                          window to-x to-y)
-  (with-slots (sdlwindow render) window
+  (with-slots (sdlwindow) window
     (with-slots (surface) buffer
       (when (and surface sdlwindow
                  (>= x 0) (>= y 0) (> width 0) (> height 0) (>= to-x 0) (>= to-y 0))
@@ -224,9 +226,7 @@
              (sdl2:with-rects
               ((dst to-x to-y  w h))
                (sdl2:blit-surface  surface src windsurf dst)
-               (sdl2-ffi.functions:sdl-update-window-surface-rects sdlwindow dst 1)
-                #+nil (sdl2:update-window sdlwindow)))))))))
-
+               (sdl2-ffi.functions:sdl-update-window-surface-rects sdlwindow dst 1)))))))))
 
 (defmethod driver-create-image ((driver sdl2-driver) buffer)
   (with-slots (surface) buffer
@@ -242,19 +242,14 @@
             cldki::width (sdl2:surface-width surface)
             cldki::height (sdl2:surface-height surface)))))
 
+;; pointer
+
 (defmethod driver-grab-pointer ((driver sdl2-driver) window pointer)
   (with-slots (sdlwindow) window
-    (let ((grab-result (SDL2-FFI.FUNCTIONS:SDL-SET-WINDOW-GRAB 
-                        sdlwindow
-                        1)))
-      (if (eq grab-result :success)
-          :success
-          nil)
-      :success)))
+    (sdl2-ffi.functions:sdl-set-window-grab sdlwindow 1))
+  :success)
 
 (defmethod driver-ungrab-pointer ((driver sdl2-driver) window pointer)
   (with-slots (sdlwindow) window
-    (let ((grab-result (SDL2-FFI.FUNCTIONS:SDL-SET-WINDOW-GRAB 
-                        sdlwindow
-                        0))))))
-
+    (sdl2-ffi.functions:sdl-set-window-grab sdlwindow 0))
+  :success)

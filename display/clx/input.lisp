@@ -65,7 +65,6 @@
                             &allow-other-keys)
   (handler-case
       (let ((win window))
-     (setf (driver-error *clx-driver*) nil)
      (case event-key
        ((:button-press :button-release)
         (if (and (>= code 4) (<= code 7))
@@ -127,7 +126,7 @@
         (unless (xlib:event-listen display)
           (xlib:display-force-output display))
         nil)))
-    (error (condition) (setf (driver-error *clx-driver*) condition))))
+    (error (condition) (setf *clx-error* condition))))
          
     
 

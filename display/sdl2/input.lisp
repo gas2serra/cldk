@@ -48,7 +48,7 @@
   (sdl2:with-sdl-event (event)
     (let ((r (sdl2:next-event event)))
       (when (< r 0)
-        (log:error))
+        (log:error (sdl2-ffi.functions::sdl-get-error)))
       (when (= r 0)
         nil)
       (when (> r 0)
