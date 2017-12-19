@@ -126,7 +126,7 @@
 
 (defmethod driver-create-window ((driver clx-driver) name pretty-name x y
                                  width height mode)
-  (let ((background '(1 1 1)))
+  (let ((background '(0.5 0.5 0.5)))
     (with-slots (screen) driver
       (let* ((color (multiple-value-bind (r g b)
                         (values-list background)
@@ -324,6 +324,21 @@
                                     :red-mask #x00ff0000
                                     :format :z-pixmap)))
     (make-instance 'clx-buffer :pixels pixels :ximage ximage)))
+
+(defmethod driver-update-buffer ((driver clx-driver) buffer width height)
+  (with-slots (pixels ximage) buffer
+    (setf pixels (make-array (list height width)
+                             :element-type '(unsigned-byte 32)
+                             :initial-element #x00FFFFFF)
+          ximage (xlib:create-image :bits-per-pixel 32
+                                    :data pixels
+                                    :depth 24
+                                    :width width
+                                    :height height
+                                    :blue-mask #x000000ff
+                                    :green-mask #x0000ff00
+                                    :red-mask #x00ff0000
+                                    :format :z-pixmap))))
 
 (defmethod driver-destroy-buffer ((driver clx-driver) buffer)
   (with-slots (pixels ximage) buffer

@@ -12,11 +12,8 @@
         (k-flush-buffered-window kwindow)
         (with-slots (pixels-lock) (k-buffered-window-image kwindow)
           (bt:with-lock-held (pixels-lock)
-            (driver-destroy-buffer (driver kwindow) dbuffer)
-            (setf dbuffer (driver-create-buffer
-                           (driver kwindow)
-                           width height)
-                  dbuffer-width width
+            (driver-update-buffer (driver kwindow) dbuffer width height)
+            (setf dbuffer-width width
                   dbuffer-height height)
             (driver-update-image (driver kwindow) image dbuffer)))))
     (<e- kernel #'handle-configure-event kwindow x y width height time)))

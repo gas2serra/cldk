@@ -51,6 +51,7 @@
   ())
 
 (defgeneric driver-create-buffer (driver width height))
+(defgeneric driver-update-buffer (driver buffer width height))
 (defgeneric driver-destroy-buffer (driver buffer))
 (defgeneric driver-copy-buffer-to-window (driver buffer x y width height window to-x to-y))
 (defgeneric driver-create-image (driver buffer))

@@ -141,6 +141,7 @@
    #:driver-buffer-height
    #:driver-buffer-data
    #:driver-create-buffer
+   #:driver-update-buffer
    #:driver-destroy-buffer
    #:driver-copy-buffer-to-window
    #:driver-create-image

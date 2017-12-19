@@ -204,6 +204,16 @@
                                            :a-mask #xff000000)))
     (make-instance 'sdl2-buffer :surface surface)))
 
+(defmethod driver-update-buffer ((driver sdl2-driver) buffer width height)
+  (with-slots (surface) buffer
+    (when surface
+      (sdl2:free-surface surface))
+    (setf surface (sdl2:create-rgb-surface width height 32
+                                            :r-mask #x000000ff
+                                            :g-mask #x0000ff00
+                                            :b-mask #x00ff0000
+                                            :a-mask #xff000000))))
+
 (defmethod driver-destroy-buffer ((driver sdl2-driver) buffer)
   (with-slots (surface) buffer
     (when surface
