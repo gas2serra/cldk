@@ -111,11 +111,39 @@
   (driver-set-window-cursor (driver window) (window-driver-window  window) cursor))
 
 ;;;
+;;; buffer
+;;;
+
+(defclass k-buffer-mixin (kernel-object-mixin)
+  ((driver-buffer :initform nil
+                  :initarg :driver-buffer
+                  :reader buffer-driver-buffer)))
+
+(defun k-initialize-buffer (kbuffer width height)
+  (check-kernel-mode)
+  (with-slots (driver-buffer) kbuffer
+    (setf driver-buffer (driver-create-buffer (driver kbuffer) width height))
+    (register-server-object (kernel kbuffer) driver-buffer kbuffer)))
+
+(defun k-destroy-buffer (kbuffer)
+  (check-kernel-mode)
+  (driver-destroy-buffer (driver kbuffer) (buffer-driver-buffer kbuffer))
+  (unregister-server-object (kernel kbuffer)
+                            (buffer-driver-buffer kbuffer)))
+
+(defun k-update-buffer (kbuffer width height)
+  (check-kernel-mode)
+  (driver-update-buffer (driver kbuffer) (buffer-driver-buffer kbuffer) width height))
+
+;;;
 ;;; buffered windows
 ;;;
 
 (defclass k-buffered-window-mixin (k-window-mixin)
-  ((dbuffer :initform nil
+  ((obuffer :initform nil
+            :initarg :obuffer
+            :accessor window-obuffer)
+   (dbuffer :initform nil
            :initarg :buffer
            :accessor window-buffer)
    (dbuffer-width :initform nil)
@@ -125,6 +153,8 @@
 
 (defun k-initialize-buffered-window (kwindow width height)
   (check-kernel-mode)
+  (with-slots (obuffer) kwindow
+    (k-initialize-buffer obuffer width height))
   (with-slots (dbuffer dbuffer-width dbuffer-height) kwindow
     (setf dbuffer (driver-create-buffer (driver kwindow) width height)
           dbuffer-width width
@@ -132,11 +162,28 @@
 
 (defun k-destroy-buffered-window (window)
   (check-kernel-mode)
+  (with-slots (obuffer) window
+    (k-destroy-buffer obuffer))
   (driver-destroy-buffer (driver window) (window-buffer window)))
 
 (defun k-flush-buffered-window (kwindow)
   (check-kernel-mode)
-  (with-slots (dbuffer) kwindow
+  (with-slots (obuffer) kwindow
+    (when (and obuffer (window-obuffer kwindow))
+      (with-slots (updated-region-set pixels-lock) (window-obuffer kwindow)
+        (bt:with-lock-held (pixels-lock)
+          (map-over-rectangle-set-regions 
+           #'(lambda (x1 y1 x2 y2)
+               (driver-copy-buffer-to-window (driver kwindow)
+                                             (buffer-driver-buffer obuffer)
+                                             x1 y1
+                                             (- x2 x1)
+                                             (- y2 y1)
+                                             (window-driver-window kwindow)
+                                             x1 y1))
+           updated-region-set)
+          (setf updated-region-set nil)))))
+  #+nil(with-slots (dbuffer) kwindow
     (when (and dbuffer (k-buffered-window-image kwindow))
       (with-slots (updated-region-set pixels-lock) (k-buffered-window-image kwindow)
         (bt:with-lock-held (pixels-lock)
@@ -155,7 +202,19 @@
 (defmethod k-refresh-window ((window k-buffered-window-mixin) &key (max-fps 100))
   (check-kernel-mode)
   (with-slots (last-refresh-time) window
-    (when (k-buffered-window-image window)
+    (when (window-obuffer window)
+      (with-slots (updated-region-set) (window-obuffer window)
+        (if (or (null last-refresh-time)
+                (> (- (get-internal-real-time) last-refresh-time)
+                   (* (/ 1 max-fps) internal-time-units-per-second)))
+            (when (and (window-obuffer window) updated-region-set)
+              (k-flush-buffered-window window))
+            (progn
+              (when (null last-refresh-time)
+                (setf last-refresh-time (get-internal-real-time)))
+              (when updated-region-set
+                (log:info "skip"))))))
+    #+nil (when (k-buffered-window-image window)
       (with-slots (updated-region-set) (k-buffered-window-image window)
         (if (or (null last-refresh-time)
                 (> (- (get-internal-real-time) last-refresh-time)

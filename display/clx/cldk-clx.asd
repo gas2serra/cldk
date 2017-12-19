@@ -15,6 +15,7 @@
                  (:file "keysyms" :depends-on ("package" "keysyms-common"))
                  (:file "input" :depends-on ("package" "keysyms" "keysymdef"))
                  (:file "image" :depends-on ("package"))
+                 (:file "buffer" :depends-on ("package" "server"))
                  (:file "driver" :depends-on ("package" "input" "keysyms-common" "image")))
     :description "CLX Backend for Common Lisp Drawing Kit")
 

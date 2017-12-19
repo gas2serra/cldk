@@ -108,11 +108,11 @@
 
 ;;; window
 
-(defclass clx-window (driver-window)
+(defclass clx-driver-window (driver-window)
   ((xwindow :initarg :xwindow)
    (gcontext :initarg :gcontext)))
 
-(defmethod driver-object-id ((window clx-window))
+(defmethod driver-object-id ((window clx-driver-window))
   (with-slots (xwindow) window
     xwindow))
 
@@ -160,7 +160,7 @@
             (xlib:change-property window
                                   :WM_CLIENT_LEADER (list (xlib:window-id window))
                                   :WINDOW 32))
-          (make-instance 'clx-window
+          (make-instance 'clx-driver-window
                          :xwindow window
                          :gcontext (xlib:create-gcontext :drawable window
                                                          :background (values 0 0 0)
@@ -245,7 +245,7 @@
 
 ;;; cursor
 
-(defclass clx-cursor (driver-cursor)
+(defclass clx-driver-cursor (driver-cursor)
   ((xcursor :initarg :xcursor)))
 
 (defvar *clx-cursor-mapping*  
@@ -292,7 +292,7 @@
                                         :mask-font font
                                         :mask-char (1+ code))))
         (xlib:close-font font)
-        (make-instance 'clx-cursor :xcursor cursor)))))
+        (make-instance 'clx-driver-cursor :xcursor cursor)))))
 
 (defmethod driver-destroy-cursor ((driver clx-driver) cursor)
   (with-slots (xcursor) cursor
@@ -305,7 +305,7 @@
 
 ;;; buffer
 
-(defclass clx-buffer (driver-buffer)
+(defclass clx-driver-buffer (driver-buffer)
   ((ximage :initarg :ximage)
    (pixels :initarg :pixels
            :reader driver-buffer-pixels)))
@@ -323,7 +323,7 @@
                                     :green-mask #x0000ff00
                                     :red-mask #x00ff0000
                                     :format :z-pixmap)))
-    (make-instance 'clx-buffer :pixels pixels :ximage ximage)))
+    (make-instance 'clx-driver-buffer :pixels pixels :ximage ximage)))
 
 (defmethod driver-update-buffer ((driver clx-driver) buffer width height)
   (with-slots (pixels ximage) buffer

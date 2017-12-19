@@ -71,10 +71,10 @@
 
 ;;; window
 
-(defclass sdl2-window (driver-window)
+(defclass sdl2-driver-window (driver-window)
   ((sdlwindow :initarg :sdlwindow)))
 
-(defmethod driver-object-id ((window sdl2-window))
+(defmethod driver-object-id ((window sdl2-driver-window))
   (with-slots (sdlwindow) window
     (sdl2-ffi.functions::sdl-get-window-id sdlwindow)))
 
@@ -92,7 +92,7 @@
                                            width
                                            height
                                            window-flags)))
-      (make-instance 'sdl2-window :sdlwindow window))))
+      (make-instance 'sdl2-driver-window :sdlwindow window))))
 
 (defmethod driver-destroy-window ((driver sdl2-driver) window)
   (with-slots (sdlwindow) window
@@ -154,7 +154,7 @@
       (list (cffi:mem-ref xpos :int) (cffi:mem-ref ypos :int)))))
 
 ;;; cursors
-(defclass sdl2-cursor (driver-cursor)
+(defclass sdl2-driver-cursor (driver-cursor)
   ((sdlcursor :initarg :sdlcursor)))
 
 (defvar *sdl2-cursor-mapping*  
@@ -179,7 +179,7 @@
     (let* ((code (second (or
                           (assoc named-cursor *sdl2-cursor-mapping*)
                           (assoc :default *sdl2-cursor-mapping*)))))
-      (make-instance 'sdl2-cursor :sdlcursor (sdl2-ffi.functions:sdl-create-system-cursor code)))))
+      (make-instance 'sdl2-driver-cursor :sdlcursor (sdl2-ffi.functions:sdl-create-system-cursor code)))))
 
 (defmethod driver-destroy-cursor ((driver sdl2-driver) cursor)
   (with-slots (sdlcursor) cursor
@@ -192,7 +192,7 @@
 
 ;;; buffer
 
-(defclass sdl2-buffer (driver-buffer)
+(defclass sdl2-driver-buffer (driver-buffer)
   ((surface :initarg :surface
             :initform nil)))
 
@@ -202,7 +202,7 @@
                                            :g-mask #x0000ff00
                                            :b-mask #x00ff0000
                                            :a-mask #xff000000)))
-    (make-instance 'sdl2-buffer :surface surface)))
+    (make-instance 'sdl2-driver-buffer :surface surface)))
 
 (defmethod driver-update-buffer ((driver sdl2-driver) buffer width height)
   (with-slots (surface) buffer

@@ -15,5 +15,6 @@
                (:file "server" :depends-on ("package" "driver"))
                (:file "input" :depends-on ("package"))
                (:file "image" :depends-on ("package"))
+               (:file "buffer" :depends-on ("package" "server"))
                (:file "driver" :depends-on ("package" "input" "image")))
   :description "SDL2 Backend for Common Lisp Drawing Kit")
