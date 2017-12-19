@@ -156,6 +156,9 @@
    #:k-handle-enter-leave-event
    #:k-handle-destroy-event
    #:k-handle-wm-delete-event
+
+   #:buffer
+   #:create-buffer
    ))
 
 (defpackage :cldk-internals

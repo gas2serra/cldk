@@ -43,7 +43,8 @@
                         :components
                         ((:file "display-server" :depends-on ("display-driver" "display-kernel"))
                          (:file "window" :depends-on ("display-driver" "display-kernel" "display-kernel-call" "event-handler"))
-                         (:file "buffered-window" :depends-on ("window" "display-kernel" "display-kernel-call"))
+                         (:file "buffer" :depends-on ("display-kernel" "display-kernel-call"))
+                         (:file "buffered-window" :depends-on ("window" "buffer" "display-kernel" "display-kernel-call"))
                          (:file "event-handler" :depends-on ())
                          (:file "display-kernel-callback" :depends-on ("display-kernel" "display-driver" "event-handler"))
                          (:file "display-kernel-call" :depends-on ("display-kernel" "display-driver"))

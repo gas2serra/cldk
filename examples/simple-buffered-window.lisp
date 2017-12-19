@@ -68,7 +68,8 @@
                        (cldk:image-height img)
                        (round (/ r 2)) (round (/ g 2)) (round (/ b 2)))
       ;; copy
-      (cldk:copy-image img 0 0 width height (cldk:buffered-window-image w) 0 0)
+      ;;(cldk:copy-image img 0 0 width height (cldk:buffered-window-image w) 0 0)
+      (cldk:copy-image img 0 0 width height (cldki::window-obuffer w) 0 0)
       ;;(cldk:flush-buffered-window w)
       )))
 

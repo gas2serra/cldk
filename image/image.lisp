@@ -4,8 +4,7 @@
 ;;; Image
 ;;;
 (defclass image ()
-  ((width :initform 0 :initarg :width :accessor image-width :type fixnum)
-   (height :initform 0 :initarg :height :accessor image-height :type fixnum)))
+  ())
 
 ;;;
 ;;; Image mixins
@@ -17,15 +16,18 @@
   ())
 
 (defclass buffer-image-mixin (image-mixin)
-  ((updated-region-set :initform nil)))
+  ((updated-region-set :initform nil)
+   (pixels-lock :initform (bt:make-lock "pixels"))))
 
 ;;;
 ;;; Basic Image
 ;;;
 (defclass basic-image (image)
-  ((pixels :initarg :pixels
-           :accessor image-pixels)
-   (pixels-lock :initform (bt:make-lock "pixels"))))
+  ((width :initform 0 :initarg :width :accessor image-width :type fixnum)
+   (height :initform 0 :initarg :height :accessor image-height :type fixnum)
+   (pixels :initarg :pixels
+           :accessor image-pixels)))
+
 
 ;;;
 ;;; prim
@@ -188,4 +190,4 @@
                            (funcall src-get-fn i j)
                          (funcall dst-set-fn i j red green blue)))))
 
-(def-copy-image image-mixin rgb-image-mixin image-rgb-get-fn image-rgb-set-fn)
+(def-copy-image image-mixin image-mixin image-rgb-get-fn image-rgb-set-fn)

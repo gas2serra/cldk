@@ -73,7 +73,10 @@
                         (max 0 max-y))))))
        dirty-r)
       (with-slots (img) mirror
-        (let ((dimg (cldk:buffered-window-image mirror)))
+        (let ((dimg (cldki::window-obuffer mirror)))
+          (when dimg
+            (cldki::copy-image* img rs dimg 0 0)))
+        #+nil (let ((dimg (cldk:buffered-window-image mirror)))
           (when dimg
             (cldki::copy-image* img rs (cldk:buffered-window-image mirror) 0 0)))))))
 
