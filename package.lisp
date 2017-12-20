@@ -28,6 +28,10 @@
    #:+hyper-key+
    #:+alt-key+
    #:event-handler
+   #:log-event-handler
+   #:event-handler-events-to-log
+   #:*events-to-log-list*
+   
    #:event-handler-cur-x
    #:event-handler-cur-y
    #:event-handler-cur-root-x
@@ -153,12 +157,15 @@
    #:k-handle-button-event
    #:k-handle-motion-event
    #:k-handle-key-event
-   #:k-handle-enter-leave-event
+   #:k-handle-enter-event
+   #:k-handle-leave-event
    #:k-handle-destroy-event
    #:k-handle-wm-delete-event
 
    #:buffer
    #:create-buffer
+   #:image-rgb-get-fn
+   #:image-rgb-set-fn
    ))
 
 (defpackage :cldk-internals

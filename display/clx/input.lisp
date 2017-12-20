@@ -103,14 +103,16 @@
                              modifier-state ;;(decode-clx-mod-state state)
                              win
                              time)))
-       ((:enter-notify :leave-notify)
-        (k-handle-enter-leave-event *clx-kernel*
-                                   (if (eq event-key :enter-notify)
-                                       :enter
-                                       :leave)
-                                   0
-                                   win
-                                   time))
+       ((:enter-notify)
+        (k-handle-enter-event *clx-kernel*
+                              0
+                              win
+                              time))
+       ((:leave-notify)
+        (k-handle-leave-event *clx-kernel*
+                              0
+                              win
+                              time))
        (:destroy-notify
         (k-handle-destroy-event *clx-kernel* win time))
        (:configure-notify

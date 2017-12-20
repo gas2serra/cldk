@@ -7,10 +7,15 @@
 
 (defun clx-error-handler (display error-name
 			  &rest args
-			  &key major &allow-other-keys)
+			  &key major asynchronous &allow-other-keys)
   (warn "Received CLX ~A (~A) in process ~W for display ~W."
         error-name major (bt:thread-name (bt:current-thread)) display)
-  (apply #'xlib:default-error-handler display error-name args))
+  ;; We ignore all asynchronous errors to keep the connection.
+  ;; 42 is SetInputFocus, we ignore match-errors from that.
+  (unless (or asynchronous
+              (and (eql major 42)
+                   (eq error-name 'xlib:match-error)))
+    (apply #'xlib:default-error-handler display error-name args)))
 
 (defmethod driver-start ((driver clx-driver))
   (with-slots (display screen root-window) driver
@@ -134,8 +139,8 @@
              (pixel (xlib:alloc-color (xlib:screen-default-colormap screen) color)))
         (let ((window (xlib:create-window
                        :parent (xlib:screen-root screen)
-                       :width width
-                       :height height
+                       :width (max width 1)
+                       :height (max height 1)
                        :x x
                        :y y
                        :border-width 0
@@ -222,8 +227,8 @@
            :height height
            :max-width max-width
            :max-height max-height
-           :min-width min-width
-           :min-height min-height))))
+           :min-width (and min-width (max min-width 1))
+           :min-height (and min-height (max min-height 1))))))
 
 (defmethod driver-bury-window ((driver clx-driver) window)
   (with-slots (xwindow) window
@@ -360,20 +365,6 @@
                                              (- (xlib:image-width ximage) x)))
                          :height (max 0 (min height
                                              (- (xlib:image-height ximage) y))))))))
-
-(defmethod driver-create-image ((driver clx-driver) buffer)
-  (with-slots (pixels ximage) buffer
-    (make-instance 'cldki::clx-rgb-image
-                   :pixels pixels 
-                   :width (xlib:image-width ximage)
-                   :height (xlib:image-height ximage))))
-
-(defmethod driver-update-image ((driver clx-driver) img buffer)
-  (with-slots (pixels ximage) buffer
-    (with-slots (cldki::pixels cldki::width cldki::height) img
-      (setf cldki::pixels pixels
-            cldki::width (xlib:image-width ximage)
-            cldki::height (xlib:image-height ximage)))))
 
 ;;; pointers
 

@@ -165,10 +165,12 @@
                                              win
                                              time)))
                  ((= e sdl2-ffi::+sdl-windowevent-enter+)
-                  #+nil (log:info "Window Event Enter:: ~A ~A ~A ~A ~A~%" e (list w win) time data1 data2)
-                  )
+                  (k-handle-enter-event kernel
+                                        0
+                                        win
+                                        time))
                  ((= sdl2-ffi::+sdl-windowevent-exposed+ e)
-                  #+nil (log:info "Window Event Exposed:: ~A ~A ~A ~A ~A~%" e (list w win) time data1 data2)
+                  (log:info "Window Event Exposed:: ~A ~A ~A ~A ~A~%" e (list w win) time data1 data2)
                   )
                  ((= sdl2-ffi::+sdl-windowevent-focus-gained+ e)
                   #+nil (log:info "Window Event Focus in:: ~A ~A ~A ~A ~A~%" e (list w win) time data1 data2)
@@ -180,8 +182,10 @@
                   #+nil (log:info "Window Event Hidden:: ~A ~A ~A ~A ~A~%" e (list w win) time data1 data2)
                   nil)
                  ((= sdl2-ffi::+sdl-windowevent-leave+ e)
-                  #+nil (log:info "Window Event Leave:: ~A ~A ~A ~A ~A~%" e (list w win) time data1 data2)
-                  )
+                  (k-handle-leave-event kernel
+                                        0
+                                        win
+                                        time))
                  ((= sdl2-ffi::+sdl-windowevent-maximized+ e)
                   #+nil (log:info "Window Event Max:: ~A ~A ~A ~A ~A~%" e (list w win) time data1 data2)
                   nil)

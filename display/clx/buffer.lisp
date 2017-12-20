@@ -6,9 +6,6 @@
 (defmethod create-buffer ((server clx-server) width height)
   (make-instance 'clx-buffer :server server :width width :height height))
 
-(defmethod update-buffer ((server clx-buffer) width height)
-  )
-
 (deftype clx-buffer-pixels () '(simple-array (unsigned-byte 32) (* *)))
 
 (defmethod image-width ((buffer clx-buffer))
@@ -26,7 +23,7 @@
     (with-slots (pixels) db
       pixels)))
 
-(defmethod cldki::image-rgb-get-fn ((image clx-buffer) &key (dx 0) (dy 0))
+(defmethod image-rgb-get-fn ((image clx-buffer) &key (dx 0) (dy 0))
   (let ((pixels (image-pixels image)))
     (declare (type clx-buffer-pixels pixels))
     (lambda (x y)
@@ -36,7 +33,7 @@
                 (ldb (byte 8 0) p)
                 (ldb (byte 8 24) p))))))
 
-(defmethod cldki::image-rgb-set-fn ((image clx-buffer) &key (dx 0) (dy 0))
+(defmethod image-rgb-set-fn ((image clx-buffer) &key (dx 0) (dy 0))
   (let ((pixels (image-pixels image)))
     (declare (type clx-buffer-pixels pixels))
     (lambda (x y r g b)

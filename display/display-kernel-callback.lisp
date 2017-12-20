@@ -6,13 +6,8 @@
 (defun k-handle-window-configuration-event (kernel window x y width height time)
   (check-kernel-mode)
   (let ((kwindow (lookup-server-object kernel window)))
-    (when (and (typep kwindow 'k-buffered-window-mixin)
-               (window-obuffer kwindow))
-      (with-slots (obuffer) kwindow
-        (k-flush-buffered-window kwindow)
-        (with-slots (pixels-lock) obuffer
-          (bt:with-lock-held (pixels-lock)
-                             (k-update-buffer obuffer width height)))))
+    (when (typep kwindow 'k-buffered-window-mixin)
+      (k-notify-resize-buffered-window kwindow width height))
     (<e- kernel #'handle-configure-event kwindow x y width height time)))
 
 (defun k-handle-repaint-event (kernel window x y width height time)
@@ -44,10 +39,15 @@
     (<e- kernel #'handle-key-event kind keyname character modifiers
          win timestamp)))
 
-(defun k-handle-enter-leave-event (kernel kind pointer window time)
+(defun k-handle-enter-event (kernel pointer window time)
   (check-kernel-mode)
   (let ((win (lookup-server-object kernel window)))
-    (<e- kernel #'handle-enter-leave-event kind pointer win time)))
+    (<e- kernel #'handle-enter-event pointer win time)))
+
+(defun k-handle-leave-event (kernel pointer window time)
+  (check-kernel-mode)
+  (let ((win (lookup-server-object kernel window)))
+    (<e- kernel #'handle-leave-event pointer win time)))
 
 (defun k-handle-destroy-event (kernel  window time)
   (check-kernel-mode)

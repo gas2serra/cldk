@@ -238,20 +238,6 @@
                (sdl2:blit-surface  surface src windsurf dst)
                (sdl2-ffi.functions:sdl-update-window-surface-rects sdlwindow dst 1)))))))))
 
-(defmethod driver-create-image ((driver sdl2-driver) buffer)
-  (with-slots (surface) buffer
-    (make-instance 'cldki::sdl2-rgb-image
-                   :pixels (sdl2:surface-pixels surface)
-                   :width (sdl2:surface-width surface)
-                   :height (sdl2:surface-height surface))))
-
-(defmethod driver-update-image ((driver sdl2-driver) image buffer)
-  (with-slots (surface) buffer
-    (with-slots (cldki::pixels cldki::width cldki::height) image
-      (setf cldki::pixels (sdl2:surface-pixels surface)
-            cldki::width (sdl2:surface-width surface)
-            cldki::height (sdl2:surface-height surface)))))
-
 ;; pointer
 
 (defmethod driver-grab-pointer ((driver sdl2-driver) window pointer)

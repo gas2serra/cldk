@@ -22,10 +22,3 @@
   (<kwindow- window #'k-destroy-buffered-window)
   (destroy-buffer (window-obuffer window))
   (call-next-method))
-
-
-
-                        
-
-
-

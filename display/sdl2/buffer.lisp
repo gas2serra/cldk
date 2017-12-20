@@ -6,9 +6,6 @@
 (defmethod create-buffer ((server sdl2-server) width height)
   (make-instance 'sdl2-buffer :server server :width width :height height))
 
-(defmethod update-buffer ((server sdl2-buffer) width height)
-  )
-
 (deftype sdl2-rgb-image-pixels () 'cffi-sys:foreign-pointer)
 
 (defmethod image-width ((buffer sdl2-buffer))
@@ -26,7 +23,7 @@
     (with-slots (surface) db
       (sdl2:surface-pixels surface))))
 
-(defmethod cldki::image-rgb-get-fn ((image sdl2-buffer) &key (dx 0) (dy 0))
+(defmethod image-rgb-get-fn ((image sdl2-buffer) &key (dx 0) (dy 0))
   (let ((pixels (image-pixels image))
         (width (image-width image)))
     (declare (type sdl2-rgb-image-pixels pixels))
@@ -37,7 +34,7 @@
                                 (* (+ y dy) width)
                                 (+ x dx)))))))
 
-(defmethod cldki::image-rgb-set-fn ((image sdl2-buffer) &key (dx 0) (dy 0))
+(defmethod image-rgb-set-fn ((image sdl2-buffer) &key (dx 0) (dy 0))
   (let ((pixels (image-pixels image))
         (width (image-width image)))
     (declare (type sdl2-rgb-image-pixels pixels))

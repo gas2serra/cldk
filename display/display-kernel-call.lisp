@@ -1,7 +1,6 @@
 (in-package :cldk-internals)
 
 
-
 (defun k-screen-num (kernel)
   (check-kernel-mode)
   (driver-screen-num (driver kernel)))
@@ -39,32 +38,6 @@
                                               x y width height mode))
     (register-server-object (kernel kwindow) driver-window kwindow)))
 
-(defgeneric k-refresh-window (window &key max-fps)
-  (:method ((kwindow t) &key max-fps)
-    (declare (ignore max-fps))))
-
-(defun k-refresh-windows (kernel)
-  (check-kernel-mode)
-  (with-slots (kwindows) kernel
-    (dolist (win kwindows)
-      (k-refresh-window win))))
-
-(defun k-window-size (window)
-  (check-kernel-mode)
-  (driver-window-size (driver window) (window-driver-window  window)))
-
-(defun k-window-position (window)
-  (check-kernel-mode)
-  (driver-window-position (driver window) (window-driver-window  window)))
-
-(defun k-set-window-size (window width height)
-  (check-kernel-mode)
-  (driver-set-window-size (driver window) (window-driver-window  window) width height))
-
-(defun k-set-window-position (window x y)
-  (check-kernel-mode)
-  (driver-set-window-position (driver window) (window-driver-window  window) x y))
-
 (defun k-destroy-window (window)
   (check-kernel-mode)
   (driver-destroy-window (driver window) (window-driver-window  window))
@@ -79,6 +52,30 @@
   (check-kernel-mode)
   (driver-hide-window (driver window) (window-driver-window  window)))
 
+(defun k-window-position (window)
+  (check-kernel-mode)
+  (driver-window-position (driver window) (window-driver-window  window)))
+
+(defun k-window-size (window)
+  (check-kernel-mode)
+  (driver-window-size (driver window) (window-driver-window  window)))
+
+(defun k-set-window-position (window x y)
+  (check-kernel-mode)
+  (driver-set-window-position (driver window) (window-driver-window  window) x y))
+
+(defun k-set-window-size (window width height)
+  (check-kernel-mode)
+  (driver-set-window-size (driver window) (window-driver-window  window) width height))
+
+(defun k-set-window-hints (window x y width height
+                           max-width max-height min-width min-height)
+  (check-kernel-mode)
+  (driver-set-window-hints (driver window) (window-driver-window  window)
+                           x y width height
+                           max-width max-height
+                           min-width min-height))
+
 (defun k-raise-window (window)
   (check-kernel-mode)
   (driver-raise-window (driver window) (window-driver-window  window)))
@@ -91,13 +88,6 @@
   (check-kernel-mode)
   (driver-window-pointer-position (driver window) (window-driver-window  window)))
 
-(defun k-set-window-hints (window x y width height
-                           max-width max-height min-width min-height)
-  (check-kernel-mode)
-  (driver-set-window-hints (driver window) (window-driver-window  window)
-                           x y width height
-                           max-width max-height min-width min-height))
-
 (defun k-grab-window-pointer (window)
   (check-kernel-mode)
   (driver-grab-pointer (driver window) (window-driver-window  window) 0))
@@ -105,6 +95,20 @@
 (defun k-ungrab-window-pointer (window)
   (check-kernel-mode)
   (driver-ungrab-pointer (driver window) (window-driver-window  window) 0))
+
+;;; refresh
+(defgeneric k-refresh-window (window &key max-fps)
+  (:method ((kwindow t) &key max-fps)
+    (declare (ignore max-fps))))
+
+(defun k-refresh-windows (kernel)
+  (check-kernel-mode)
+  (with-slots (kwindows) kernel
+    (dolist (win kwindows)
+      (k-refresh-window win))))
+
+
+;;; cursor
 
 (defun k-set-window-cursor (window cursor)
   (check-kernel-mode)
@@ -114,7 +118,7 @@
 ;;; buffer
 ;;;
 
-(defclass k-buffer-mixin (kernel-object-mixin)
+(defclass k-buffer-mixin (buffer-image-mixin kernel-object-mixin)
   ((driver-buffer :initform nil
                   :initarg :driver-buffer
                   :reader buffer-driver-buffer)))
@@ -154,6 +158,14 @@
   (check-kernel-mode)
   (with-slots (obuffer) window
     (k-destroy-buffer obuffer)))
+
+(defun k-notify-resize-buffered-window (window width height)
+  (with-slots (obuffer) window
+    (when obuffer
+      (k-flush-buffered-window window)
+      (with-slots (pixels-lock) obuffer
+        (bt:with-lock-held (pixels-lock)
+          (k-update-buffer obuffer width height))))))
 
 (defun k-flush-buffered-window (kwindow)
   (check-kernel-mode)
