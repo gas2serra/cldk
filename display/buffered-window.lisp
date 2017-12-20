@@ -22,30 +22,7 @@
   (<kwindow- window #'k-destroy-buffered-window)
   (destroy-buffer (window-obuffer window))
   (call-next-method))
-#|
-(defgeneric copy-image-to-buffered-window (window image x y width height)
-  (:method ((window buffered-window) image x y width height)
-    (with-slots (buffer-lock) window
-      (bt:with-lock-held (buffer-lock)
-        (<kwindow+ window
-                   #'k-copy-image-to-buffered-window image 
-                   x y
-                   width height)))))
 
-(defgeneric copy-image-to-buffered-window* (window image rectangle-set)
-  (:method ((window buffered-window) image rectangle-set)
-    (with-slots (buffer-lock) window
-      (bt:with-lock-held (buffer-lock)
-        (<kwindow+ window
-                   #'k-copy-image-to-buffered-window* image 
-                   rectangle-set)))))
-|#
-
-(defgeneric buffered-window-image (window)
-  (:method ((window buffered-window))
-    #+nil (<kwindow+ window
-                     #'k-buffered-window-image)
-    (k-buffered-window-image window)))
 
 
                         

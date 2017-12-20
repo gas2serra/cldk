@@ -143,54 +143,28 @@
   ((obuffer :initform nil
             :initarg :obuffer
             :accessor window-obuffer)
-   (dbuffer :initform nil
-           :initarg :buffer
-           :accessor window-buffer)
-   (dbuffer-width :initform nil)
-   (dbuffer-height :initform nil)
-   (image :initform nil)
    (last-refresh-time :initform nil)))
 
 (defun k-initialize-buffered-window (kwindow width height)
   (check-kernel-mode)
   (with-slots (obuffer) kwindow
-    (k-initialize-buffer obuffer width height))
-  (with-slots (dbuffer dbuffer-width dbuffer-height) kwindow
-    (setf dbuffer (driver-create-buffer (driver kwindow) width height)
-          dbuffer-width width
-          dbuffer-height height)))
+    (k-initialize-buffer obuffer width height)))
 
 (defun k-destroy-buffered-window (window)
   (check-kernel-mode)
   (with-slots (obuffer) window
-    (k-destroy-buffer obuffer))
-  (driver-destroy-buffer (driver window) (window-buffer window)))
+    (k-destroy-buffer obuffer)))
 
 (defun k-flush-buffered-window (kwindow)
   (check-kernel-mode)
   (with-slots (obuffer) kwindow
-    (when (and obuffer (window-obuffer kwindow))
+    (when obuffer
       (with-slots (updated-region-set pixels-lock) (window-obuffer kwindow)
         (bt:with-lock-held (pixels-lock)
           (map-over-rectangle-set-regions 
            #'(lambda (x1 y1 x2 y2)
                (driver-copy-buffer-to-window (driver kwindow)
                                              (buffer-driver-buffer obuffer)
-                                             x1 y1
-                                             (- x2 x1)
-                                             (- y2 y1)
-                                             (window-driver-window kwindow)
-                                             x1 y1))
-           updated-region-set)
-          (setf updated-region-set nil)))))
-  #+nil(with-slots (dbuffer) kwindow
-    (when (and dbuffer (k-buffered-window-image kwindow))
-      (with-slots (updated-region-set pixels-lock) (k-buffered-window-image kwindow)
-        (bt:with-lock-held (pixels-lock)
-          (map-over-rectangle-set-regions 
-           #'(lambda (x1 y1 x2 y2)
-               (driver-copy-buffer-to-window (driver kwindow)
-                                             dbuffer
                                              x1 y1
                                              (- x2 x1)
                                              (- y2 y1)
@@ -213,23 +187,5 @@
               (when (null last-refresh-time)
                 (setf last-refresh-time (get-internal-real-time)))
               (when updated-region-set
-                (log:info "skip"))))))
-    #+nil (when (k-buffered-window-image window)
-      (with-slots (updated-region-set) (k-buffered-window-image window)
-        (if (or (null last-refresh-time)
-                (> (- (get-internal-real-time) last-refresh-time)
-                   (* (/ 1 max-fps) internal-time-units-per-second)))
-            (when (and (window-buffer window) updated-region-set)
-              (k-flush-buffered-window window))
-            (progn
-              (when (null last-refresh-time)
-                (setf last-refresh-time (get-internal-real-time)))
-              (when updated-region-set
                 (log:info "skip"))))))))
 
-(defun k-buffered-window-image (window)
-  (with-slots (image dbuffer) window
-    (unless image
-      (when dbuffer
-        (setf image (driver-create-image (driver window) dbuffer))))
-    image))
