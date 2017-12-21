@@ -36,17 +36,16 @@
    #:event-handler-cur-y
    #:event-handler-cur-root-x
    #:event-handler-cur-root-y
-   #:event-handler-modifier-state
+   #:event-handler-modifiers
    #:event-handler-pressed-buttons
    #:handle-button-event
-   #:handle-wheel-event
+   #:handle-scroll-event
    #:handle-motion-event
    #:handle-key-event
    #:handle-key-modifier-event
    #:handle-enter-leave-event
    #:handle-configure-event
    #:handle-repaint-event
-   #:handle-destroy-event
    #:handle-wm-delete-event
    
    #:screen-num
@@ -153,13 +152,12 @@
 
    #:k-handle-window-configuration-event
    #:k-handle-repaint-event
-   #:k-handle-wheel-event
+   #:k-handle-scroll-event
    #:k-handle-button-event
    #:k-handle-motion-event
    #:k-handle-key-event
    #:k-handle-enter-event
    #:k-handle-leave-event
-   #:k-handle-destroy-event
    #:k-handle-wm-delete-event
 
    #:buffer

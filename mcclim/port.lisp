@@ -202,7 +202,7 @@
              :graft-x (cldk:event-handler-cur-root-x eh)
              :graft-y (cldk:event-handler-cur-root-y eh)
              :sheet sheet
-             :modifier-state (cldk:event-handler-modifier-state eh)
+             :modifier-state (cldk:event-handler-modifiers eh)
              ;; The event initialization code will give us a
              ;; reasonable timestamp.
              :timestamp 0)))))))

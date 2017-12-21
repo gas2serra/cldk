@@ -13,6 +13,8 @@
 (define-keysym :|9| sdl2-ffi::+SDLK-9+)
 (define-keysym :|0| sdl2-ffi::+SDLK-0+)
 (define-keysym :|`| sdl2-ffi::+SDLK-BACKQUOTE+)
+(define-keysym :|'| sdl2-ffi::+SDLK-QUOTE+)
+(define-keysym :|"| sdl2-ffi::+SDLK-QUOTEDBL+)
 (define-keysym :|!| sdl2-ffi::+SDLK-EXCLAIM+)
 (define-keysym :|@| sdl2-ffi::+SDLK-AT+)
 (define-keysym :|#| sdl2-ffi::+SDLK-HASH+)
@@ -23,6 +25,25 @@
 (define-keysym :|*| sdl2-ffi::+SDLK-ASTERISK+)
 (define-keysym :|(| sdl2-ffi::+SDLK-LEFTPAREN+)
 (define-keysym :|)| sdl2-ffi::+SDLK-RIGHTPAREN+)
+(define-keysym :|+| sdl2-ffi::+SDLK-PLUS+)
+(define-keysym :|,| sdl2-ffi::+SDLK-COMMA+)
+(define-keysym :|-| sdl2-ffi::+SDLK-MINUS+)
+(define-keysym :|.| sdl2-ffi::+SDLK-PERIOD+)
+(define-keysym :|/| sdl2-ffi::+SDLK-SLASH+)
+(define-keysym :|:| sdl2-ffi::+SDLK-COLON+)
+(define-keysym :|;| sdl2-ffi::+SDLK-SEMICOLON+)
+(define-keysym :|=| sdl2-ffi::+SDLK-EQUALS+)
+(define-keysym :|>| sdl2-ffi::+SDLK-GREATER+)
+(define-keysym :|<| sdl2-ffi::+SDLK-LESS+)
+(define-keysym :|?| sdl2-ffi::+SDLK-QUESTION+)
+(define-keysym :|[| sdl2-ffi::+SDLK-LEFTBRACKET+)
+(define-keysym :|]| sdl2-ffi::+SDLK-RIGHTBRACKET+)
+(define-keysym :|\\| sdl2-ffi::+SDLK-BACKSLASH+)
+(define-keysym :|_| sdl2-ffi::+SDLK-UNDERSCORE+)
+
+(define-keysym :| | sdl2-ffi::+SDLK-SPACE+)
+
+;;(define-keysym :|| sdl2-ffi::+SDLK-+)
 
 (define-keysym :|a| sdl2-ffi::+SDLK-A+)
 (define-keysym :|b| sdl2-ffi::+SDLK-B+)
@@ -33,6 +54,8 @@
 (define-keysym :|g| sdl2-ffi::+SDLK-G+)
 (define-keysym :|h| sdl2-ffi::+SDLK-H+)
 (define-keysym :|i| sdl2-ffi::+SDLK-I+)
+(define-keysym :|j| sdl2-ffi::+SDLK-J+)
+(define-keysym :|k| sdl2-ffi::+SDLK-K+)
 (define-keysym :|l| sdl2-ffi::+SDLK-L+)
 (define-keysym :|m| sdl2-ffi::+SDLK-M+)
 (define-keysym :|n| sdl2-ffi::+SDLK-N+)
@@ -44,6 +67,9 @@
 (define-keysym :|t| sdl2-ffi::+SDLK-T+)
 (define-keysym :|u| sdl2-ffi::+SDLK-U+)
 (define-keysym :|v| sdl2-ffi::+SDLK-V+)
+(define-keysym :|w| sdl2-ffi::+SDLK-W+)
+(define-keysym :|x| sdl2-ffi::+SDLK-X+)
+(define-keysym :|y| sdl2-ffi::+SDLK-Y+)
 (define-keysym :|z| sdl2-ffi::+SDLK-Z+)
 
 (define-keysym :|A| (logior +shift-bits+ sdl2-ffi::+SDLK-A+))
@@ -55,6 +81,8 @@
 (define-keysym :|G| (logior +shift-bits+ sdl2-ffi::+SDLK-G+))
 (define-keysym :|H| (logior +shift-bits+ sdl2-ffi::+SDLK-H+))
 (define-keysym :|I| (logior +shift-bits+ sdl2-ffi::+SDLK-I+))
+(define-keysym :|J| (logior +shift-bits+ sdl2-ffi::+SDLK-J+))
+(define-keysym :|K| (logior +shift-bits+ sdl2-ffi::+SDLK-K+))
 (define-keysym :|L| (logior +shift-bits+ sdl2-ffi::+SDLK-L+))
 (define-keysym :|M| (logior +shift-bits+ sdl2-ffi::+SDLK-M+))
 (define-keysym :|N| (logior +shift-bits+ sdl2-ffi::+SDLK-N+))
@@ -66,8 +94,23 @@
 (define-keysym :|T| (logior +shift-bits+ sdl2-ffi::+SDLK-T+))
 (define-keysym :|U| (logior +shift-bits+ sdl2-ffi::+SDLK-U+))
 (define-keysym :|V| (logior +shift-bits+ sdl2-ffi::+SDLK-V+))
+(define-keysym :|W| (logior +shift-bits+ sdl2-ffi::+SDLK-W+))
+(define-keysym :|X| (logior +shift-bits+ sdl2-ffi::+SDLK-X+))
+(define-keysym :|Y| (logior +shift-bits+ sdl2-ffi::+SDLK-Y+))
 (define-keysym :|Z| (logior +shift-bits+ sdl2-ffi::+SDLK-Z+))
 
+(define-keysym :BACKSPACE sdl2-ffi::+SDLK-BACKSPACE+)
+(define-keysym :TAB sdl2-ffi::+SDLK-TAB+)
+(define-keysym :RETURN sdl2-ffi::+SDLK-RETURN+)
+(define-keysym :ESCAPE sdl2-ffi::+SDLK-ESCAPE+)
+
+#|
+(define-keysym :CLEAR #xff0b)
+(define-keysym :PAUSE #xff13)
+(define-keysym :SCROLL-LOCK #xff14)
+(define-keysym :SYS-REQ #xff15)
+(define-keysym :DELETE #xffff)
+|#
 
 #|
 Decimal
@@ -79,213 +122,7 @@ SDL_Keycode Constant
 0x00 ('\0')
 SDLK_UNKNOWN
 8
-0x08 ('\b')
-SDLK_BACKSPACE
-9
-0x09 ('\t')
-SDLK_TAB
-13
-0x0D ('\r')
-SDLK_RETURN
-27
-0x1B ('\033')
-SDLK_ESCAPE
-32
-0x20 (' ')
-SDLK_SPACE
-33
-0x21 ('!')
-SDLK_EXCLAIM
-34
-0x22 ('"')
-SDLK_QUOTEDBL
-35
-0x23 ('#')
-SDLK_HASH
-36
-0x24 ('$')
-SDLK_DOLLAR
-37
-0x25 ('%')
-SDLK_PERCENT
-38
-0x26 ('&')
-SDLK_AMPERSAND
-39
-0x27 ('\'')
-SDLK_QUOTE
-40
-0x28 ('(')
-SDLK_LEFTPAREN
-41
-0x29 (')')
-SDLK_RIGHTPAREN
-42
-0x2A ('*')
-SDLK_ASTERISK
-43
-0x2B ('+')
-SDLK_PLUS
-44
-0x2C (',')
-SDLK_COMMA
-45
-0x2D ('-')
-SDLK_MINUS
-46
-0x2E ('.')
-SDLK_PERIOD
-47
-0x2F ('/')
-SDLK_SLASH
-48
-0x30 ('0')
-SDLK_0
-49
-0x31 ('1')
-SDLK_1
-50
-0x32 ('2')
-SDLK_2
-51
-0x33 ('3')
-SDLK_3
-52
-0x34 ('4')
-SDLK_4
-53
-0x35 ('5')
-SDLK_5
-54
-0x36 ('6')
-SDLK_6
-55
-0x37 ('7')
-SDLK_7
-56
-0x38 ('8')
-SDLK_8
-57
-0x39 ('9')
-SDLK_9
-58
-0x3A (':')
-SDLK_COLON
-59
-0x3B (';')
-SDLK_SEMICOLON
-60
-0x3C ('<')
-SDLK_LESS
-61
-0x3D ('=')
-SDLK_EQUALS
-62
-0x3E ('>')
-SDLK_GREATER
-63
-0x3F ('?')
-SDLK_QUESTION
-64
-0x40 ('@')
-SDLK_AT
-91
-0x5B ('[')
-SDLK_LEFTBRACKET
-92
-0x5C ('\\')
-SDLK_BACKSLASH
-93
-0x5D (']')
-SDLK_RIGHTBRACKET
-94
-0x5E ('^')
-SDLK_CARET
-95
-0x5F ('_')
-SDLK_UNDERSCORE
-96
-0x60 ('`')
-SDLK_BACKQUOTE
-97
-0x61 ('a')
-SDLK_a
-98
-0x62 ('b')
-SDLK_b
-99
-0x63 ('c')
-SDLK_c
-100
-0x64 ('d')
-SDLK_d
-101
-0x65 ('e')
-SDLK_e
-102
-0x66 ('f')
-SDLK_f
-103
-0x67 ('g')
-SDLK_g
-104
-0x68 ('h')
-SDLK_h
-105
-0x69 ('i')
-SDLK_i
-106
-0x6A ('j')
-SDLK_j
-107
-0x6B ('k')
-SDLK_k
-108
-0x6C ('l')
-SDLK_l
-109
-0x6D ('m')
-SDLK_m
-110
-0x6E ('n')
-SDLK_n
-111
-0x6F ('o')
-SDLK_o
-112
-0x70 ('p')
-SDLK_p
-113
-0x71 ('q')
-SDLK_q
-114
-0x72 ('r')
-SDLK_r
-115
-0x73 ('s')
-SDLK_s
-116
-0x74 ('t')
-SDLK_t
-117
-0x75 ('u')
-SDLK_u
-118
-0x76 ('v')
-SDLK_v
-119
-0x77 ('w')
-SDLK_w
-120
-0x78 ('x')
-SDLK_x
-121
-0x79 ('y')
-SDLK_y
-122
-0x7A ('z')
-SDLK_z
-127
+
 0x7F ('\177')
 SDLK_DELETE
 1073741881

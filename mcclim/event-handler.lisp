@@ -19,22 +19,23 @@
 			:graft-y (cldk:event-handler-cur-root-y handler)
 			:sheet (climi::port-lookup-sheet (handler-port handler) win)
                         :modifier-state
-                        (logior (cldk:event-handler-modifier-state handler)
+                        (logior (cldk:event-handler-modifiers handler)
                                 (cldk:event-handler-pressed-buttons handler))
 			:timestamp time)))
     (clim:distribute-event (handler-port handler) event)))
 
-(defmethod cldk:handle-wheel-event ((handler fb-event-handler) kind pointer win time)
+(defmethod cldk:handle-scroll-event ((handler fb-event-handler) pointer dx dy win time)
   (let ((event
-         (make-instance 'pointer-button-press-event
+         (make-instance 'pointer-scroll-event
                         :pointer pointer
-                        :button kind
                         :x (cldk:event-handler-cur-x handler)
                         :y (cldk:event-handler-cur-y handler)
 			:graft-x (cldk:event-handler-cur-root-x handler)
 			:graft-y (cldk:event-handler-cur-root-y handler)
-			:sheet (climi::port-lookup-sheet (handler-port handler) win)
-                        :modifier-state (logior (cldk:event-handler-modifier-state handler)
+                        :delta-x dx
+                        :delta-y dy 
+                        :sheet (climi::port-lookup-sheet (handler-port handler) win)
+                        :modifier-state (logior (cldk:event-handler-modifiers handler)
                                                 (cldk:event-handler-pressed-buttons handler))
 			:timestamp time)))
     (clim:distribute-event (handler-port handler) event)))
@@ -50,7 +51,7 @@
                           :graft-y root-y
                           :sheet (climi::port-lookup-sheet (handler-port handler) win)
                           :modifier-state
-                          (logior (cldk:event-handler-modifier-state handler)
+                          (logior (cldk:event-handler-modifiers handler)
                                   (cldk:event-handler-pressed-buttons handler))
                           :timestamp time)))
       (clim:distribute-event (handler-port handler) event)))
@@ -77,7 +78,7 @@
                                            win time)
   (let* ((sheet (climi::port-lookup-sheet (handler-port handler) win))
          (button (cldk:event-handler-pressed-buttons handler))
-         (modifier (cldk:event-handler-modifier-state handler))
+         (modifier (cldk:event-handler-modifiers handler))
          (event
           (if (eq kind :enter)
               (make-instance 'pointer-enter-event
@@ -118,9 +119,6 @@
                                  :sheet sheet
                                  :region (make-rectangle* x y (+ x w) (+ y h)))))
     (clim:distribute-event (handler-port handler) event)))
-
-(defmethod cldk:handle-destroy-event ((handler fb-event-handler) win time)
-  (log:info "destroy"))
 
 (defmethod cldk:handle-wm-delete-event ((handler fb-event-handler) win time)
   (let ((event

@@ -31,7 +31,6 @@
                    :name name :pretty-name pretty-name
                    :x x :y y :width width :height height :mode mode)))
 
-
 (defgeneric destroy-window (window)
   (:method ((window window))
     (with-slots (kwindows) (server window)

@@ -4,34 +4,16 @@
   (let ((button-mapping #.(vector +pointer-left-button+
                                   +pointer-middle-button+
                                   +pointer-right-button+
-                                  +pointer-wheel-up+
-                                  +pointer-wheel-down+
-                                  +pointer-wheel-left+
-                                  +pointer-wheel-right+
+                                  0
+                                  0
+                                  0
+                                  0
                                   +pointer-x1-button+
                                   +pointer-x2-button+))
         (code (1- code)))
     (when (and (>= code 0)
                (< code (length button-mapping)))
       (aref button-mapping code))))
-
-#|
-(defun decode-x-button-code (code)  
-  (let ((button-mapping #.(vector :left
-                                  :middle
-                                  :right
-                                  :wheel-up
-                                  :wheel-down
-                                  :wheel-left
-                                  :wheel-right
-                                  :x1
-                                  :x2))
-        (code (1- code)))
-    (if (and (>= code 0)
-             (< code (length button-mapping)))
-        (aref button-mapping code)
-        :unknow)))
-|#
 
 (defparameter mod-mappings (list (cons 1 :shift)
                                  (cons 2 :caps)
@@ -68,11 +50,18 @@
      (case event-key
        ((:button-press :button-release)
         (if (and (>= code 4) (<= code 7))
-            (k-handle-wheel-event *clx-kernel* 
-                                 (decode-x-button-code code)
-                                 0
-                                 win
-                                 time)
+            (k-handle-scroll-event *clx-kernel*
+                                   0
+                                   (case (decode-x-button-code code)
+                                     (#.+pointer-wheel-left+ -1)
+                                     (#.+pointer-wheel-right+ 1)
+                                     (otherwise 0))
+                                   (case (decode-x-button-code code)
+                                     (#.+pointer-wheel-up+ -1)
+                                     (#.+pointer-wheel-down+ 1)
+                                     (otherwise 0))
+                                   win
+                                   time)
             (k-handle-button-event *clx-kernel* 
                                   (if (eq event-key :button-press)
                                       :press
@@ -82,12 +71,9 @@
                                   win
                                   time)))
        (:motion-notify
-        (k-handle-motion-event *clx-kernel* 
-                              0
-                              x y
-                              root-x root-y
-                              win
-                              time))
+        (k-handle-motion-event *clx-kernel* 0
+                              x y root-x root-y
+                              win time))
        ((:key-press :key-release)
         (multiple-value-bind (keyname modifier-state keysym-name)
             (x-event-to-key-name-and-modifiers *clx-driver* 
@@ -104,17 +90,11 @@
                              win
                              time)))
        ((:enter-notify)
-        (k-handle-enter-event *clx-kernel*
-                              0
-                              win
-                              time))
+        (k-handle-enter-event *clx-kernel* 0
+                              x y root-x root-y
+                              win time))
        ((:leave-notify)
-        (k-handle-leave-event *clx-kernel*
-                              0
-                              win
-                              time))
-       (:destroy-notify
-        (k-handle-destroy-event *clx-kernel* win time))
+        (k-handle-leave-event *clx-kernel* 0 win time))
        (:configure-notify
         (with-slots (root-window) *clx-driver*
           (multiple-value-bind (x y)
@@ -125,6 +105,7 @@
        (:client-message
         (port-client-message win time type data))
        (t
+        (log:info "Bo: ~A" event-key)
         (unless (xlib:event-listen display)
           (xlib:display-force-output display))
         nil)))

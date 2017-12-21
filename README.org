@@ -13,3 +13,10 @@
 - enjoy 
 - SDL
 very broken. SDL error -1, configure is wrang. ecc ecc
+
+** Events
+- show/hide (map/unmap)
+- key
+- remove configuration copy
+- client messages
+- copy/paste

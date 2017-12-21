@@ -36,6 +36,7 @@
                 #:set-sheet-pointer-cursor
                 #:port-force-output
                 #:frame-managers
+                #:pointer-scroll-event
                 )
   (:import-from :mcclim-render-internals
                 #:render-medium-mixin
