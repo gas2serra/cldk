@@ -2,20 +2,20 @@
 
 (defparameter +shift-bits+ #x100)
 
-(define-keysym :|1| sdl2-ffi::+SDLK-1+)
-(define-keysym :|2| sdl2-ffi::+SDLK-2+)
-(define-keysym :|3| sdl2-ffi::+SDLK-3+)
-(define-keysym :|4| sdl2-ffi::+SDLK-4+)
-(define-keysym :|5| sdl2-ffi::+SDLK-5+)
-(define-keysym :|6| sdl2-ffi::+SDLK-6+)
-(define-keysym :|7| sdl2-ffi::+SDLK-7+)
-(define-keysym :|8| sdl2-ffi::+SDLK-8+)
-(define-keysym :|9| sdl2-ffi::+SDLK-9+)
-(define-keysym :|0| sdl2-ffi::+SDLK-0+)
-(define-keysym :|`| sdl2-ffi::+SDLK-BACKQUOTE+)
-(define-keysym :|'| sdl2-ffi::+SDLK-QUOTE+)
-(define-keysym :|"| sdl2-ffi::+SDLK-QUOTEDBL+)
-(define-keysym :|!| sdl2-ffi::+SDLK-EXCLAIM+)
+(define-keysym :|1| sdl2-ffi::+SDLK-1+ t)
+(define-keysym :|2| sdl2-ffi::+SDLK-2+ t)
+(define-keysym :|3| sdl2-ffi::+SDLK-3+ t)
+(define-keysym :|4| sdl2-ffi::+SDLK-4+ t)
+(define-keysym :|5| sdl2-ffi::+SDLK-5+ t)
+(define-keysym :|6| sdl2-ffi::+SDLK-6+ t)
+(define-keysym :|7| sdl2-ffi::+SDLK-7+ t)
+(define-keysym :|8| sdl2-ffi::+SDLK-8+ t)
+(define-keysym :|9| sdl2-ffi::+SDLK-9+ t)
+(define-keysym :|0| sdl2-ffi::+SDLK-0+ t)
+(define-keysym :|`| sdl2-ffi::+SDLK-BACKQUOTE+ t)
+(define-keysym :|'| sdl2-ffi::+SDLK-QUOTE+ t)
+(define-keysym :|"| sdl2-ffi::+SDLK-QUOTEDBL+ t)
+(define-keysym :|!| sdl2-ffi::+SDLK-EXCLAIM+ t)
 (define-keysym :|@| sdl2-ffi::+SDLK-AT+)
 (define-keysym :|#| sdl2-ffi::+SDLK-HASH+)
 (define-keysym :|$| sdl2-ffi::+SDLK-DOLLAR+)
@@ -103,32 +103,43 @@
 (define-keysym :TAB sdl2-ffi::+SDLK-TAB+)
 (define-keysym :RETURN sdl2-ffi::+SDLK-RETURN+)
 (define-keysym :ESCAPE sdl2-ffi::+SDLK-ESCAPE+)
+(define-keysym :DELETE sdl2-ffi::+SDLK-DELETE+)
+
+(define-keysym :SHIFT-LEFT sdl2-ffi::+SDLK-LSHIFT+)
+(define-keysym :SHIFT-RIGHT sdl2-ffi::+SDLK-RSHIFT+)
+(define-keysym :CONTROL-LEFT sdl2-ffi::+SDLK-LCTRL+)
+(define-keysym :CONTROL-RIGHT sdl2-ffi::+SDLK-RCTRL+)
+(define-keysym :CAPS-LOCK sdl2-ffi::+SDLK-CAPSLOCK+)
+(define-keysym :MENU sdl2-ffi::+SDLK-MENU+)
+;;(define-keysym :SHIFT-LOCK sdl2-ffi::+SDLK-+)
+;;(define-keysym :META-LEFT sdl2-ffi::+SDLK-+)
+;;(define-keysym :META-RIGHT sdl2-ffi::+SDLK-+)
+(define-keysym :ALT-LEFT sdl2-ffi::+SDLK-LALT+)
+(define-keysym :ALT-RIGHT sdl2-ffi::+SDLK-RALT+)
+(define-keysym :SUPER-LEFT sdl2-ffi::+SDLK-LGUI+)
+;;(define-keysym :SUPER-RIGHT sdl2-ffi::+SDLK-+)
+;;(define-keysym :HYPER-LEFT sdl2-ffi::+SDLK-+)
+;;(define-keysym :HYPER-RIGHT sdl2-ffi::+SDLK-+)
+
 
 #|
 (define-keysym :CLEAR #xff0b)
 (define-keysym :PAUSE #xff13)
 (define-keysym :SCROLL-LOCK #xff14)
 (define-keysym :SYS-REQ #xff15)
-(define-keysym :DELETE #xffff)
+
 |#
 
 #|
-Decimal
-
-Decimal Value
-Hex Value (Char)
-SDL_Keycode Constant
-0
+sdl2-ffi::+SDLK-RGUI+
+SDLK_RGUI
+SDLK_MODE
 0x00 ('\0')
 SDLK_UNKNOWN
 8
 
-0x7F ('\177')
-SDLK_DELETE
-1073741881
-0x40000039
-SDLK_CAPSLOCK
-1073741882
+
+
 0x4000003A
 SDLK_F1
 1073741883
@@ -520,33 +531,7 @@ SDLK_KP_DECIMAL
 SDLK_KP_HEXADECIMAL
 1073742048
 0x400000E0
-SDLK_LCTRL
-1073742049
-0x400000E1
-SDLK_LSHIFT
-1073742050
-0x400000E2
-SDLK_LALT
-1073742051
-0x400000E3
-SDLK_LGUI
-1073742052
-0x400000E4
-SDLK_RCTRL
-1073742053
-0x400000E5
-SDLK_RSHIFT
-1073742054
-0x400000E6
-SDLK_RALT
-1073742055
-0x400000E7
-SDLK_RGUI
-1073742081
-0x40000101
-SDLK_MODE
-1073742082
-0x40000102
+
 SDLK_AUDIONEXT
 1073742083
 0x40000103

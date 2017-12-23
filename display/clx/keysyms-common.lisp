@@ -174,7 +174,9 @@
   (defconstant +control-bit+    #b00000100)
   (defparameter *meta-bit*      #b00001000)
   (defparameter *hyper-bit*     #b00100000)
-  (defparameter *super-bit*     #b01000000))
+  (defparameter *super-bit*     #b01000000)
+  (defparameter *alt-bit*       #b10000000)
+  )
 
 ;;; Given an X11/CLX modifier mask, return a CLIM modifier mask with
 ;;; the relevant bits set.  Recall that the CLIM modifier mask does
@@ -319,3 +321,54 @@
 	  ((and keysym-modifier (eq event-key :key-release))
 	   (logandc2 modifiers keysym-modifier))
 	  (t modifiers))))
+
+
+(defparameter *clx-modifier->keyname*
+  (list (cons +shift-key+ nil)
+        (cons +control-key+ nil)
+        (cons +meta-key+ nil)
+        (cons +super-key+ nil)
+        (cons +hyper-key+ nil)
+        (cons +alt-key+ nil)))
+
+(defparameter *modifier->keyname* nil)
+ 
+
+(defun load-modifier (display)
+  (let ((mm (XLIB::GET-DISPLAY-MODIFIER-MAPPING display)))
+    (setf *clx-modifier->keyname* nil)
+    (dolist (l mm)
+      (let ((k (car l))
+            (v (cdr l)))
+        (let ((keys (assoc v *clx-modifier->keyname*)))
+          ;;(log:info v keys)
+          (unless (eql k 0)
+            (if keys
+                (rplacd keys (cons (keysym-to-keysym-name k) (cdr keys)))
+                (setf *clx-modifier->keyname* (cons (list v (keysym-to-keysym-name k)) *clx-modifier->keyname*)))))))
+    (setf *modifier->keyname*
+          (list (cons +shift-key+ (cdr (assoc +shift-bit+ *clx-modifier->keyname*)))
+                (cons +control-key+ (cdr (assoc +control-bit+ *clx-modifier->keyname*))) 
+                (cons +meta-key+ (cdr (assoc *meta-bit* *clx-modifier->keyname*)))
+                (cons +super-key+ (cdr (assoc *super-bit* *clx-modifier->keyname*)))
+                (cons +hyper-key+ (cdr (assoc *hyper-bit* *clx-modifier->keyname*)))))
+
+        #+nil (push (list v k (keysym-to-keysym-name k)) *modifiers*)
+        ;;(log:info "==> ~A ~A ~A" +modifiers+ *clx-modifier->keyname* *modifier->keyname*)))
+        ))
+
+  
+
+(defun clx-state-modifiers (driver state)
+  (with-slots (display) driver
+    (load-modifier display))
+  (let ((modifiers
+         (logior (if (plusp (logand state +shift-bit+)) +shift-key+ 0)
+                 (if (plusp (logand state +control-bit+)) +control-key+ 0)
+                 (if (plusp (logand state *meta-bit*)) +meta-key+ 0)
+                 (if (plusp (logand state *hyper-bit*)) +hyper-key+ 0)
+                 (if (plusp (logand state *super-bit*)) +super-key+ 0))))
+    (values modifiers
+            (plusp (logand state +lock-bit+))
+            (plusp (logand state *alt-bit*)))))
+

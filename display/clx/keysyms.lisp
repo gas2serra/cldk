@@ -90,50 +90,56 @@
 (defun x-event-to-key-name-and-modifiers (driver event-key keycode state)
   (multiple-value-bind (clim-modifiers caps-lock? mode-switch?)
       (x-event-state-modifiers driver state)
-    (let* ((display (clx-driver-display driver))
-           (shift? (logtest +shift-key+ clim-modifiers))
-           (shifted-keysym (xlib:keycode->keysym display keycode
-                                                 (+ 1 (if mode-switch?
-                                                          2 0))))
-           (unshifted-keysym (xlib:keycode->keysym display keycode
-                                                   (if mode-switch?
-                                                       2 0)))
-           (keysym-char (xlib:keysym->character display unshifted-keysym
-                                                (if mode-switch? 2 0)))
-           (alpha-char? (and (characterp keysym-char)
-                             (alpha-char-p keysym-char)))
-           (keysym
-            (if shift?
-                ;; Shift + caps lock cancel themselves for alphabetic chars
-                (if (and caps-lock? alpha-char?)
-                    unshifted-keysym
-                    shifted-keysym)
-                (if (and caps-lock? alpha-char?)
-                    shifted-keysym
-                    unshifted-keysym))))
-      (let* ((keysym-name (keysym-to-keysym-name keysym))
-             (char (xlib:keysym->character display keysym
-                                           (+ (if shift?
-                                                  1 0)
-                                              (if mode-switch?
-                                                  2 0))))
-             ;; Cache might be updated at this step.
-             (modifiers (x-keysym-to-modifiers
-                         driver
-                         event-key
-                         char
-                         (keysym-to-keysym-name keysym)
-                         state)))
-        (values char
-                ;; We filter away the shift state if there is a
-                ;; difference between the shifted and unshifted
-                ;; keysym. This is so eg. #\A will not look like "#\A
-                ;; with a Shift modifier", as this makes gesture
-                ;; processing more difficult.
-                (if (= shifted-keysym unshifted-keysym)
-                    modifiers
-                    (logandc2 modifiers +shift-key+))
-                keysym-name)))))
+    (multiple-value-bind (clx-modifiers clx-caps-lock? clx-mode-switch?)
+        (clx-state-modifiers driver state)
+      (log:info "==> ~A ~A" clx-modifiers
+                clim-modifiers)
+      (log:info "=> ~A ~A" (list caps-lock? mode-switch?) (list clx-caps-lock? clx-mode-switch?))
+      (let* ((display (clx-driver-display driver))
+             (shift? (logtest +shift-key+ clim-modifiers))
+             (shifted-keysym (xlib:keycode->keysym display keycode
+                                                   (+ 1 (if mode-switch?
+                                                            2 0))))
+             (unshifted-keysym (xlib:keycode->keysym display keycode
+                                                     (if mode-switch?
+                                                         2 0)))
+             (keysym-char (xlib:keysym->character display unshifted-keysym
+                                                  (if mode-switch? 2 0)))
+             (alpha-char? (and (characterp keysym-char)
+                               (alpha-char-p keysym-char)))
+             (keysym
+              (if shift?
+                  ;; Shift + caps lock cancel themselves for alphabetic chars
+                  (if (and caps-lock? alpha-char?)
+                      unshifted-keysym
+                      shifted-keysym)
+                  (if (and caps-lock? alpha-char?)
+                      shifted-keysym
+                      unshifted-keysym))))
+        (let* ((keysym-name (keysym-to-keysym-name keysym))
+               (char (xlib:keysym->character display keysym
+                                             (+ (if shift?
+                                                    1 0)
+                                                (if mode-switch?
+                                                    2 0))))
+               ;; Cache might be updated at this step.
+               (modifiers (x-keysym-to-modifiers
+                           driver
+                           event-key
+                           char
+                           (keysym-to-keysym-name keysym)
+                           state)))
+          (log:info modifiers)
+          (values char
+                  ;; We filter away the shift state if there is a
+                  ;; difference between the shifted and unshifted
+                  ;; keysym. This is so eg. #\A will not look like "#\A
+                  ;; with a Shift modifier", as this makes gesture
+                  ;; processing more difficult.
+                  (if (= shifted-keysym unshifted-keysym)
+                      modifiers
+                      (logandc2 modifiers +shift-key+))
+                  keysym-name))))))
 
 ;;;;
 
