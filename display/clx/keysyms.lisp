@@ -92,9 +92,9 @@
       (x-event-state-modifiers driver state)
     (multiple-value-bind (clx-modifiers clx-caps-lock? clx-mode-switch?)
         (clx-state-modifiers driver state)
-      (log:info "==> ~A ~A" clx-modifiers
+      #+nil (log:info "==> ~A ~A" clx-modifiers
                 clim-modifiers)
-      (log:info "=> ~A ~A" (list caps-lock? mode-switch?) (list clx-caps-lock? clx-mode-switch?))
+      #+nil (log:info "=> ~A ~A" (list caps-lock? mode-switch?) (list clx-caps-lock? clx-mode-switch?))
       (let* ((display (clx-driver-display driver))
              (shift? (logtest +shift-key+ clim-modifiers))
              (shifted-keysym (xlib:keycode->keysym display keycode
@@ -129,7 +129,7 @@
                            char
                            (keysym-to-keysym-name keysym)
                            state)))
-          (log:info modifiers)
+          #+nil (log:info modifiers)
           (values char
                   ;; We filter away the shift state if there is a
                   ;; difference between the shifted and unshifted

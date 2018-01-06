@@ -12,6 +12,28 @@
                (< code (length button-mapping)))
       (aref button-mapping code))))
 
+(defun decode-x-button-state (state)
+  (let ((button-mapping #.(vector 0
+				  0
+				  0
+				  0
+				  0
+				  0
+				  0
+				  0
+				  +pointer-left-button+
+                                  +pointer-middle-button+
+                                  +pointer-right-button+
+                                  0 0 0 0
+                                  +pointer-x1-button+
+                                  +pointer-x2-button+))
+	(res 0))
+    (dotimes (i (length button-mapping))
+      (when (logbitp i state)
+	(log:info "===> ~A ~A " i state)
+	(setf res (logior res (aref button-mapping i)))))
+    res))
+
 (defun clx-event-handler (&key display window event-key code state mode time
                             type width height x y root-x root-y
                             data override-redirect-p send-event-p hint-p
@@ -22,6 +44,7 @@
       (let ((win window))
         (case event-key
           ((:button-press :button-release)
+	   (log:info "--> ~A ~A" state (decode-x-button-state state)) 
            (if (and (>= code 4) (<= code 7))
                (k-handle-scroll-event *clx-kernel*
                                       0

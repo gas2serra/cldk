@@ -1,7 +1,6 @@
 (in-package :cldk-sdl2)
 
 (defun decode-sdl2-button-code (code)
-  (log:info code)
   (let ((button-mapping #.(vector +pointer-left-button+
                                   +pointer-middle-button+
                                   +pointer-right-button+
@@ -59,31 +58,29 @@
           #+nil (log:info "event ~A" etype)
           (case etype
             ((:mousebuttondown :mousebuttonup)
-             (let* ((w (sdl2::c-ref event sdl2-ffi:sdl-event :button :window-id))
-                    (time (sdl2::c-ref event sdl2-ffi:sdl-event :button :timestamp))
-                    (x (sdl2::c-ref event sdl2-ffi:sdl-event :button :x))	  
-                    (y (sdl2::c-ref event sdl2-ffi:sdl-event :button :y))
-                    (button (sdl2::c-ref event sdl2-ffi:sdl-event :button :button))	  
-                    (which (sdl2::c-ref event sdl2-ffi:sdl-event :button :which))
-                    (state (sdl2::c-ref event sdl2-ffi:sdl-event :button :state))
-                    (win w))
+             (let ((win (sdl2::c-ref event sdl2-ffi:sdl-event :button :window-id))
+		   (time (sdl2::c-ref event sdl2-ffi:sdl-event :button :timestamp))
+		   (x (sdl2::c-ref event sdl2-ffi:sdl-event :button :x))	  
+		   (y (sdl2::c-ref event sdl2-ffi:sdl-event :button :y))
+		   (button (sdl2::c-ref event sdl2-ffi:sdl-event :button :button))	  
+		   (which (sdl2::c-ref event sdl2-ffi:sdl-event :button :which))
+		   (state (sdl2::c-ref event sdl2-ffi:sdl-event :button :state)))
                (declare (ignore state))
                (k-handle-button-event kernel
-                                     (if (eq etype :mousebuttondown)
-                                         :press
-                                         :release)
-                                     which
-                                     (decode-sdl2-button-code button)
-                                     win
-                                     time)))
+				      (if (eq etype :mousebuttondown)
+					  :press
+					  :release)
+				      which
+				      (decode-sdl2-button-code button)
+				      win
+				      time)))
             (:mousewheel
-             (let* ((w (sdl2::c-ref event sdl2-ffi:sdl-event :wheel :window-id))
-                    (time (sdl2::c-ref event sdl2-ffi:sdl-event :wheel :timestamp))
-                    (x (sdl2::c-ref event sdl2-ffi:sdl-event :wheel :x))	  
-                    (y (sdl2::c-ref event sdl2-ffi:sdl-event :wheel :y))
-                    (which (sdl2::c-ref event sdl2-ffi:sdl-event :wheel :which))
-                    (direction (sdl2::c-ref event sdl2-ffi:sdl-event :wheel :direction))
-                    (win w))
+             (let ((win (sdl2::c-ref event sdl2-ffi:sdl-event :wheel :window-id))
+		   (time (sdl2::c-ref event sdl2-ffi:sdl-event :wheel :timestamp))
+		   (x (sdl2::c-ref event sdl2-ffi:sdl-event :wheel :x))	  
+		   (y (sdl2::c-ref event sdl2-ffi:sdl-event :wheel :y))
+		   (which (sdl2::c-ref event sdl2-ffi:sdl-event :wheel :which))
+		   (direction (sdl2::c-ref event sdl2-ffi:sdl-event :wheel :direction)))
                (declare (ignore direction))
                (k-handle-scroll-event kernel
                                       which
@@ -92,23 +89,23 @@
                                       win
                                       time)))
             (:mousemotion
-             (let* ((w (sdl2::c-ref event sdl2-ffi:sdl-event :motion :window-id))
-                    (time (sdl2::c-ref event sdl2-ffi:sdl-event :motion :timestamp))
-                    (x (sdl2::c-ref event sdl2-ffi:sdl-event :motion :x))	  
-                    (y (sdl2::c-ref event sdl2-ffi:sdl-event :motion :y))
-                    (xrel (sdl2::c-ref event sdl2-ffi:sdl-event :motion :xrel))	  
-                    (yrel (sdl2::c-ref event sdl2-ffi:sdl-event :motion :yrel))
-                    (which (sdl2::c-ref event sdl2-ffi:sdl-event :motion :which))
-                    (state (sdl2::c-ref event sdl2-ffi:sdl-event :motion :state))
-                    (win w))
-               (multiple-value-bind (pos-x pos-y)
-                   (sdl2:get-window-position (sdl2-ffi.functions::sdl-get-window-from-id w))
+             (let ((win (sdl2::c-ref event sdl2-ffi:sdl-event :motion :window-id))
+		   (time (sdl2::c-ref event sdl2-ffi:sdl-event :motion :timestamp))
+		   (x (sdl2::c-ref event sdl2-ffi:sdl-event :motion :x))	  
+		   (y (sdl2::c-ref event sdl2-ffi:sdl-event :motion :y))
+		   (xrel (sdl2::c-ref event sdl2-ffi:sdl-event :motion :xrel))	  
+		   (yrel (sdl2::c-ref event sdl2-ffi:sdl-event :motion :yrel))
+		   (which (sdl2::c-ref event sdl2-ffi:sdl-event :motion :which))
+		   (state (sdl2::c-ref event sdl2-ffi:sdl-event :motion :state)))
+	       (declare (ignore xrel yrel state))
+	       (multiple-value-bind (pos-x pos-y)
+                   (sdl2:get-window-position (sdl2-ffi.functions::sdl-get-window-from-id win))
                  (k-handle-motion-event kernel
-                                       which
-                                       x y
-                                       (+ x pos-x) (+ y pos-y)
-                                       win
-                                       time))))
+					which
+					x y
+					(+ x pos-x) (+ y pos-y)
+					win
+					time))))
             ((:keydown :keyup)
              (let* ((w (sdl2::c-ref event sdl2-ffi:sdl-event :key :window-id))
                     (time (sdl2::c-ref event sdl2-ffi:sdl-event :key :timestamp))
@@ -165,11 +162,10 @@
              #+nil (log:info "QUIT"))
             (:windowevent
              (let* ((e (sdl2::c-ref event sdl2-ffi:sdl-event :window :event))
-                    (w (sdl2::c-ref event sdl2-ffi:sdl-event :window :window-id))
+                    (win (sdl2::c-ref event sdl2-ffi:sdl-event :window :window-id))
                     (time (sdl2::c-ref event sdl2-ffi:sdl-event :window :timestamp))
                     (data1 (sdl2::c-ref event sdl2-ffi:sdl-event :window :data1))	  
-                    (data2 (sdl2::c-ref event sdl2-ffi:sdl-event :window :data2))
-                    (win w))
+                    (data2 (sdl2::c-ref event sdl2-ffi:sdl-event :window :data2)))
                ;;(log:info "Window Event:: ~A ~A ~A ~A ~A~%" e (list w win) time data1 data2)
                (cond
                  ((= e sdl2-ffi::+sdl-windowevent-close+)
@@ -180,7 +176,7 @@
                                               (y :int))
                     (sdl2-ffi.functions:sdl-get-mouse-state x y)
                     (multiple-value-bind (pos-x pos-y)
-                        (sdl2:get-window-position (sdl2-ffi.functions::sdl-get-window-from-id w))
+                        (sdl2:get-window-position (sdl2-ffi.functions::sdl-get-window-from-id win))
                       (k-handle-enter-event kernel
                                             0
                                             (cffi:mem-ref x :int) (cffi:mem-ref y :int)
@@ -190,8 +186,8 @@
                                             time))))
                  ((= sdl2-ffi::+sdl-windowevent-exposed+ e)
                   (multiple-value-bind (w h)
-                       (sdl2:get-window-size (sdl2-ffi.functions::sdl-get-window-from-id w))
-                     (k-handle-repaint-event kernel win 0 0 w h time)))
+		      (sdl2:get-window-size (sdl2-ffi.functions::sdl-get-window-from-id win))
+		    (k-handle-repaint-event kernel win 0 0 w h time)))
                  ((= sdl2-ffi::+sdl-windowevent-focus-gained+ e)
                   #+nil (log:info "Window Event Focus in:: ~A ~A ~A ~A ~A~%" e (list w win) time data1 data2)
                   nil)
@@ -212,7 +208,7 @@
                  ((= sdl2-ffi::+sdl-windowevent-moved+ e)
                   (when win
                     (multiple-value-bind (w h)
-                        (sdl2:get-window-size (sdl2-ffi.functions::sdl-get-window-from-id w))
+                        (sdl2:get-window-size (sdl2-ffi.functions::sdl-get-window-from-id win))
                       (k-handle-window-configuration-event kernel win
                                                            data1 data2
                                                            w h time))))
@@ -238,14 +234,13 @@
                  ((= sdl2-ffi::+sdl-windowevent-size-changed+ e)
                   (when win
                     (multiple-value-bind (pos-x pos-y)
-                        (sdl2:get-window-position (sdl2-ffi.functions::sdl-get-window-from-id w))
+                        (sdl2:get-window-position (sdl2-ffi.functions::sdl-get-window-from-id win))
                       (k-handle-window-configuration-event kernel win
-                                               pos-x pos-y
-                                               data1 data2 time))))
+							   pos-x pos-y
+							   data1 data2 time))))
                  (t
-                   (log:info "Bo: ~a ~A ~A ~A ~A~%" e (list w win) time data1 data2)
-                   nil))))
+		  (log:info "Bo: ~a ~A ~A ~A ~A~%" e win time data1 data2)
+		  nil))))
             (t
              (log:debug "event ~A" etype))))
         t))))
-      

@@ -18,7 +18,8 @@ cldk:*events-to-log-list*
   (let ((*s* (cldk:find-display-server :server-path backend)))
     (setf (cldk:server-event-handler *s*)
           (make-instance 'cldk:log-event-handler))
-    (setf (cldk:event-handler-events-to-log (cldk:server-event-handler *s*)) '(:key :modifiers))
+
+    (setf (cldk:event-handler-events-to-log (cldk:server-event-handler *s*)) '(:button))
 
     (let ((w (cldk:create-window *s* "Pippo" :mode :managed)))
       (cldk:show-window w)
