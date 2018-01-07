@@ -142,8 +142,8 @@
                        :parent (xlib:screen-root screen)
                        :width (max width 1)
                        :height (max height 1)
-                       :x x
-                       :y y
+                       :x (or x 0)
+                       :y (or y 0)
                        :border-width 0
                        :border 0
                        :override-redirect (if (eql mode :managed) :off :on)
@@ -204,6 +204,7 @@
           (xlib:drawable-height xwindow))))
 
 (defmethod driver-set-window-position ((driver clx-driver) window x y)
+  (log:info "POSITION ~A" (list x y))
   (with-slots (xwindow) window
     (setf (xlib:drawable-x xwindow) x
           (xlib:drawable-y xwindow) y)

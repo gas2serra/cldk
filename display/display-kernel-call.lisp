@@ -137,7 +137,8 @@
 
 (defun k-update-buffer (kbuffer width height)
   (check-kernel-mode)
-  (driver-update-buffer (driver kbuffer) (buffer-driver-buffer kbuffer) width height))
+  (when (buffer-driver-buffer kbuffer)
+    (driver-update-buffer (driver kbuffer) (buffer-driver-buffer kbuffer) width height)))
 
 ;;;
 ;;; buffered windows

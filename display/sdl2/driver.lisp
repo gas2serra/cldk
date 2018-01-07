@@ -87,8 +87,8 @@
     ;; SKIP_TASKBAR WINDOW_UTILITY WINDOW_TOOLTIP
     ;; WINDOW_POPUP_MENU
     (let ((window (sdl2::sdl-create-window pretty-name
-                                           x
-                                           y
+                                           (or x (sdl2:windowpos-undefined))
+                                           (or y (sdl2:windowpos-undefined))
                                            width
                                            height
                                            window-flags)))
@@ -116,6 +116,8 @@
     (multiple-value-list (sdl2:get-window-size sdlwindow))))
  
 (defmethod driver-set-window-position ((driver sdl2-driver) window x y)
+  (log:info "POSITION ~A" (list x y))
+  ;;(break)
   (with-slots (sdlwindow) window
     (sdl2:set-window-position sdlwindow x y)))
 
@@ -126,7 +128,8 @@
 (defmethod driver-set-window-hints ((driver sdl2-driver) window x y width height max-width max-height
                                          min-width min-height)
   (with-slots (sdlwindow) window
-    (when (and x y)
+    (log:info "HINTS: ~A " (list x y))
+    #+nil (when (and x y)
       (sdl2:set-window-position sdlwindow x y))
     (when (or width height)
       (sdl2:set-window-size sdlwindow (or width 100) (or height 100)))

@@ -201,7 +201,7 @@
     (when (or (eql to-log :all) (member :motion to-log))
       (log:info "win:~A  p:~A p:~A[~A]" win pointer
                 (list x y) (list root-x root-y))
-      (when (member :modifiers to-log)
+      (when (and (listp to-log) (member :modifiers to-log))
         (with-slots (modifiers pressed-buttons) handler
           (log:info "keys:~A buts:~A"
                     (modifiers2keywords modifiers)

@@ -86,10 +86,10 @@
 
 (defmethod adopt-frame :before ((fm fb-frame-manager) (frame menu-frame))
   ;; Temporary kludge.
+  #+nil (log:info "====ADOPT MENU ~A" (round (slot-value frame 'climi::top)))
   (when (eq (slot-value frame 'climi::top) nil)
     (multiple-value-bind (x y)
         (values-list (cldk:screen-pointer-position (fb-port-server (port fm))))
-        ;;(xlib:query-pointer (clx-port-window (port fm)))
       (incf x 10)
       (setf (slot-value frame 'climi::left) x
             (slot-value frame 'climi::top) y))))
@@ -98,22 +98,29 @@
   (when (sheet-enabled-p (slot-value frame 'climi::top-level-sheet))
     (cldk:show-window (sheet-direct-mirror (slot-value frame 'top-level-sheet)))))
 
-(defgeneric tell-window-manager-about-space-requirements (pane))
-
 (defmethod tell-window-manager-about-space-requirements ((pane top-level-sheet-pane))
+
   (multiple-value-bind (w h x y) (climi::frame-geometry* (pane-frame pane))
     (declare (ignore w h))
     (let ((q (compose-space pane)))
       (let ((mirror (sheet-direct-mirror pane)))
-        (cldk:set-window-hints 
-         mirror
-         :x x :y y
-         :width (round (space-requirement-width q))
-         :height (round (space-requirement-height q))
-         :max-width (min 65535 (round (space-requirement-max-width q)))
-         :max-height (min 65535 (round (space-requirement-max-height q)))
-         :min-width (round (space-requirement-min-width q))
-         :min-height (round (space-requirement-min-height q)))))))
+        #+nil (log:info "***TELL> ~A ~A ~A" (fb-mirrored-sheet-state pane)
+                  (list x y)
+                  (list
+                   (round (space-requirement-width q))
+                   (round (space-requirement-height q))))
+        ;;(setf x (slot-value (pane-frame pane) 'climi::left))
+        ;;(setf y (slot-value (pane-frame pane) 'climi::top))
+        (when (fb-mirrored-sheet-state pane)
+          (cldk:set-window-hints 
+           mirror
+           :x x :y y
+           :width (round (space-requirement-width q))
+           :height (round (space-requirement-height q))
+           :max-width (min 65535 (round (space-requirement-max-width q)))
+           :max-height (min 65535 (round (space-requirement-max-height q)))
+           :min-width (round (space-requirement-min-width q))
+           :min-height (round (space-requirement-min-height q))))))))
 
 (defmethod tell-window-manager-about-space-requirements ((pane t))
   ;; hmm

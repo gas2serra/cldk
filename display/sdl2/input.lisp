@@ -84,11 +84,10 @@
                                                          (sdl2:mod-value keysym))
                  (setf *key-modifiers* modifier-state)
                  (when (or (not alpha-p)
-                           (not (= (logior +shift-key+
-                                           (decode-sdl2-mod-state (sdl2:mod-value keysym)))
-                                   +shift-key+)))
-                   
-                   #+nil (log:info "====> !! NOT CHAR: ~A ~A" alpha-p (decode-sdl2-mod-state (sdl2:mod-value keysym)))
+                           (= (logand +control-key+
+                                      modifier-state)
+                              +control-key+))
+                   ;;(log:info "====> !! NOT CHAR: ~A ~A" alpha-p (decode-sdl2-mod-state (sdl2:mod-value keysym)))
                    (k-handle-key-event kernel
                                       (if (eq etype :keydown)
                                           :press
@@ -103,21 +102,24 @@
                     (time (sdl2::c-ref event sdl2-ffi:sdl-event :text :timestamp))
                     (text (sdl2::c-ref event sdl2-ffi:sdl-event :text :text))	  
                     (win w))
-               (when (= (logior +shift-key+ *key-modifiers*)
-                        +shift-key+)
-                 ;;(log:info "====>>> CHAR!!! ~A ~A" text *key-modifiers*)
+               #+nil (log:info "====>>> TEXT INPUT!!! ~A ~A ~A" (code-char text) *key-modifiers*
+                         (logand (- #xFFFF +shift-key+) *key-modifiers*))
+               (when (= (logand +control-key+
+                                *key-modifiers*)
+                        0)
+                 #+nil (log:info "====>>> CHAR!!! ~A ~A" text *key-modifiers*)
                  (k-handle-key-event kernel
                                      :press
                                      (make-symbol (string (code-char text)))
                                      (code-char text)
-                                     0
+                                     (logand (- #xFFFF +shift-key+) *key-modifiers*)
                                      win
                                      time)
                  (k-handle-key-event kernel
                                      :release
                                      (make-symbol (string (code-char text)))
                                      (code-char text)
-                                     0
+                                     (logand (- #xFFFF +shift-key+) *key-modifiers*)
                                      win
                                      time))))
             (:quit

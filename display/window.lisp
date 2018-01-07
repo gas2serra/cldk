@@ -24,7 +24,7 @@
 
 (defgeneric create-window (server name &key pretty-name x y width height
                                          mode window-class)
-  (:method ((server display-server) name &key (pretty-name name) (x 0) (y 0)
+  (:method ((server display-server) name &key (pretty-name name) (x nil) (y nil)
                                    (width 300) (height 300)
                                    (mode :managed) (window-class 'window))
     (make-instance window-class :server server :kernel server

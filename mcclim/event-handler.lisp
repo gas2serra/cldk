@@ -65,10 +65,10 @@
                              'key-release-event)
                          :key-name keyname
                          :key-character character
-                         :x (cldk:event-handler-cur-x handler)
-                         :y (cldk:event-handler-cur-y handler)
-                         :graft-x (cldk:event-handler-cur-root-x handler)
-                         :graft-y (cldk:event-handler-cur-root-y handler)
+                         :x (or (cldk:event-handler-cur-x handler) 0)
+                         :y (or (cldk:event-handler-cur-y handler) 0)
+                         :graft-x (or (cldk:event-handler-cur-root-x handler) 0)
+                         :graft-y (or (cldk:event-handler-cur-root-y handler) 0)
                          :sheet (or (frame-properties (pane-frame sheet) 'focus) sheet)
                          :modifier-state modifiers
                          :timestamp time)))
@@ -110,6 +110,7 @@
                            :x x
                            :y y
                            :width w :height h)))
+      #+nil (log:info "CONF: ~A ~A " (list x y) (list w h))
       (clim:distribute-event (handler-port handler) event)))
 
 (defmethod cldk:handle-repaint-event ((handler fb-event-handler) win x y w h time)

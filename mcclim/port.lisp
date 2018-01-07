@@ -84,12 +84,12 @@
                  (round-coordinate (nth-value 0 (transform-position
                                                  mirror-transformation
                                                  0 0)))
-                 0))
+                 nil))
           (y (if mirror-transformation
                  (round-coordinate (nth-value 1 (transform-position
                                                  mirror-transformation
                                                  0 0)))
-                 0))
+                 nil))
           (width (if mirror-region
                      (round-coordinate (bounding-rectangle-width mirror-region))
                      (round-coordinate (space-requirement-width q))))
@@ -109,7 +109,7 @@
       (let ((mirror
              (cldk:create-buffered-window (fb-port-server port) name
                                           :pretty-name pretty-name
-                                          :x x :y y
+                                          :x nil :y nil
                                           :width width :height height 
                                           :mode (if (typep sheet 'unmanaged-top-level-sheet-pane) :unmanaged :managed)
                                           :window-class 'fb-mirror)))
@@ -137,6 +137,9 @@
                                    
 (defmethod port-set-mirror-transformation
     ((port fb-port) mirror mirror-transformation)
+  #+nil (log:info (floor (nth-value 0 (transform-position mirror-transformation 0 0)))
+            (floor (nth-value 1 (transform-position mirror-transformation 0 0))))
+  ;;(break)
   (cldk:set-window-position mirror
                             (floor (nth-value 0 (transform-position mirror-transformation 0 0)))
                             (floor (nth-value 1 (transform-position mirror-transformation 0 0)))))
