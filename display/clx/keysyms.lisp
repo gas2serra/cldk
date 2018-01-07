@@ -24,128 +24,133 @@
 
 (in-package :cldk-clx)
 
-;;; Recall that the function CLIM-XCOMMON:KEYSYM-TO-KEYSYM-NAME simply
-;;; consults a fixed hash table that maps X11 keysyms (which are
-;;; numbers) to keysym names (which are Common Lisp symbols in the
-;;; KEYWORD package).
-;;;
-;;; This function returns a list of length 0, 1 or 2.  It returns the
-;;; empty list if the keysym with index 0 is 0.  I don't see how this
-;;; can be the case, though.  Otherwise, it returns a singleton list
-;;; if the keysyms with index 0 and 1 are the same, and a list of the
-;;; keysyms with index 0 and 1 if the two are different.
-;;;
-;;; I am guessing that for all modifier keys, the two are the same, so
-;;; that this function always returns a singleton list.
-(defun modifier-keycode->keysyms (display keycode)
-  (let ((first-x-keysym (xlib:keycode->keysym display keycode 0)))
-    (when (zerop first-x-keysym)
-      (return-from modifier-keycode->keysyms nil))
-    (let ((second-x-keysym (xlib:keycode->keysym display keycode 1)))
-      (cons (keysym-to-keysym-name first-x-keysym)
-	    (if (eql first-x-keysym second-x-keysym)
-		'()
-		(list (keysym-to-keysym-name second-x-keysym)))))))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defconstant +shift-bit+      #b00000001)
+  (defconstant +lock-bit+       #b00000010)
+  (defconstant +control-bit+    #b00000100)
+  (defparameter *meta-bit*      #b00001000)
+  (defparameter *hyper-bit*     #b00100000)
+  (defparameter *super-bit*     #b01000000)
+  (defparameter *alt-bit*       #b10000000))
 
-;;; The X state is the state before the current event, so key events
-;;; for the modifier keys don't reflect the state that results from
-;;; pressing or releasing those keys.  We want the CLIM modifiers to
-;;; reflect the post event state.
+(defparameter *clx-modifier->keyname*
+  (list (cons +shift-key+ nil)
+        (cons +control-key+ nil)
+        (cons +meta-key+ nil)
+        (cons +super-key+ nil)
+        (cons +hyper-key+ nil)
+        (cons +alt-key+ nil)))
 
-;;; Recall that X11 defines how to map keycodes to keysyms by defining
-;;; a "list" (not a Common Lisp list, though.  More like a vector in
-;;; fact.) of possible keysyms for each keycode.  The third argument
-;;; to XLIB:KEYCODE->KEYSYM is an index into that list.  The standard
-;;; rules make use only of indices 0 to 3 in that list.  Indices 0 and
-;;; 1 are considered members of "Group 1" and indices 2 and 3 are
-;;; members of "Group 2".
-;;;
-;;; The Xlib C language library function XKeycodeToKeysym might return
-;;; some value corresponding NoSymbol for certain values of the index,
-;;; in particular for index 1 when the keycode corresponds to an
-;;; alphabetic symbol with both a lower and an upper case version, CLX
-;;; applies the rules for us, so that in that case, index 1 is the
-;;; keysym of the upper-case version of the character.
-;;;
-;;; The parameter STATE is a bit mask represented as the logical OR
-;;; of individual bits.  Each bit corresponds to a modifier or a
-;;; pointer button that is active immediately before the key was
-;;; pressed or released.  The bits have the following meaning:
-;;;
-;;;   position  value    meaning
-;;;     0         1      shift
-;;;     1         2      lock
-;;;     2         4      control
-;;;     3         8      mod1
-;;;     4        16      mod2
-;;;     5        32      mod3
-;;;     6        64      mod4
-;;;     7       128      mod5
-;;;     8       256      button1
-;;;     9       512      button2
-;;;    10      1024      button3
-;;;    11      2048      button4
-;;;    12      4096      button5
+(defparameter *modifier->keyname* nil)
+ 
+(defun load-mapping (display)
+  (let ((mm (xlib::get-display-modifier-mapping display)))
+    (setf *clx-modifier->keyname* nil)
+    (dolist (l mm)
+      (let ((k (car l))
+            (v (cdr l)))
+        (let ((keys (assoc v *clx-modifier->keyname*)))
+          (unless (eql k 0)
+            (if keys
+                (rplacd keys (cons (keysym-to-keysym-name k) (cdr keys)))
+                (setf *clx-modifier->keyname* (cons (list v (keysym-to-keysym-name k))
+                                                    *clx-modifier->keyname*)))))))
+    (setf *modifier->keyname*
+          (list (cons +shift-key+ (cdr (assoc +shift-bit+ *clx-modifier->keyname*)))
+                (cons +control-key+ (cdr (assoc +control-bit+ *clx-modifier->keyname*))) 
+                (cons +meta-key+ (cdr (assoc *meta-bit* *clx-modifier->keyname*)))
+                (cons +super-key+ (cdr (assoc *super-bit* *clx-modifier->keyname*)))
+                (cons +hyper-key+ (cdr (assoc *hyper-bit* *clx-modifier->keyname*)))))))
 
-(defun x-event-to-key-name-and-modifiers (driver event-key keycode state)
+(defun decode-x-modifier-state (state)
+  (let ((mapping #.(vector +shift-key+
+                           0
+                           +control-key+
+                           +meta-key+
+                           0
+                           +hyper-key+
+                           +super-key+))
+        (res 0)
+        (caps-lock? (logbitp 1 state))
+        (mode-switch? (logbitp 7 state)))
+    (dotimes (i (length mapping))
+      (when (logbitp i state)
+        (setf res (logior res (aref mapping i)))))
+    (values res caps-lock? mode-switch?)))
+
+(defun decode-x-modifiers-state (state)
+  (let ((modifiers
+         (logior (if (plusp (logand state +shift-bit+)) +shift-key+ 0)
+                 (if (plusp (logand state +control-bit+)) +control-key+ 0)
+                 (if (plusp (logand state *meta-bit*)) +meta-key+ 0)
+                 (if (plusp (logand state *hyper-bit*)) +hyper-key+ 0)
+                 (if (plusp (logand state *super-bit*)) +super-key+ 0))))
+    (values modifiers
+            (plusp (logand state +lock-bit+))
+            (plusp (logand state *alt-bit*)))))
+
+(defun update-modifiers (modifiers event-key keysym-name)
+  (let ((keysym-modifier (loop for modifier-keysyms in *modifier->keyname*
+                            if (member keysym-name (cdr modifier-keysyms))
+                            return (car modifier-keysyms))))
+    (cond ((and keysym-modifier (eq event-key :key-press))
+	   (logior modifiers keysym-modifier))
+	  ((and keysym-modifier (eq event-key :key-release))
+	   (logandc2 modifiers keysym-modifier))
+	  (t modifiers))))
+
+(defun decode-x-key (event-key keycode state)
   (multiple-value-bind (clim-modifiers caps-lock? mode-switch?)
-      (x-event-state-modifiers driver state)
-    (multiple-value-bind (clx-modifiers clx-caps-lock? clx-mode-switch?)
-        (clx-state-modifiers driver state)
-      #+nil (log:info "==> ~A ~A" clx-modifiers
-                clim-modifiers)
-      #+nil (log:info "=> ~A ~A" (list caps-lock? mode-switch?) (list clx-caps-lock? clx-mode-switch?))
-      (let* ((display (clx-driver-display driver))
-             (shift? (logtest +shift-key+ clim-modifiers))
-             (shifted-keysym (xlib:keycode->keysym display keycode
-                                                   (+ 1 (if mode-switch?
-                                                            2 0))))
-             (unshifted-keysym (xlib:keycode->keysym display keycode
-                                                     (if mode-switch?
-                                                         2 0)))
-             (keysym-char (xlib:keysym->character display unshifted-keysym
-                                                  (if mode-switch? 2 0)))
-             (alpha-char? (and (characterp keysym-char)
-                               (alpha-char-p keysym-char)))
-             (keysym
-              (if shift?
-                  ;; Shift + caps lock cancel themselves for alphabetic chars
-                  (if (and caps-lock? alpha-char?)
-                      unshifted-keysym
-                      shifted-keysym)
-                  (if (and caps-lock? alpha-char?)
-                      shifted-keysym
-                      unshifted-keysym))))
-        (let* ((keysym-name (keysym-to-keysym-name keysym))
-               (char (xlib:keysym->character display keysym
-                                             (+ (if shift?
-                                                    1 0)
-                                                (if mode-switch?
-                                                    2 0))))
-               ;; Cache might be updated at this step.
-               (modifiers (x-keysym-to-modifiers
-                           driver
-                           event-key
-                           char
-                           (keysym-to-keysym-name keysym)
-                           state)))
-          #+nil (log:info modifiers)
-          (values char
-                  ;; We filter away the shift state if there is a
-                  ;; difference between the shifted and unshifted
-                  ;; keysym. This is so eg. #\A will not look like "#\A
-                  ;; with a Shift modifier", as this makes gesture
-                  ;; processing more difficult.
-                  (if (= shifted-keysym unshifted-keysym)
-                      modifiers
-                      (logandc2 modifiers +shift-key+))
-                  keysym-name))))))
-
-;;;;
-
-(defun numeric-keysym-to-character (keysym)
-  (and (<= 0 keysym 255)
-       (code-char keysym)))
-
-(defun keysym-to-character (keysym)
-  (numeric-keysym-to-character (keysym-name-to-keysym keysym)))
+      (decode-x-modifier-state state)
+    (let* ((display (clx-driver-display (driver *clx-kernel*)))
+           (shift? (logtest +shift-key+ clim-modifiers))
+           (shifted-keysym (xlib:keycode->keysym display keycode
+                                                 (+ 1 (if mode-switch?
+                                                          2 0))))
+           (unshifted-keysym (xlib:keycode->keysym display keycode
+                                                   (if mode-switch?
+                                                       2 0)))
+           (keysym-char (xlib:keysym->character display unshifted-keysym
+                                                (if mode-switch? 2 0)))
+           (alpha-char? (and (characterp keysym-char)
+                             (alpha-char-p keysym-char)))
+           (keysym
+            (if shift?
+                ;; Shift + caps lock cancel themselves for alphabetic chars
+                (if (and caps-lock? alpha-char?)
+                    unshifted-keysym
+                    shifted-keysym)
+                (if (and caps-lock? alpha-char?)
+                    shifted-keysym
+                    unshifted-keysym))))
+      (let* ((keysym-name (keysym-to-keysym-name keysym))
+             (char (xlib:keysym->character display keysym
+                                           (+ (if shift?
+                                                  1 0)
+                                              (if mode-switch?
+                                                  2 0))))
+             (modifiers (if (and char (characterp char))
+                            clim-modifiers
+                            (update-modifiers
+                             clim-modifiers
+                             event-key
+                             keysym-name)))
+                             
+             ;; Cache might be updated at this step.
+             #+nil (modifiers (x-keysym-to-modifiers
+                         driver
+                         event-key
+                         char
+                         (keysym-to-keysym-name keysym)
+                         state)))
+        #+nil (log:info modifiers)
+        (values char
+                ;; We filter away the shift state if there is a
+                ;; difference between the shifted and unshifted
+                ;; keysym. This is so eg. #\A will not look like "#\A
+                ;; with a Shift modifier", as this makes gesture
+                ;; processing more difficult.
+                (if (= shifted-keysym unshifted-keysym)
+                    modifiers
+                    (logandc2 modifiers +shift-key+))
+                keysym-name)))))

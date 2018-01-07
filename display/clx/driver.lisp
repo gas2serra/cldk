@@ -1,6 +1,6 @@
 (in-package :cldk-clx)
 
-(defclass clx-driver (display-driver keysym-driver-mixin)
+(defclass clx-driver (display-driver)
   ((display :initform nil :reader clx-driver-display)
    (screen :initform nil)
    (root-window :initform nil)))
@@ -27,7 +27,8 @@
       (setf screen (nth (getf options :screen-id 0)
                         (xlib:display-roots display)))
       (setf root-window (xlib:screen-root screen))
-      (setf (xlib:display-error-handler display) #'clx-error-handler))))
+      (setf (xlib:display-error-handler display) #'clx-error-handler)
+      (load-mapping display))))
 
 (defmethod driver-stop ((driver clx-driver))
   (with-slots (display screen root-window) driver

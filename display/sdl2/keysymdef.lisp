@@ -1,7 +1,5 @@
 (in-package :cldk-sdl2)
 
-(defparameter +shift-bits+ #x100)
-
 (define-keysym :|1| sdl2-ffi::+SDLK-1+ t)
 (define-keysym :|2| sdl2-ffi::+SDLK-2+ t)
 (define-keysym :|3| sdl2-ffi::+SDLK-3+ t)
@@ -16,88 +14,61 @@
 (define-keysym :|'| sdl2-ffi::+SDLK-QUOTE+ t)
 (define-keysym :|"| sdl2-ffi::+SDLK-QUOTEDBL+ t)
 (define-keysym :|!| sdl2-ffi::+SDLK-EXCLAIM+ t)
-(define-keysym :|@| sdl2-ffi::+SDLK-AT+)
-(define-keysym :|#| sdl2-ffi::+SDLK-HASH+)
-(define-keysym :|$| sdl2-ffi::+SDLK-DOLLAR+)
-(define-keysym :|%| sdl2-ffi::+SDLK-PERCENT+)
-(define-keysym :|^| sdl2-ffi::+SDLK-CARET+)
-(define-keysym :|&| sdl2-ffi::+SDLK-AMPERSAND+)
-(define-keysym :|*| sdl2-ffi::+SDLK-ASTERISK+)
-(define-keysym :|(| sdl2-ffi::+SDLK-LEFTPAREN+)
-(define-keysym :|)| sdl2-ffi::+SDLK-RIGHTPAREN+)
-(define-keysym :|+| sdl2-ffi::+SDLK-PLUS+)
-(define-keysym :|,| sdl2-ffi::+SDLK-COMMA+)
-(define-keysym :|-| sdl2-ffi::+SDLK-MINUS+)
-(define-keysym :|.| sdl2-ffi::+SDLK-PERIOD+)
-(define-keysym :|/| sdl2-ffi::+SDLK-SLASH+)
-(define-keysym :|:| sdl2-ffi::+SDLK-COLON+)
-(define-keysym :|;| sdl2-ffi::+SDLK-SEMICOLON+)
-(define-keysym :|=| sdl2-ffi::+SDLK-EQUALS+)
-(define-keysym :|>| sdl2-ffi::+SDLK-GREATER+)
-(define-keysym :|<| sdl2-ffi::+SDLK-LESS+)
-(define-keysym :|?| sdl2-ffi::+SDLK-QUESTION+)
-(define-keysym :|[| sdl2-ffi::+SDLK-LEFTBRACKET+)
-(define-keysym :|]| sdl2-ffi::+SDLK-RIGHTBRACKET+)
-(define-keysym :|\\| sdl2-ffi::+SDLK-BACKSLASH+)
-(define-keysym :|_| sdl2-ffi::+SDLK-UNDERSCORE+)
+(define-keysym :|@| sdl2-ffi::+SDLK-AT+ t)
+(define-keysym :|#| sdl2-ffi::+SDLK-HASH+ t)
+(define-keysym :|$| sdl2-ffi::+SDLK-DOLLAR+ t)
+(define-keysym :|%| sdl2-ffi::+SDLK-PERCENT+ t)
+(define-keysym :|^| sdl2-ffi::+SDLK-CARET+ t)
+(define-keysym :|&| sdl2-ffi::+SDLK-AMPERSAND+ t)
+(define-keysym :|*| sdl2-ffi::+SDLK-ASTERISK+ t)
+(define-keysym :|(| sdl2-ffi::+SDLK-LEFTPAREN+ t)
+(define-keysym :|)| sdl2-ffi::+SDLK-RIGHTPAREN+ t)
+(define-keysym :|+| sdl2-ffi::+SDLK-PLUS+ t)
+(define-keysym :|,| sdl2-ffi::+SDLK-COMMA+ t)
+(define-keysym :|-| sdl2-ffi::+SDLK-MINUS+ t)
+(define-keysym :|.| sdl2-ffi::+SDLK-PERIOD+ t)
+(define-keysym :|/| sdl2-ffi::+SDLK-SLASH+ t)
+(define-keysym :|:| sdl2-ffi::+SDLK-COLON+ t)
+(define-keysym :|;| sdl2-ffi::+SDLK-SEMICOLON+ t)
+(define-keysym :|=| sdl2-ffi::+SDLK-EQUALS+ t)
+(define-keysym :|>| sdl2-ffi::+SDLK-GREATER+ t)
+(define-keysym :|<| sdl2-ffi::+SDLK-LESS+ t)
+(define-keysym :|?| sdl2-ffi::+SDLK-QUESTION+ t)
+(define-keysym :|[| sdl2-ffi::+SDLK-LEFTBRACKET+ t)
+(define-keysym :|]| sdl2-ffi::+SDLK-RIGHTBRACKET+ t)
+(define-keysym :|\\| sdl2-ffi::+SDLK-BACKSLASH+ t)
+(define-keysym :|_| sdl2-ffi::+SDLK-UNDERSCORE+ t)
 
-(define-keysym :| | sdl2-ffi::+SDLK-SPACE+)
+(define-keysym :| | sdl2-ffi::+SDLK-SPACE+ t)
 
 ;;(define-keysym :|| sdl2-ffi::+SDLK-+)
 
-(define-keysym :|a| sdl2-ffi::+SDLK-A+)
-(define-keysym :|b| sdl2-ffi::+SDLK-B+)
-(define-keysym :|c| sdl2-ffi::+SDLK-C+)
-(define-keysym :|d| sdl2-ffi::+SDLK-D+)
-(define-keysym :|e| sdl2-ffi::+SDLK-E+)
-(define-keysym :|f| sdl2-ffi::+SDLK-F+)
-(define-keysym :|g| sdl2-ffi::+SDLK-G+)
-(define-keysym :|h| sdl2-ffi::+SDLK-H+)
-(define-keysym :|i| sdl2-ffi::+SDLK-I+)
-(define-keysym :|j| sdl2-ffi::+SDLK-J+)
-(define-keysym :|k| sdl2-ffi::+SDLK-K+)
-(define-keysym :|l| sdl2-ffi::+SDLK-L+)
-(define-keysym :|m| sdl2-ffi::+SDLK-M+)
-(define-keysym :|n| sdl2-ffi::+SDLK-N+)
-(define-keysym :|o| sdl2-ffi::+SDLK-O+)
-(define-keysym :|p| sdl2-ffi::+SDLK-P+)
-(define-keysym :|q| sdl2-ffi::+SDLK-Q+)
-(define-keysym :|r| sdl2-ffi::+SDLK-R+)
-(define-keysym :|s| sdl2-ffi::+SDLK-S+)
-(define-keysym :|t| sdl2-ffi::+SDLK-T+)
-(define-keysym :|u| sdl2-ffi::+SDLK-U+)
-(define-keysym :|v| sdl2-ffi::+SDLK-V+)
-(define-keysym :|w| sdl2-ffi::+SDLK-W+)
-(define-keysym :|x| sdl2-ffi::+SDLK-X+)
-(define-keysym :|y| sdl2-ffi::+SDLK-Y+)
-(define-keysym :|z| sdl2-ffi::+SDLK-Z+)
-
-(define-keysym :|A| (logior +shift-bits+ sdl2-ffi::+SDLK-A+))
-(define-keysym :|B| (logior +shift-bits+ sdl2-ffi::+SDLK-B+))
-(define-keysym :|C| (logior +shift-bits+ sdl2-ffi::+SDLK-C+))
-(define-keysym :|D| (logior +shift-bits+ sdl2-ffi::+SDLK-D+))
-(define-keysym :|E| (logior +shift-bits+ sdl2-ffi::+SDLK-E+))
-(define-keysym :|F| (logior +shift-bits+ sdl2-ffi::+SDLK-F+))
-(define-keysym :|G| (logior +shift-bits+ sdl2-ffi::+SDLK-G+))
-(define-keysym :|H| (logior +shift-bits+ sdl2-ffi::+SDLK-H+))
-(define-keysym :|I| (logior +shift-bits+ sdl2-ffi::+SDLK-I+))
-(define-keysym :|J| (logior +shift-bits+ sdl2-ffi::+SDLK-J+))
-(define-keysym :|K| (logior +shift-bits+ sdl2-ffi::+SDLK-K+))
-(define-keysym :|L| (logior +shift-bits+ sdl2-ffi::+SDLK-L+))
-(define-keysym :|M| (logior +shift-bits+ sdl2-ffi::+SDLK-M+))
-(define-keysym :|N| (logior +shift-bits+ sdl2-ffi::+SDLK-N+))
-(define-keysym :|O| (logior +shift-bits+ sdl2-ffi::+SDLK-O+))
-(define-keysym :|P| (logior +shift-bits+ sdl2-ffi::+SDLK-P+))
-(define-keysym :|Q| (logior +shift-bits+ sdl2-ffi::+SDLK-Q+))
-(define-keysym :|R| (logior +shift-bits+ sdl2-ffi::+SDLK-R+))
-(define-keysym :|S| (logior +shift-bits+ sdl2-ffi::+SDLK-S+))
-(define-keysym :|T| (logior +shift-bits+ sdl2-ffi::+SDLK-T+))
-(define-keysym :|U| (logior +shift-bits+ sdl2-ffi::+SDLK-U+))
-(define-keysym :|V| (logior +shift-bits+ sdl2-ffi::+SDLK-V+))
-(define-keysym :|W| (logior +shift-bits+ sdl2-ffi::+SDLK-W+))
-(define-keysym :|X| (logior +shift-bits+ sdl2-ffi::+SDLK-X+))
-(define-keysym :|Y| (logior +shift-bits+ sdl2-ffi::+SDLK-Y+))
-(define-keysym :|Z| (logior +shift-bits+ sdl2-ffi::+SDLK-Z+))
+(define-keysym :|a| sdl2-ffi::+SDLK-A+ t)
+(define-keysym :|b| sdl2-ffi::+SDLK-B+ t)
+(define-keysym :|c| sdl2-ffi::+SDLK-C+ t)
+(define-keysym :|d| sdl2-ffi::+SDLK-D+ t)
+(define-keysym :|e| sdl2-ffi::+SDLK-E+ t)
+(define-keysym :|f| sdl2-ffi::+SDLK-F+ t)
+(define-keysym :|g| sdl2-ffi::+SDLK-G+ t)
+(define-keysym :|h| sdl2-ffi::+SDLK-H+ t)
+(define-keysym :|i| sdl2-ffi::+SDLK-I+ t)
+(define-keysym :|j| sdl2-ffi::+SDLK-J+ t)
+(define-keysym :|k| sdl2-ffi::+SDLK-K+ t)
+(define-keysym :|l| sdl2-ffi::+SDLK-L+ t)
+(define-keysym :|m| sdl2-ffi::+SDLK-M+ t)
+(define-keysym :|n| sdl2-ffi::+SDLK-N+ t)
+(define-keysym :|o| sdl2-ffi::+SDLK-O+ t)
+(define-keysym :|p| sdl2-ffi::+SDLK-P+ t)
+(define-keysym :|q| sdl2-ffi::+SDLK-Q+ t)
+(define-keysym :|r| sdl2-ffi::+SDLK-R+ t)
+(define-keysym :|s| sdl2-ffi::+SDLK-S+ t)
+(define-keysym :|t| sdl2-ffi::+SDLK-T+ t)
+(define-keysym :|u| sdl2-ffi::+SDLK-U+ t)
+(define-keysym :|v| sdl2-ffi::+SDLK-V+ t)
+(define-keysym :|w| sdl2-ffi::+SDLK-W+ t)
+(define-keysym :|x| sdl2-ffi::+SDLK-X+ t)
+(define-keysym :|y| sdl2-ffi::+SDLK-Y+ t)
+(define-keysym :|z| sdl2-ffi::+SDLK-Z+ t)
 
 (define-keysym :BACKSPACE sdl2-ffi::+SDLK-BACKSPACE+)
 (define-keysym :TAB sdl2-ffi::+SDLK-TAB+)
@@ -121,11 +92,80 @@
 ;;(define-keysym :HYPER-LEFT sdl2-ffi::+SDLK-+)
 ;;(define-keysym :HYPER-RIGHT sdl2-ffi::+SDLK-+)
 
+(define-keysym :HOME sdl2-ffi::+SDLK-HOME+)
+(define-keysym :LEFT sdl2-ffi::+SDLK-LEFT+)
+(define-keysym :UP sdl2-ffi::+SDLK-UP+)
+(define-keysym :RIGHT sdl2-ffi::+SDLK-RIGHT+)
+(define-keysym :DOWN sdl2-ffi::+SDLK-DOWN+)
+(define-keysym :PRIOR sdl2-ffi::+SDLK-PRIOR+)
+(define-keysym :PRIOR sdl2-ffi::+SDLK-PAGEUP+)
+(define-keysym :NEXT sdl2-ffi::+SDLK-PAGEDOWN+)
+(define-keysym :END sdl2-ffi::+SDLK-END+)
+(define-keysym :SELECT sdl2-ffi::+SDLK-SELECT+)
+(define-keysym :PRINT sdl2-ffi::+SDLK-PRINTSCREEN+)
+(define-keysym :EXECUTE sdl2-ffi::+SDLK-EXECUTE+)
+(define-keysym :INSERT sdl2-ffi::+SDLK-INSERT+)
+(define-keysym :UNDO sdl2-ffi::+SDLK-UNDO+)
+(define-keysym :FIND sdl2-ffi::+SDLK-FIND+)
+(define-keysym :CANCEL sdl2-ffi::+SDLK-CANCEL+)
+(define-keysym :HELP sdl2-ffi::+SDLK-HELP+)
+(define-keysym :PAUSE sdl2-ffi::+SDLK-PAUSE+)
+(define-keysym :SCROLL-LOCK sdl2-ffi::+SDLK-SCROLLLOCK+)
+
+(define-keysym :F1 sdl2-ffi::+SDLK-F1+)
+(define-keysym :F2 sdl2-ffi::+SDLK-F2+)
+(define-keysym :F3 sdl2-ffi::+SDLK-F3+)
+(define-keysym :F4 sdl2-ffi::+SDLK-F4+)
+(define-keysym :F5 sdl2-ffi::+SDLK-F5+)
+(define-keysym :F6 sdl2-ffi::+SDLK-F6+)
+(define-keysym :F7 sdl2-ffi::+SDLK-F7+)
+(define-keysym :F8 sdl2-ffi::+SDLK-F8+)
+(define-keysym :F9 sdl2-ffi::+SDLK-F9+)
+(define-keysym :F10 sdl2-ffi::+SDLK-F10+)
+(define-keysym :F11 sdl2-ffi::+SDLK-F11+)
+(define-keysym :F12 sdl2-ffi::+SDLK-F12+)
+
+;;(define-keysym :KP-SPACE #xff80)
+;;(define-keysym :KP-TAB #xff89)
+(define-keysym :KP-ENTER sdl2-ffi::+SDLK-KP-ENTER+)
+;;(define-keysym :KP-F1 #xff91)
+;;(define-keysym :KP-F2 #xff92)
+;;(define-keysym :KP-F3 #xff93)
+;;(define-keysym :KP-F4 #xff94)
+;;(define-keysym :KP-HOME #xff95)
+;;(define-keysym :KP-LEFT #xff96)
+;;(define-keysym :KP-UP #xff97)
+;;(define-keysym :KP-RIGHT #xff98)
+;;(define-keysym :KP-DOWN #xff99)
+;;(define-keysym :KP-PRIOR #xff9a)
+;;(define-keysym :KP-PAGE-UP #xff9a)
+;;(define-keysym :KP-NEXT #xff9b)
+;;(define-keysym :KP-PAGE-DOWN #xff9b)
+;;(define-keysym :KP-END #xff9c)
+;;(define-keysym :KP-BEGIN #xff9d)
+;;(define-keysym :KP-INSERT #xff9e)
+;;(define-keysym :KP-DELETE #xff9f)
+;;(define-keysym :KP-EQUAL #xffbd)
+(define-keysym :KP-MULTIPLY sdl2-ffi::+SDLK-KP-MEMMULTIPLY+ t)
+(define-keysym :KP-ADD sdl2-ffi::+SDLK-KP-PLUS+ t)
+(define-keysym :KP-SEPARATOR sdl2-ffi::+SDLK-KP-PERIOD+ t)
+(define-keysym :KP-SUBTRACT sdl2-ffi::+SDLK-KP-MINUS+ t)
+(define-keysym :KP-DECIMAL sdl2-ffi::+SDLK-KP-PERIOD+ t)
+(define-keysym :KP-DIVIDE sdl2-ffi::+SDLK-KP-DIVIDE+ t)
+(define-keysym :KP-0 sdl2-ffi::+SDLK-KP-0+ t)
+(define-keysym :KP-1 sdl2-ffi::+SDLK-KP-1+ t)
+(define-keysym :KP-2 sdl2-ffi::+SDLK-KP-2+ t)
+(define-keysym :KP-3 sdl2-ffi::+SDLK-KP-3+ t)
+(define-keysym :KP-4 sdl2-ffi::+SDLK-KP-4+ t)
+(define-keysym :KP-5 sdl2-ffi::+SDLK-KP-5+ t)
+(define-keysym :KP-6 sdl2-ffi::+SDLK-KP-6+ t)
+(define-keysym :KP-7 sdl2-ffi::+SDLK-KP-7+ t)
+(define-keysym :KP-8 sdl2-ffi::+SDLK-KP-8+ t)
+(define-keysym :KP-9 sdl2-ffi::+SDLK-KP-9+ t)
+
 
 #|
 (define-keysym :CLEAR #xff0b)
-(define-keysym :PAUSE #xff13)
-(define-keysym :SCROLL-LOCK #xff14)
 (define-keysym :SYS-REQ #xff15)
 
 |#
@@ -134,475 +174,114 @@
 sdl2-ffi::+SDLK-RGUI+
 SDLK_RGUI
 SDLK_MODE
-0x00 ('\0')
-SDLK_UNKNOWN
-8
-
-
-
-0x4000003A
-SDLK_F1
-1073741883
-0x4000003B
-SDLK_F2
-1073741884
-0x4000003C
-SDLK_F3
-1073741885
-0x4000003D
-SDLK_F4
-1073741886
-0x4000003E
-SDLK_F5
-1073741887
-0x4000003F
-SDLK_F6
-1073741888
-0x40000040
-SDLK_F7
-1073741889
-0x40000041
-SDLK_F8
-1073741890
-0x40000042
-SDLK_F9
-1073741891
-0x40000043
-SDLK_F10
-1073741892
-0x40000044
-SDLK_F11
-1073741893
-0x40000045
-SDLK_F12
-1073741894
-0x40000046
-SDLK_PRINTSCREEN
-1073741895
-0x40000047
-SDLK_SCROLLLOCK
-1073741896
-0x40000048
-SDLK_PAUSE
-1073741897
-0x40000049
-SDLK_INSERT
-1073741898
-0x4000004A
-SDLK_HOME
-1073741899
-0x4000004B
-SDLK_PAGEUP
-1073741901
-0x4000004D
-SDLK_END
-1073741902
-0x4000004E
-SDLK_PAGEDOWN
-1073741903
-0x4000004F
-SDLK_RIGHT
-1073741904
-0x40000050
-SDLK_LEFT
-1073741905
-0x40000051
-SDLK_DOWN
-1073741906
-0x40000052
-SDLK_UP
-1073741907
-0x40000053
-SDLK_NUMLOCKCLEAR
-1073741908
-0x40000054
-SDLK_KP_DIVIDE
-1073741909
-0x40000055
-SDLK_KP_MULTIPLY
-1073741910
-0x40000056
-SDLK_KP_MINUS
-1073741911
-0x40000057
-SDLK_KP_PLUS
-1073741912
-0x40000058
-SDLK_KP_ENTER
-1073741913
-0x40000059
-SDLK_KP_1
-1073741914
-0x4000005A
-SDLK_KP_2
-1073741915
-0x4000005B
-SDLK_KP_3
-1073741916
-0x4000005C
-SDLK_KP_4
-1073741917
-0x4000005D
-SDLK_KP_5
-1073741918
-0x4000005E
-SDLK_KP_6
-1073741919
-0x4000005F
-SDLK_KP_7
-1073741920
-0x40000060
-SDLK_KP_8
-1073741921
-0x40000061
-SDLK_KP_9
-1073741922
-0x40000062
-SDLK_KP_0
-1073741923
-0x40000063
 SDLK_KP_PERIOD
-1073741925
-0x40000065
-SDLK_APPLICATION
-1073741926
-0x40000066
-SDLK_POWER
-1073741927
-0x40000067
-SDLK_KP_EQUALS
-1073741928
-0x40000068
-SDLK_F13
-1073741929
-0x40000069
-SDLK_F14
-1073741930
-0x4000006A
-SDLK_F15
-1073741931
-0x4000006B
-SDLK_F16
-1073741932
-0x4000006C
-SDLK_F17
-1073741933
-0x4000006D
-SDLK_F18
-1073741934
-0x4000006E
-SDLK_F19
-1073741935
-0x4000006F
-SDLK_F20
-1073741936
-0x40000070
-SDLK_F21
-1073741937
-0x40000071
-SDLK_F22
-1073741938
-0x40000072
-SDLK_F23
-1073741939
-0x40000073
-SDLK_F24
-1073741940
-0x40000074
-SDLK_EXECUTE
-1073741941
-0x40000075
-SDLK_HELP
-1073741942
-0x40000076
-SDLK_MENU
-1073741943
-0x40000077
-SDLK_SELECT
-1073741944
-0x40000078
-SDLK_STOP
-1073741945
-0x40000079
-SDLK_AGAIN
-1073741946
-0x4000007A
-SDLK_UNDO
-1073741947
-0x4000007B
-SDLK_CUT
-1073741948
-0x4000007C
-SDLK_COPY
-1073741949
-0x4000007D
-SDLK_PASTE
-1073741950
-0x4000007E
-SDLK_FIND
-1073741951
-0x4000007F
-SDLK_MUTE
-1073741952
-0x40000080
-SDLK_VOLUMEUP
-1073741953
-0x40000081
-SDLK_VOLUMEDOWN
-1073741957
-0x40000085
-SDLK_KP_COMMA
-1073741958
-0x40000086
-SDLK_KP_EQUALSAS400
-1073741977
-0x40000099
-SDLK_ALTERASE
-1073741978
-0x4000009A
-SDLK_SYSREQ
-1073741979
-0x4000009B
-SDLK_CANCEL
-1073741980
-0x4000009C
-SDLK_CLEAR
-1073741981
-0x4000009D
-SDLK_PRIOR
-1073741982
-0x4000009E
-SDLK_RETURN2
-1073741983
-0x4000009F
-SDLK_SEPARATOR
-1073741984
-0x400000A0
-SDLK_OUT
-1073741985
-0x400000A1
-SDLK_OPER
-1073741986
-0x400000A2
-SDLK_CLEARAGAIN
-1073741987
-0x400000A3
-SDLK_CRSEL
-1073741988
-0x400000A4
-SDLK_EXSEL
-1073742000
-0x400000B0
-SDLK_KP_00
-1073742001
-0x400000B1
-SDLK_KP_000
-1073742002
-0x400000B2
-SDLK_THOUSANDSSEPARATOR
-1073742003
-0x400000B3
-SDLK_DECIMALSEPARATOR
-1073742004
-0x400000B4
-SDLK_CURRENCYUNIT
-1073742005
-0x400000B5
-SDLK_CURRENCYSUBUNIT
-1073742006
-0x400000B6
-SDLK_KP_LEFTPAREN
-1073742007
-0x400000B7
-SDLK_KP_RIGHTPAREN
-1073742008
-0x400000B8
-SDLK_KP_LEFTBRACE
-1073742009
-0x400000B9
-SDLK_KP_RIGHTBRACE
-1073742010
-0x400000BA
-SDLK_KP_TAB
-1073742011
-0x400000BB
-SDLK_KP_BACKSPACE
-1073742012
-0x400000BC
-SDLK_KP_A
-1073742013
-0x400000BD
-SDLK_KP_B
-1073742014
-0x400000BE
-SDLK_KP_C
-1073742015
-0x400000BF
-SDLK_KP_D
-1073742016
-0x400000C0
-SDLK_KP_E
-1073742017
-0x400000C1
-SDLK_KP_F
-1073742018
-0x400000C2
-SDLK_KP_XOR
-1073742019
-0x400000C3
-SDLK_KP_POWER
-1073742020
-0x400000C4
-SDLK_KP_PERCENT
-1073742021
-0x400000C5
-SDLK_KP_LESS
-1073742022
-0x400000C6
-SDLK_KP_GREATER
-1073742023
-0x400000C7
-SDLK_KP_AMPERSAND
-1073742024
-0x400000C8
-SDLK_KP_DBLAMPERSAND
-1073742025
-0x400000C9
-SDLK_KP_VERTICALBAR
-1073742026
-0x400000CA
-SDLK_KP_DBLVERTICALBAR
-1073742027
-0x400000CB
-SDLK_KP_COLON
-1073742028
-0x400000CC
-SDLK_KP_HASH
-1073742029
-0x400000CD
-SDLK_KP_SPACE
-1073742030
-0x400000CE
-SDLK_KP_AT
-1073742031
-0x400000CF
-SDLK_KP_EXCLAM
-1073742032
-0x400000D0
-SDLK_KP_MEMSTORE
-1073742033
-0x400000D1
-SDLK_KP_MEMRECALL
-1073742034
-0x400000D2
-SDLK_KP_MEMCLEAR
-1073742035
-0x400000D3
-SDLK_KP_MEMADD
-1073742036
-0x400000D4
-SDLK_KP_MEMSUBTRACT
-1073742037
-0x400000D5
-SDLK_KP_MEMMULTIPLY
-1073742038
-0x400000D6
-SDLK_KP_MEMDIVIDE
-1073742039
-0x400000D7
-SDLK_KP_PLUSMINUS
-1073742040
-0x400000D8
-SDLK_KP_CLEAR
-1073742041
-0x400000D9
-SDLK_KP_CLEARENTRY
-1073742042
-0x400000DA
-SDLK_KP_BINARY
-1073742043
-0x400000DB
-SDLK_KP_OCTAL
-1073742044
-0x400000DC
-SDLK_KP_DECIMAL
-1073742045
-0x400000DD
-SDLK_KP_HEXADECIMAL
-1073742048
-0x400000E0
+SDLK_NUMLOCKCLEAR
 
+SDLK_APPLICATION
+SDLK_POWER
+SDLK_KP_EQUALS
+SDLK_F13
+SDLK_F14
+SDLK_F15
+SDLK_F16
+SDLK_F17
+SDLK_F18
+SDLK_F19
+SDLK_F20
+SDLK_F21
+SDLK_F22
+SDLK_F23
+SDLK_F24
+SDLK_STOP
+SDLK_AGAIN
+SDLK_CUT
+SDLK_COPY
+SDLK_PASTE
+SDLK_FIND
+SDLK_MUTE
+SDLK_VOLUMEUP
+SDLK_VOLUMEDOWN
+SDLK_KP_COMMA
+SDLK_KP_EQUALSAS400
+SDLK_ALTERASE
+SDLK_SYSREQ
+SDLK_CLEAR
+SDLK_RETURN2
+SDLK_SEPARATOR
+SDLK_OUT
+SDLK_OPER
+SDLK_CLEARAGAIN
+SDLK_CRSEL
+SDLK_EXSEL
+SDLK_KP_00
+SDLK_KP_000
+SDLK_THOUSANDSSEPARATOR
+SDLK_DECIMALSEPARATOR
+SDLK_CURRENCYUNIT
+SDLK_CURRENCYSUBUNIT
+SDLK_KP_LEFTPAREN
+SDLK_KP_RIGHTPAREN
+SDLK_KP_LEFTBRACE
+SDLK_KP_RIGHTBRACE
+SDLK_KP_TAB
+SDLK_KP_BACKSPACE
+SDLK_KP_A
+SDLK_KP_B
+SDLK_KP_C
+SDLK_KP_D
+SDLK_KP_E
+SDLK_KP_F
+SDLK_KP_XOR
+SDLK_KP_POWER
+SDLK_KP_PERCENT
+SDLK_KP_LESS
+SDLK_KP_GREATER
+SDLK_KP_AMPERSAND
+SDLK_KP_DBLAMPERSAND
+SDLK_KP_VERTICALBAR
+SDLK_KP_DBLVERTICALBAR
+SDLK_KP_COLON
+SDLK_KP_HASH
+SDLK_KP_SPACE
+SDLK_KP_AT
+SDLK_KP_EXCLAM
+SDLK_KP_MEMSTORE
+SDLK_KP_MEMRECALL
+SDLK_KP_MEMCLEAR
+SDLK_KP_MEMADD
+SDLK_KP_MEMSUBTRACT
+SDLK_KP_MEMMULTIPLY
+SDLK_KP_MEMDIVIDE
+SDLK_KP_PLUSMINUS
+SDLK_KP_CLEAR
+SDLK_KP_CLEARENTRY
+SDLK_KP_BINARY
+SDLK_KP_OCTAL
+SDLK_KP_DECIMAL
+SDLK_KP_HEXADECIMAL
 SDLK_AUDIONEXT
-1073742083
-0x40000103
 SDLK_AUDIOPREV
-1073742084
-0x40000104
 SDLK_AUDIOSTOP
-1073742085
-0x40000105
 SDLK_AUDIOPLAY
-1073742086
-0x40000106
 SDLK_AUDIOMUTE
-1073742087
-0x40000107
 SDLK_MEDIASELECT
-1073742088
-0x40000108
 SDLK_WWW
-1073742089
-0x40000109
 SDLK_MAIL
-1073742090
-0x4000010A
 SDLK_CALCULATOR
-1073742091
-0x4000010B
 SDLK_COMPUTER
-1073742092
-0x4000010C
 SDLK_AC_SEARCH
-1073742093
-0x4000010D
 SDLK_AC_HOME
-1073742094
-0x4000010E
 SDLK_AC_BACK
-1073742095
-0x4000010F
 SDLK_AC_FORWARD
-1073742096
-0x40000110
 SDLK_AC_STOP
-1073742097
-0x40000111
 SDLK_AC_REFRESH
-1073742098
-0x40000112
 SDLK_AC_BOOKMARKS
-1073742099
-0x40000113
 SDLK_BRIGHTNESSDOWN
-1073742100
-0x40000114
 SDLK_BRIGHTNESSUP
-1073742101
-0x40000115
 SDLK_DISPLAYSWITCH
-1073742102
-0x40000116
 SDLK_KBDILLUMTOGGLE
-1073742103
-0x40000117
 SDLK_KBDILLUMDOWN
-1073742104
-0x40000118
 SDLK_KBDILLUMUP
-1073742105
-0x40000119
 SDLK_EJECT
-1073742106
-0x4000011A
 SDLK_SLEEP
 |#

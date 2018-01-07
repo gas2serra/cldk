@@ -72,10 +72,10 @@
   (:method ((handler event-handler) kind keyname character modifiers
             window timestamp)
     )
-  (:method :after ((handler event-handler) kind keyname character modifiers
-                   window timestamp)
+  (:method :before ((handler event-handler) kind keyname character mmodifiers
+                    window timestamp)
            (with-slots (modifiers) handler
-             (setf modifiers modifiers))))
+             (setf modifiers mmodifiers))))
     
 (defgeneric handle-enter-event (handler pointer x y root-x root-y win time)
   (:method ((handler event-handler) pointer
@@ -212,7 +212,7 @@
                              win timestamp)
   (with-slots (to-log) handler
     (when (or (eql to-log :all) (member :key to-log))
-      (log:info "win:~A  k:~A n:~A c:~A m:~A" win kind keyname character
+      (log:info "win:~A  k:~A name:~A char:~A mod:~A" win kind keyname character
                 (list modifiers (modifiers2keywords modifiers)))
       (when (member :modifiers to-log)
         (with-slots (modifiers pressed-buttons) handler

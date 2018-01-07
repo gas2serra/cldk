@@ -1,32 +1,49 @@
 (in-package :cldk-sdl2)
 
-(defparameter mod-mappings (list (cons sdl2-ffi::+kmod-alt+ :alt)
-                                 (cons sdl2-ffi::+kmod-caps+ :caps)
-                                 (cons sdl2-ffi::+kmod-ctrl+ :ctrl)
-                                 (cons sdl2-ffi::+kmod-gui+ :gui)
-                                 (cons sdl2-ffi::+kmod-lalt+ :left-alt)
-                                 (cons sdl2-ffi::+kmod-lctrl+ :left-ctrl)
-                                 (cons sdl2-ffi::+kmod-lgui+ :left-gui)
-                                 (cons sdl2-ffi::+kmod-lshift+ :left-shift)
-                                 (cons sdl2-ffi::+kmod-mode+ :mode)
-                                 (cons sdl2-ffi::+kmod-num+ :num)
-                                 (cons sdl2-ffi::+kmod-ralt+ :right-alt)
-                                 (cons sdl2-ffi::+kmod-rctrl+ :right-ctrl)
-                                 (cons sdl2-ffi::+kmod-rgui+ :right-gui)
-                                 (cons sdl2-ffi::+kmod-rshift+ :right-shift)
-                                 (cons sdl2-ffi::+kmod-shift+ :shift)))
+(defparameter mod-mappings (list (cons sdl2-ffi::+kmod-lalt+ :ALT-LEFT)
+                                 (cons sdl2-ffi::+kmod-lctrl+ :CONTROL-LEFT)
+                                 (cons sdl2-ffi::+kmod-lgui+ :SUPER-LEFT)
+                                 (cons sdl2-ffi::+kmod-lshift+ :SHIFT-LEFT)
+                                 (cons sdl2-ffi::+kmod-ralt+ :ALT-RIGHT)
+                                 (cons sdl2-ffi::+kmod-rctrl+ :CONTROL-RIGHT)
+                                 (cons sdl2-ffi::+kmod-rgui+ :SUPER-RIGHT)
+                                 (cons sdl2-ffi::+kmod-rshift+ :SHIFT-RIGHT)))
+
+(defparameter *keysm->modifier*
+  `((:ALT-LEFT ,+meta-key+)
+    (:ALT-RIGHT ,+meta-key+)
+    (:CONTROL-LEFT ,+control-key+)
+    (:CONTROL-RIGHT ,+control-key+)
+    (:SHIFT-LEFT ,+shift-key+)
+    (:SHIFT-RIGHT ,+shift-key+)
+    (:SUPER-LEFT ,+super-key+)
+    (:SUPER-RIGHT ,+hyper-key+)))
+
+(defvar *key-modifiers* nil)
+ 
+(defun map-keysym->modifier (keysym)
+  (cdr (assoc keysym *keysm->modifier*)))
+
+(defun decode-sdl2-mod-state (state)
+  (let ((mods 0))
+    (dolist (mod mod-mappings)
+      (when (> (logand state (car mod)) 0)
+        (let ((m (map-keysym->modifier (cdr mod))))
+          (when m
+            (setf mods (logior (car m) mods))))))
+    mods))
 
 
 (defun sdl2-event-to-key-name-and-modifiers (driver event-key code state)
   (let ((shift? (logtest (logior sdl2-ffi::+kmod-lshift+ sdl2-ffi::+kmod-rshift+) state)))
-    (let ((keysym-name (keysym-to-keysym-name code))
-          (shifted-keysym-name (keysym-to-keysym-name (logior code #x100))))
-      (if (and shift? (not (null shifted-keysym-name)))
-          (setf keysym-name shifted-keysym-name))
+    (multiple-value-bind (keysym-name alpha-p)
+        (keysym-to-keysym-name code)
       (let ((char
              (and (symbolp keysym-name)
-                  (aref (symbol-name :|a|) 0))))
+                  (< code 255)
+                  (code-char code))))
         (values
          char
-         state
+         alpha-p
+         (decode-sdl2-mod-state state)
          keysym-name)))))

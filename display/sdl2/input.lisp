@@ -11,41 +11,6 @@
                (< code (length button-mapping)))
       (aref button-mapping code))))
 
-(defparameter *keysm->modifier*
-  `((:ALT-LEFT ,+meta-key+)
-    (:ALT-RIGHT ,+meta-key+)
-    (:CONTROL-LEFT ,+control-key+)
-    (:CONTROL-RIGHT ,+control-key+)
-    (:SHIFT-LEFT ,+shift-key+)
-    (:SHIFT-RIGHT ,+shift-key+)
-    (:SUPER-LEFT ,+super-key+)
-    (:MENU ,+hyper-key+)))
- 
-
-(defun map-keysym->modifier (keysym)
-  (cdr (assoc keysym *keysm->modifier*)))
-
-(defun decode-sdl2-mod-state (state)
-  (logior
-   (if (> (logand state sdl2-ffi::+kmod-shift+) 0)
-       +shift-key+
-       0)
-   (if (> (logand state sdl2-ffi::+kmod-ctrl+) 0)
-       +control-key+
-       0)
-   (if (> (logand state sdl2-ffi::+kmod-ctrl+) 0)
-       +control-key+
-       0)
-   (if (> (logand state sdl2-ffi::+kmod-alt+) 0)
-       +meta-key+
-       0)
-   (if (> (logand state sdl2-ffi::+kmod-lgui+) 0)
-       +super-key+
-       0)
-   (if (> (logand state sdl2-ffi::+kmod-rgui+) 0)
-       +hyper-key+
-       0)))
-
 (defun sdl2-event-handler (driver kernel)
   (sdl2:with-sdl-event (event)
     (let ((r (sdl2:next-event event)))
@@ -112,52 +77,49 @@
                     (keysym (sdl2::c-ref event sdl2-ffi:sdl-event :key :keysym))	  
                     (state (sdl2::c-ref event sdl2-ffi:sdl-event :key :state))
                     (win w))
-               (multiple-value-bind (keyname modifier-state keysym-name)
+               (multiple-value-bind (keyname alpha-p modifier-state keysym-name)
                    (sdl2-event-to-key-name-and-modifiers driver
                                                          etype
                                                          (sdl2:sym-value keysym)
                                                          (sdl2:mod-value keysym))
-                 #+nil(log:info "===> ~A ~A ~A ~A ~A"
-                           (sdl2:get-key-name (sdl2:sym-value keysym))
-                           (sdl2:sym-value keysym)
-                           (keysym-to-keysym-name (sdl2:sym-value keysym))
-                           (list (sdl2:mod-value keysym)
-                                 (map-keysym->modifier (keysym-to-keysym-name (sdl2:sym-value keysym))))
-                           (decode-sdl2-mod-state (sdl2:mod-value keysym)))
-                 (multiple-value-bind (keysym-name alpha-p)
-                     (keysym-to-keysym-name (sdl2:sym-value keysym))
+                 (setf *key-modifiers* modifier-state)
                  (when (or (not alpha-p)
                            (not (= (logior +shift-key+
-                                          (decode-sdl2-mod-state (sdl2:mod-value keysym)))
+                                           (decode-sdl2-mod-state (sdl2:mod-value keysym)))
                                    +shift-key+)))
+                   
+                   #+nil (log:info "====> !! NOT CHAR: ~A ~A" alpha-p (decode-sdl2-mod-state (sdl2:mod-value keysym)))
                    (k-handle-key-event kernel
                                       (if (eq etype :keydown)
-                                          :release
+                                          :press
                                           :release)
                                       keysym-name
                                       (and (characterp keyname) keyname)
-                                      (decode-sdl2-mod-state (sdl2:mod-value keysym))
+                                      modifier-state
                                       win
-                                      time))))))
+                                      time)))))
             (:textinput
              (let* ((w (sdl2::c-ref event sdl2-ffi:sdl-event :text :window-id))
                     (time (sdl2::c-ref event sdl2-ffi:sdl-event :text :timestamp))
                     (text (sdl2::c-ref event sdl2-ffi:sdl-event :text :text))	  
                     (win w))
-               (k-handle-key-event kernel
-                                  :press
-                                  (make-symbol (string (code-char text)))
-                                  (code-char text)
-                                  0
-                                  win
-                                  time)
-               #+nil (k-handle-key-event kernel
-                                  :release
-                                  (make-symbol (string (code-char text)))
-                                  (code-char text)
-                                  0
-                                  win
-                                  time)))
+               (when (= (logior +shift-key+ *key-modifiers*)
+                        +shift-key+)
+                 ;;(log:info "====>>> CHAR!!! ~A ~A" text *key-modifiers*)
+                 (k-handle-key-event kernel
+                                     :press
+                                     (make-symbol (string (code-char text)))
+                                     (code-char text)
+                                     0
+                                     win
+                                     time)
+                 (k-handle-key-event kernel
+                                     :release
+                                     (make-symbol (string (code-char text)))
+                                     (code-char text)
+                                     0
+                                     win
+                                     time))))
             (:quit
              #+nil (log:info "QUIT"))
             (:windowevent

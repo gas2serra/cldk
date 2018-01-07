@@ -12,49 +12,29 @@
                (< code (length button-mapping)))
       (aref button-mapping code))))
 
-(defun decode-x-button-state (state)
-  (let ((button-mapping #.(vector 0
-				  0
-				  0
-				  0
-				  0
-				  0
-				  0
-				  0
-				  +pointer-left-button+
-                                  +pointer-middle-button+
-                                  +pointer-right-button+
-                                  0 0 0 0
-                                  +pointer-x1-button+
-                                  +pointer-x2-button+))
-	(res 0))
-    (dotimes (i (length button-mapping))
-      (when (logbitp i state)
-	(log:info "===> ~A ~A " i state)
-	(setf res (logior res (aref button-mapping i)))))
-    res))
-
 (defun clx-event-handler (&key display window event-key code state mode time
                             type width height x y root-x root-y
                             data override-redirect-p send-event-p hint-p
                             target property requestor selection
                             request first-keycode count
                             &allow-other-keys)
+  (declare (ignore count first-keycode selection property
+                   target hint-p send-event-p override-redirect-p
+                   mode requestor request))
   (handler-case
       (let ((win window))
         (case event-key
           ((:button-press :button-release)
-	   (log:info "--> ~A ~A" state (decode-x-button-state state)) 
            (if (and (>= code 4) (<= code 7))
                (k-handle-scroll-event *clx-kernel*
                                       0
                                       (case code
-                                        (4 -1)
-                                        (5 1)
-                                        (otherwise 0))
-                                      (case code
                                         (6 -1)
                                         (7 1)
+                                        (otherwise 0))
+                                      (case code
+                                        (4 -1)
+                                        (5 1)
                                         (otherwise 0))
                                       win
                                       time)
@@ -72,8 +52,7 @@
                                   win time))
           ((:key-press :key-release)
            (multiple-value-bind (keyname modifier-state keysym-name)
-               (x-event-to-key-name-and-modifiers *clx-driver* 
-                                                  event-key code state)
+               (decode-x-key event-key code state)
              (k-handle-key-event *clx-kernel* 
                                  (if (eq event-key :key-press)
                                      :press
@@ -98,10 +77,12 @@
                (k-handle-window-configuration-event *clx-kernel* win x y width height time))))
           ((:exposure :display :graphics-exposure)
            (k-handle-repaint-event *clx-kernel* win x y width height time))
+          (:mapping-notify
+           (load-mapping (clx-driver-display *clx-driver*)))
           (:client-message
            (port-client-message win time type data))
           (t
-           (log:info "Bo: ~A" event-key)
+           (log:info "Unprocessed clx event: ~A" event-key)
            (unless (xlib:event-listen display)
              (xlib:display-force-output display))
            nil)))
