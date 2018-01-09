@@ -186,7 +186,7 @@
            updated-region-set)
           (setf updated-region-set nil))))))
   
-(defmethod k-refresh-window ((window k-buffered-window-mixin) &key (max-fps 100))
+(defmethod k-refresh-window ((window k-buffered-window-mixin) &key (max-fps 10))
   (check-kernel-mode)
   (with-slots (last-refresh-time) window
     (when (window-obuffer window)

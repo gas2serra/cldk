@@ -38,6 +38,7 @@
 (defgeneric driver-grab-pointer (driver window pointer))
 (defgeneric driver-ungrab-pointer (driver window pointer))
 
+;;; cursor
 (defclass driver-cursor (driver-object)
   ())
 

@@ -15,11 +15,11 @@
   (:method ((driver driver))
     t))
 
-(defgeneric driver-force-output (driver))
-
 (defgeneric driver-ping (driver)
   (:method ((driver driver))
     t))
+
+(defgeneric driver-force-output (driver))
 
 ;;;
 ;;; driver object

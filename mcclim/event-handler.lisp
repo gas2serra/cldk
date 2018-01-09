@@ -110,7 +110,7 @@
                            :x x
                            :y y
                            :width w :height h)))
-      #+nil (log:info "CONF: ~A ~A " (list x y) (list w h))
+      (log:info "CONF: ~A ~A " (list x y) (list w h))
       (clim:distribute-event (handler-port handler) event)))
 
 (defmethod cldk:handle-repaint-event ((handler fb-event-handler) win x y w h time)

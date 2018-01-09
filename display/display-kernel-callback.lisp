@@ -5,10 +5,10 @@
 
 (defun k-handle-window-configuration-event (kernel window x y width height time)
   (check-kernel-mode)
-  (let ((kwindow (lookup-server-object kernel window)))
-    (when (typep kwindow 'k-buffered-window-mixin)
-      (k-notify-resize-buffered-window kwindow width height))
-    (<e- kernel #'handle-configure-event kwindow x y width height time)))
+  (let ((win (lookup-server-object kernel window)))
+    (when (typep win 'k-buffered-window-mixin)
+      (k-notify-resize-buffered-window win width height))
+    (<e- kernel #'handle-configure-event win x y width height time)))
 
 (defun k-handle-repaint-event (kernel window x y width height time)
   (check-kernel-mode)

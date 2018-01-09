@@ -131,12 +131,14 @@
     (destroy-mirror port pixmap)))
 
 (defmethod port-set-mirror-region ((port fb-port) mirror mirror-region)
+  (log:info "REG:")
   (cldk:set-window-size mirror
                         (floor (bounding-rectangle-max-x mirror-region))
                         (floor (bounding-rectangle-max-y mirror-region))))
                                    
 (defmethod port-set-mirror-transformation
     ((port fb-port) mirror mirror-transformation)
+  (log:info "TR:")
   #+nil (log:info (floor (nth-value 0 (transform-position mirror-transformation 0 0)))
             (floor (nth-value 1 (transform-position mirror-transformation 0 0))))
   ;;(break)

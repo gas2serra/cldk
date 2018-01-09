@@ -94,28 +94,33 @@
 (defpackage :cldk-driver
   (:use :common-lisp)
   (:export
-   #:display-server
-   #:display-driver
-   #:driver
-   #:start-server
-
-   #:lookup-server-object
    
+   
+   ;;  driver
+   #:driver
+   #:driver-options
    #:driver-start
    #:driver-stop
+   #:driver-kill
    #:driver-ping
-   #:driver-options
-   #:driver-default-screen-index
-   #:driver-process-next-event
    #:driver-force-output
-   
+
+   ;; driver object
+   #:driver-object-id
+
+   ;; event driver
+   #:event-driver
+   #:driver-process-next-event
+
+   ;; display driver
+   #:display-driver
+   #:driver-default-screen-index
    #:driver-screen-num
    #:driver-screen-size
    #:driver-screen-dpi
    #:driver-screen-pointer-position
-
-   #:driver-object-id
    
+   ;; display window 
    #:driver-window
    #:driver-create-window
    #:driver-destroy-window
@@ -132,23 +137,20 @@
 
    #:driver-grab-pointer
    #:driver-ungrab-pointer
-   
-   #:driver-avaiable-cursor-names 
+
+   ;; display cursor
    #:driver-cursor
+   #:driver-avaiable-cursor-names 
    #:driver-create-cursor
    #:driver-destroy-cursor
    #:driver-set-window-cursor
 
+   ;; display buffer
    #:driver-buffer
-   #:driver-buffer-width
-   #:driver-buffer-height
-   #:driver-buffer-data
    #:driver-create-buffer
    #:driver-update-buffer
    #:driver-destroy-buffer
    #:driver-copy-buffer-to-window
-   #:driver-create-image
-   #:driver-update-image
 
    #:k-handle-window-configuration-event
    #:k-handle-repaint-event
@@ -159,6 +161,10 @@
    #:k-handle-enter-event
    #:k-handle-leave-event
    #:k-handle-wm-delete-event
+
+   #:display-server
+   #:lookup-server-object
+   #:start-server
 
    #:buffer
    #:create-buffer

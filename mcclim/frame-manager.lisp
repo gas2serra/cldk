@@ -86,7 +86,7 @@
 
 (defmethod adopt-frame :before ((fm fb-frame-manager) (frame menu-frame))
   ;; Temporary kludge.
-  #+nil (log:info "====ADOPT MENU ~A" (round (slot-value frame 'climi::top)))
+  (log:info "====ADOPT MENU ~A" (round (slot-value frame 'climi::top)))
   (when (eq (slot-value frame 'climi::top) nil)
     (multiple-value-bind (x y)
         (values-list (cldk:screen-pointer-position (fb-port-server (port fm))))
@@ -99,12 +99,11 @@
     (cldk:show-window (sheet-direct-mirror (slot-value frame 'top-level-sheet)))))
 
 (defmethod tell-window-manager-about-space-requirements ((pane top-level-sheet-pane))
-
   (multiple-value-bind (w h x y) (climi::frame-geometry* (pane-frame pane))
     (declare (ignore w h))
     (let ((q (compose-space pane)))
       (let ((mirror (sheet-direct-mirror pane)))
-        #+nil (log:info "***TELL> ~A ~A ~A" (fb-mirrored-sheet-state pane)
+        (log:info "***TELL> ~A ~A ~A" (fb-mirrored-sheet-state pane)
                   (list x y)
                   (list
                    (round (space-requirement-width q))

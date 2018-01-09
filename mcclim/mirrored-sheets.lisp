@@ -14,13 +14,11 @@
   ())
 
 (defmethod allocate-space :after ((sheet fb-mirrored-sheet-mixin) width height)
-  
- 
-  (when (and (sheet-direct-mirror sheet)
-             (eq (fb-mirrored-sheet-state sheet) :configuring))
-    (multiple-value-bind (w h x y) (climi::frame-geometry* (pane-frame sheet))
-      (declare (ignore w h))
-      #+nil (log:info "***ALLOC> ~A ~A ~A" (fb-mirrored-sheet-state sheet) (list width height) (list x y))
+  (multiple-value-bind (w h x y) (climi::frame-geometry* (pane-frame sheet))
+    (declare (ignore w h))
+    (log:info "***ALLOC> ~A ~A ~A" (fb-mirrored-sheet-state sheet) (list width height) (list x y))  
+    (when (and (sheet-direct-mirror sheet)
+               (eq (fb-mirrored-sheet-state sheet) :configuring))
       (with-slots (space-requirement) sheet
         (cldk:set-window-hints (sheet-direct-mirror sheet)
                                :x x :y y
@@ -41,9 +39,9 @@
 
   
 (defmethod clim-standard::%update-mirror-geometry :around ((sheet fb-mirrored-sheet-mixin))
+  (log:info "***UPDATE> ~A" (fb-mirrored-sheet-state sheet))
   (when (or
          (not (eq (fb-mirrored-sheet-state sheet) :notadopted))
          (typep sheet 'climi::unmanaged-top-level-sheet-pane))
-    #+nil (log:info "***UPDATE> ~A" (fb-mirrored-sheet-state sheet))
     (call-next-method)))
   
