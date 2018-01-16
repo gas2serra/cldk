@@ -13,13 +13,10 @@
                         :depends-on ("package")
                         :components
                         ((:file "driver")
-                         (:file "event-driver" :depends-on ("driver"))
+                         (:file "event-server" :depends-on ("driver" "server"))
+                         (:file "single-thread-server" :depends-on ("event-server" "driver" "server"))
                          (:file "kernel" :depends-on ("driver"))
                          (:file "server" :depends-on ("kernel"))
-                         (:file "single-thread-server" :depends-on ("server" "single-thread-kernel"))
-                         (:file "single-thread-kernel" :depends-on ("kernel"))
-                         (:file "multi-thread-kernel" :depends-on ("kernel"))
-                         (:file "event-kernel" :depends-on ("kernel" "event-driver"))
                          )))
   :description "Common Lisp Drawing Kit")
 

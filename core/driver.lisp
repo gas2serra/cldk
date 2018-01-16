@@ -5,9 +5,7 @@
 ;;;
 
 (defclass driver ()
-  ((options :initform nil
-            :initarg :options
-            :reader driver-options)))
+  ())
 
 (defgeneric driver-start (driver))
 (defgeneric driver-stop (driver))
@@ -20,6 +18,8 @@
     t))
 
 (defgeneric driver-force-output (driver))
+
+(defgeneric driver-process-next-event (driver kernel))
 
 ;;;
 ;;; driver object

@@ -12,3 +12,17 @@
      (:file "mirror" :depends-on ("port" "package"))
      (:file "mirrored-sheets" :depends-on ("port" "package" "mirror"))
      (:file "medium" :depends-on ("package"))))
+
+(defsystem #:mcclim-cldk/clx
+    :depends-on (#:mcclim-cldk #:cldk-clx)
+    :components
+    ((:module "clx"
+              :components
+              ((:file "port")))))
+
+(defsystem #:mcclim-cldk/sdl2
+    :depends-on (#:mcclim-cldk #:cldk-sdl2)
+    :components
+    ((:module "sdl2"
+              :components
+              ((:file "port")))))

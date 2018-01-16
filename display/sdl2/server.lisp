@@ -1,12 +1,10 @@
 (in-package :cldk-sdl2)
 
-(defclass sdl2-server (display-server)
+(defclass sdl2-server (display-server sdl2-driver)
   ())
 
 (defmethod initialize-instance :after ((server sdl2-server) &rest args)
   (declare (ignore args))
-  (with-slots (driver) server
-    (setf driver (make-instance 'sdl2-driver :options (cdr (server-path server)))))
   (start-server server))
 
 ;;;

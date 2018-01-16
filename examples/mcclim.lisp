@@ -1,6 +1,5 @@
-(ql:quickload :mcclim-cldk)
-(ql:quickload :cldk-clx)
-(ql:quickload :cldk-sdl2)
+(ql:quickload :mcclim-cldk/clx)
+(ql:quickload :mcclim-cldk/sdl2)
 (ql:quickload :clim-examples)
 
 #|
@@ -16,6 +15,9 @@
 |#
 
 (defun demo (backend)
-  (let ((clim:*default-server-path*  (list :cldk :cldk-driver backend)))
+  (let ((clim:*default-server-path*
+         (if (eq backend :clx)
+             (list :clx-cldk :cldk-driver backend)
+             (list :sdl2-cldk :cldk-driver backend))))
     (clim-demo:demodemo)))
 

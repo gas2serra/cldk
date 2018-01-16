@@ -2,7 +2,10 @@
 
 (defvar *default-event-handler*)
 
-(defclass display-server (single-thread-server display-kernel-mixin)
+(defclass display-server (server
+                          callback-queue-with-thread-mixin
+                          single-thread-server-mixin
+                          display-server-kernel-mixin)
   ((event-handler :initform *default-event-handler*
                   :accessor server-event-handler)
    (cursor-table :initform (make-hash-table :test #'eq)

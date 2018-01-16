@@ -94,8 +94,7 @@
 (defpackage :cldk-driver
   (:use :common-lisp)
   (:export
-   
-   
+
    ;;  driver
    #:driver
    #:driver-options
@@ -106,14 +105,16 @@
    #:driver-force-output
 
    ;; driver object
+   #:driver-object
    #:driver-object-id
 
    ;; event driver
-   #:event-driver
+   #:event-driver-mixin
    #:driver-process-next-event
 
    ;; display driver
    #:display-driver
+   #:display-driver-object
    #:driver-default-screen-index
    #:driver-screen-num
    #:driver-screen-size

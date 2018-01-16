@@ -1,12 +1,10 @@
 (in-package :cldk-clx)
 
-(defclass clx-server (display-server)
+(defclass clx-server (display-server clx-driver)
   ())
 
 (defmethod initialize-instance :after ((server clx-server) &rest args)
   (declare (ignore args))
-  (with-slots (driver) server
-    (setf driver (make-instance 'clx-driver :options (cdr (server-path server)))))
   (start-server server))
 
 ;;;

@@ -8,7 +8,7 @@
    (font-families :initform nil :accessor font-families)))
   
 (defun parse-cldk-server-path (path)
-  (cons :cldk (cdr path)))
+  path)
 
 (setf (get :cldk :port-type) 'fb-port)
 (setf (get :cldk :server-path-parser) 'parse-cldk-server-path)
@@ -68,11 +68,11 @@
     (port-register-mirror port pixmap mirror)
     (%make-image mirror pixmap)))
 
-(defgeneric make-fb-mirror (port  win))
-
-(defmethod make-fb-mirror ((port fb-port) win)
+(defgeneric fb-mirror-class (port))
+#|
+(defmethod fb-mirror-class ((port fb-port) win)
   (make-instance 'fb-mirror :window win))
-
+|#
 
 (defmethod realize-mirror ((port fb-port) (sheet mirrored-sheet-mixin))
   (let ((q (compose-space sheet))
@@ -112,7 +112,7 @@
                                           :x nil :y nil
                                           :width width :height height 
                                           :mode (if (typep sheet 'unmanaged-top-level-sheet-pane) :unmanaged :managed)
-                                          :window-class 'fb-mirror)))
+                                          :window-class (fb-mirror-class port))))
         (port-register-mirror port sheet mirror)
         (port-lookup-mirror port sheet)))))
 

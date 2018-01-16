@@ -9,10 +9,21 @@
 ;;; server class
 ;;;
 
-(defclass server (kernel-mixin)
+(defclass server ()
   ((path :initform nil
          :initarg :path
          :reader server-path)))
+
+(defun driver-options (server)
+  (cdr (server-path server)))
+
+(defgeneric restart-server (server)
+  (:method ((server server))
+    ))
+
+(defgeneric destroy-server (server)
+  (:method :after ((server server))
+           (setf *all-servers* (remove server *all-servers*))))
 
 ;;;
 ;;; Find server
@@ -41,6 +52,56 @@
                (push server *all-servers*)
                (return server))))
 
+
+;;;
+;;; server thread
+;;;
+
+(defvar *kernel-mode* nil)
+
+(defclass server-with-thread-mixin ()
+  ((shutdown-p :initform nil
+               :reader kernel-shutdown-p)))
+
+(defun server-running-p (server)
+  (server-kernel-thread server))
+
+(defgeneric restart-server (server)
+  (:method ((server server-with-thread-mixin))
+    (stop-server server)
+    (start-server server)))
+
+(defgeneric start-server (server)
+  (:method :around ((server server-with-thread-mixin))
+           (if (server-running-p server)
+               (error "cldk server is already stopped")
+               (call-next-method))))
+
+(defgeneric stop-server (server)
+  (:method :around ((server server-with-thread-mixin))
+           (if (not (server-running-p server))
+               (error "cldk server is already stopped")
+               (call-next-method))))
+
+(defgeneric kill-server (server)
+  (:method :around ((server server-with-thread-mixin))
+           (if (not (server-running-p server))
+               (error "cldk server is already stopped")
+               (progn
+                 (log:warn "killing cldk server")
+                 (call-next-method)))))
+
+(defmethod destroy-server ((server server-with-thread-mixin))
+  (unwind-protect
+       (when (and 
+              (server-running-p server)
+              (bt:thread-alive-p (server-kernel-thread server)))
+         ;; destroy all cursors
+         (stop-server server))
+    (when (and (server-running-p server)
+               (bt:thread-alive-p (server-kernel-thread server)))
+      (kill-server server))))
+
 ;;;
 ;;; server objects
 ;;;
@@ -49,3 +110,6 @@
   ((kernel :initform nil
            :initarg :server
            :reader server)))
+
+
+

@@ -1,9 +1,12 @@
 (in-package :cldk-internals)
 
-(defclass display-driver (event-driver)
+(defclass display-driver (driver)
   ((default-screen-index :initform 0
      :initarg :screen
      :accessor driver-default-screen-index)))
+
+(defclass display-driver-object (driver-object)
+  ())
 
 ;;;
 ;;; API
@@ -16,7 +19,7 @@
 (defgeneric driver-screen-pointer-position (driver))
 
 ;;; window
-(defclass driver-window (driver-object)
+(defclass driver-window (display-driver-object)
   ())
 
 (defgeneric driver-create-window (driver name pretty-name x y
@@ -39,7 +42,7 @@
 (defgeneric driver-ungrab-pointer (driver window pointer))
 
 ;;; cursor
-(defclass driver-cursor (driver-object)
+(defclass driver-cursor (display-driver-object)
   ())
 
 (defgeneric driver-avaiable-cursor-names (driver))
@@ -48,7 +51,7 @@
 (defgeneric driver-set-window-cursor (driver window cursor))
 
 ;;; buffer
-(defclass driver-buffer (driver-object)
+(defclass driver-buffer (display-driver-object)
   ())
 
 (defgeneric driver-create-buffer (driver width height))
