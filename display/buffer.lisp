@@ -1,6 +1,6 @@
 (in-package :cldk-internals)
 
-(defclass buffer (server-object k-buffer-mixin image)
+(defclass buffer (k-buffer-mixin image)
   ())
 
 (defmacro <kbuffer+ (buffer fn &rest args)

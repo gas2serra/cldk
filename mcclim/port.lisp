@@ -187,7 +187,7 @@
                (when (typep key 'fb-mirrored-sheet-mixin)
                  (mcclim-render-internals::%mirror-force-output (sheet-mirror key))))
            (slot-value port 'climi::sheet->mirror))
-  (cldki::driver-force-output (cldki::driver (fb-port-server port))))
+  (cldki::driver-force-output (fb-port-server port)))
 
 (defmethod synthesize-pointer-motion-event ((pointer fb-pointer))
   (let* ((port (port pointer))

@@ -78,7 +78,7 @@
   (process-next-calles server)
   (unless (server-stopping-p server)
     (k-refresh-windows server)
-    (driver-force-output (driver server))))
+    (driver-force-output server)))
 
 
 (defclass multi-thread-display-server (display-server
@@ -91,4 +91,4 @@
   (process-next-driver-events server)
   (unless (server-stopping-p server)
     (k-refresh-windows server)
-    (driver-force-output (driver server))))
+    (driver-force-output server)))

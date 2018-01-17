@@ -3,29 +3,29 @@
 
 (defun k-screen-num (kernel)
   (check-kernel-mode)
-  (driver-screen-num (driver kernel)))
+  (driver-screen-num kernel))
 
 (defun k-screen-size (kernel screen-index units)
   (check-kernel-mode)
-  (driver-screen-size (driver kernel) screen-index units))
+  (driver-screen-size kernel screen-index units))
 
 (defun k-screen-dpi (kernel screen-index)
   (check-kernel-mode)
-  (driver-screen-dpi (driver kernel) screen-index))
+  (driver-screen-dpi kernel screen-index))
 
 (defun k-screen-pointer-position (kernel)
   (check-kernel-mode)
-  (driver-screen-pointer-position (driver kernel)))
+  (driver-screen-pointer-position kernel))
 
 (defun k-avaiable-cursor-names (kernel)
   (check-kernel-mode)
-  (driver-avaiable-cursor-names (driver kernel)))
+  (driver-avaiable-cursor-names kernel))
 
 ;;;
 ;;; windows
 ;;;
 
-(defclass k-window-mixin (kernel-object-mixin)
+(defclass k-window-mixin (server-object)
   ((driver-window :initform nil
                   :initarg :driver-window
                   :reader window-driver-window)))
@@ -34,67 +34,67 @@
                             x y width height mode)
   (check-kernel-mode)
   (with-slots (driver-window) kwindow
-    (setf driver-window (driver-create-window (driver kwindow) name pretty-name
+    (setf driver-window (driver-create-window (server kwindow) name pretty-name
                                               x y width height mode))
-    (register-server-object (kernel kwindow) driver-window kwindow)))
+    (register-server-object (server kwindow) driver-window kwindow)))
 
 (defun k-destroy-window (window)
   (check-kernel-mode)
-  (driver-destroy-window (driver window) (window-driver-window  window))
-  (unregister-server-object (kernel window)
+  (driver-destroy-window (server window) (window-driver-window  window))
+  (unregister-server-object (server window)
                             (window-driver-window window)))
 
 (defun k-show-window (window)
   (check-kernel-mode)
-  (driver-show-window (driver window) (window-driver-window  window)))
+  (driver-show-window (server window) (window-driver-window  window)))
 
 (defun k-hide-window (window)
   (check-kernel-mode)
-  (driver-hide-window (driver window) (window-driver-window  window)))
+  (driver-hide-window (server window) (window-driver-window  window)))
 
 (defun k-window-position (window)
   (check-kernel-mode)
-  (driver-window-position (driver window) (window-driver-window  window)))
+  (driver-window-position (server window) (window-driver-window  window)))
 
 (defun k-window-size (window)
   (check-kernel-mode)
-  (driver-window-size (driver window) (window-driver-window  window)))
+  (driver-window-size (server window) (window-driver-window  window)))
 
 (defun k-set-window-position (window x y)
   (check-kernel-mode)
-  (driver-set-window-position (driver window) (window-driver-window  window) x y))
+  (driver-set-window-position (server window) (window-driver-window  window) x y))
 
 (defun k-set-window-size (window width height)
   (check-kernel-mode)
-  (driver-set-window-size (driver window) (window-driver-window  window) width height))
+  (driver-set-window-size (server window) (window-driver-window  window) width height))
 
 (defun k-set-window-hints (window x y width height
                            max-width max-height min-width min-height)
   (check-kernel-mode)
-  (driver-set-window-hints (driver window) (window-driver-window  window)
+  (driver-set-window-hints (server window) (window-driver-window  window)
                            x y width height
                            max-width max-height
                            min-width min-height))
 
 (defun k-raise-window (window)
   (check-kernel-mode)
-  (driver-raise-window (driver window) (window-driver-window  window)))
+  (driver-raise-window (server window) (window-driver-window  window)))
 
 (defun k-bury-window (window)
   (check-kernel-mode)
-  (driver-bury-window (driver window) (window-driver-window  window)))
+  (driver-bury-window (server window) (window-driver-window  window)))
 
 (defun k-window-pointer-position (window)
   (check-kernel-mode)
-  (driver-window-pointer-position (driver window) (window-driver-window  window)))
+  (driver-window-pointer-position (server window) (window-driver-window  window)))
 
 (defun k-grab-window-pointer (window)
   (check-kernel-mode)
-  (driver-grab-pointer (driver window) (window-driver-window  window) 0))
+  (driver-grab-pointer (server window) (window-driver-window  window) 0))
 
 (defun k-ungrab-window-pointer (window)
   (check-kernel-mode)
-  (driver-ungrab-pointer (driver window) (window-driver-window  window) 0))
+  (driver-ungrab-pointer (server window) (window-driver-window  window) 0))
 
 ;;; refresh
 (defgeneric k-refresh-window (window &key max-fps)
@@ -112,13 +112,13 @@
 
 (defun k-set-window-cursor (window cursor)
   (check-kernel-mode)
-  (driver-set-window-cursor (driver window) (window-driver-window  window) cursor))
+  (driver-set-window-cursor (server window) (window-driver-window  window) cursor))
 
 ;;;
 ;;; buffer
 ;;;
 
-(defclass k-buffer-mixin (buffer-image-mixin kernel-object-mixin)
+(defclass k-buffer-mixin (buffer-image-mixin server-object)
   ((driver-buffer :initform nil
                   :initarg :driver-buffer
                   :reader buffer-driver-buffer)))
@@ -126,19 +126,19 @@
 (defun k-initialize-buffer (kbuffer width height)
   (check-kernel-mode)
   (with-slots (driver-buffer) kbuffer
-    (setf driver-buffer (driver-create-buffer (driver kbuffer) width height))
-    (register-server-object (kernel kbuffer) driver-buffer kbuffer)))
+    (setf driver-buffer (driver-create-buffer (server kbuffer) width height))
+    (register-server-object (server kbuffer) driver-buffer kbuffer)))
 
 (defun k-destroy-buffer (kbuffer)
   (check-kernel-mode)
-  (driver-destroy-buffer (driver kbuffer) (buffer-driver-buffer kbuffer))
-  (unregister-server-object (kernel kbuffer)
+  (driver-destroy-buffer (server kbuffer) (buffer-driver-buffer kbuffer))
+  (unregister-server-object (server kbuffer)
                             (buffer-driver-buffer kbuffer)))
 
 (defun k-update-buffer (kbuffer width height)
   (check-kernel-mode)
   (when (buffer-driver-buffer kbuffer)
-    (driver-update-buffer (driver kbuffer) (buffer-driver-buffer kbuffer) width height)))
+    (driver-update-buffer (server kbuffer) (buffer-driver-buffer kbuffer) width height)))
 
 ;;;
 ;;; buffered windows
@@ -176,7 +176,7 @@
         (bt:with-lock-held (pixels-lock)
           (map-over-rectangle-set-regions 
            #'(lambda (x1 y1 x2 y2)
-               (driver-copy-buffer-to-window (driver kwindow)
+               (driver-copy-buffer-to-window (server kwindow)
                                              (buffer-driver-buffer obuffer)
                                              x1 y1
                                              (- x2 x1)

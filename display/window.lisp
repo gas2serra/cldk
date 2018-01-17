@@ -1,6 +1,6 @@
 (in-package :cldk-internals)
 
-(defclass window (server-object k-window-mixin)
+(defclass window (k-window-mixin)
   ((cached-x :initform nil)
    (cached-y :initform nil)
    (cached-width :initform nil)

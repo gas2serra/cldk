@@ -330,6 +330,7 @@
                                     :green-mask #x0000ff00
                                     :red-mask #x00ff0000
                                     :format :z-pixmap)))
+    
     (make-instance 'clx-driver-buffer :pixels pixels :ximage ximage)))
 
 (defmethod driver-update-buffer ((driver clx-driver) buffer width height)

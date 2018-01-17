@@ -147,9 +147,9 @@
     (when (bt:thread-alive-p (server-kernel-thread server))
       (kill-server server))))
 
-(defgeneric server-loop-step (kernel))
+(defgeneric server-loop-step (server))
 
-(defgeneric server-loop (kernel &key min-loop-time))
+(defgeneric server-loop (server &key min-loop-time))
 
 (defmethod server-loop ((server server-with-thread-mixin)  &key (min-loop-time 0.01))
   (block loop
@@ -179,24 +179,10 @@
 ;;; server objects
 ;;;
 
-
-
-(defclass kernel-object-mixin ()
-  ((kernel :initform nil
-           :initarg :kernel
-           :reader kernel)))
-
-(defclass server-object (kernel-object-mixin)
-  ((kernel :initform nil
+(defclass server-object ()
+  ((server :initform nil
            :initarg :server
            :reader server)))
-
-(defmethod driver ((object kernel-object-mixin))
-  (kernel object))
-
-(defmethod driver ((object server))
-  object)
-
 
 (defun driver-options (server)
   (cdr (server-path server)))
