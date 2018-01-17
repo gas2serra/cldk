@@ -12,18 +12,69 @@
 (defclass server ()
   ((path :initform nil
          :initarg :path
-         :reader server-path)))
+         :reader server-path)
+   (state :initform :stopped
+          :type (member :starting :running :stopping :stopped)
+          :reader server-state)))
 
-(defun driver-options (server)
-  (cdr (server-path server)))
+(defun server-running-p (server)
+  (eql (server-state server) :running))
 
-(defgeneric restart-server (server)
-  (:method ((server server))
-    ))
+(defun server-stopped-p (server)
+  (eql (server-state server) :stopped))
 
-(defgeneric destroy-server (server)
-  (:method :after ((server server))
-           (setf *all-servers* (remove server *all-servers*))))
+(defun server-stopping-p (server)
+  (eql (server-state server) :stopping))
+
+(defgeneric start-server (server))
+(defgeneric stop-server (server))
+(defgeneric kill-server (server))
+(defgeneric restart-server (server))
+(defgeneric destroy-server (server))
+
+(defmethod start-server :around ((server server))
+  (if (server-running-p server)
+      (error "cldk server is already running")
+      (call-next-method)))
+
+(defmethod start-server :before ((server server))
+  (with-slots (state) server
+    (setf state :starting)))
+
+(defmethod start-server :after ((server server))
+  (with-slots (state) server
+    (setf state :running)))
+
+(defmethod stop-server :around ((server server))
+  (if (not (server-running-p server))
+      (error "cldk server is not running")
+      (call-next-method)))
+
+(defmethod stop-server :before ((server server))
+  (with-slots (state) server
+    (setf state :stopping)))
+
+(defmethod stop-server :after ((server server))
+  (with-slots (state) server
+    (setf state :stopped)))
+
+(defmethod kill-server :around ((server server))
+  (if (server-stopped-p server)
+      (error "cldk server is already stopped")
+      (progn
+        (log:warn "killing cldk server")
+        (call-next-method))))
+
+(defmethod restart-server ((server server))
+  (stop-server server)
+  (start-server server))
+
+(defmethod destroy-server ((server server))
+  (when (server-running-p server)
+    (stop-server server)))
+
+(defmethod destroy-server :after ((server server))
+  (setf *all-servers* (remove server *all-servers*)))
 
 ;;;
 ;;; Find server
@@ -40,7 +91,11 @@
           (funcall server-path-parser-fn server-path)))
   (loop for server in *all-servers*
      if (equal server-path (server-path server))
-     do (return server)
+     do
+       (progn
+         (when (server-stopped-p server)
+           (start-server server))
+         (return server))
      finally (let ((server-class (get (first server-path) :server-class))
                    server)
                (if (null server-class)
@@ -59,57 +114,89 @@
 
 (defvar *kernel-mode* nil)
 
+(defun check-kernel-mode ()
+  (unless *kernel-mode*
+    (error "a thread not in kernel mode is calling a kernel function")))
+
 (defclass server-with-thread-mixin ()
-  ((shutdown-p :initform nil
-               :reader kernel-shutdown-p)))
+  ((kernel-thread :initform nil
+                  :reader server-kernel-thread)))
 
-(defun server-running-p (server)
-  (server-kernel-thread server))
+(defmethod start-server ((server server-with-thread-mixin))
+  (with-slots (kernel-thread) server
+    (setf kernel-thread
+          (bt:make-thread #'(lambda ()
+                              (server-loop-fn server))
+                          :name "cldk server"))))
 
-(defgeneric restart-server (server)
-  (:method ((server server-with-thread-mixin))
-    (stop-server server)
-    (start-server server)))
+(defmethod stop-server ((server server-with-thread-mixin))
+  (bt:join-thread (server-kernel-thread server)))
 
-(defgeneric start-server (server)
-  (:method :around ((server server-with-thread-mixin))
-           (if (server-running-p server)
-               (error "cldk server is already stopped")
-               (call-next-method))))
+(defmethod stop-server :after ((server server-with-thread-mixin))
+  (when (bt:thread-alive-p (server-kernel-thread server))
+    (kill-server server)))
 
-(defgeneric stop-server (server)
-  (:method :around ((server server-with-thread-mixin))
-           (if (not (server-running-p server))
-               (error "cldk server is already stopped")
-               (call-next-method))))
+(defmethod kill-server ((server server-with-thread-mixin))
+ (with-slots (kernel-thread) server
+    (bt:destroy-thread kernel-thread)
+    (setf kernel-thread nil)))
 
-(defgeneric kill-server (server)
-  (:method :around ((server server-with-thread-mixin))
-           (if (not (server-running-p server))
-               (error "cldk server is already stopped")
-               (progn
-                 (log:warn "killing cldk server")
-                 (call-next-method)))))
-
-(defmethod destroy-server ((server server-with-thread-mixin))
+(defmethod destroy-server :around ((server server-with-thread-mixin))
   (unwind-protect
-       (when (and 
-              (server-running-p server)
-              (bt:thread-alive-p (server-kernel-thread server)))
-         ;; destroy all cursors
-         (stop-server server))
-    (when (and (server-running-p server)
-               (bt:thread-alive-p (server-kernel-thread server)))
+       (call-next-method)
+    (when (bt:thread-alive-p (server-kernel-thread server))
       (kill-server server))))
+
+(defgeneric server-loop-step (kernel))
+
+(defgeneric server-loop (kernel &key min-loop-time))
+
+(defmethod server-loop ((server server-with-thread-mixin)  &key (min-loop-time 0.01))
+  (block loop
+    (loop
+       (let ((end-time (+ (get-internal-real-time) (* min-loop-time internal-time-units-per-second))))
+         (server-loop-step server)
+         (let ((wait-time (- end-time (get-internal-real-time))))
+           (when (> wait-time 0)
+             (sleep (/ wait-time internal-time-units-per-second)))))
+       (when (server-stopping-p server)
+         (return-from loop)))))
+  
+(defun server-loop-fn (server)
+  (driver-start server)
+  (block loop
+    (let ((*kernel-mode* t))
+      (loop
+         (with-simple-restart
+             (restart-server-loop
+              "restart cldk's server loop.")
+           (server-loop server)
+           (driver-stop server)
+           (return-from loop))))))
+
 
 ;;;
 ;;; server objects
 ;;;
+
+
+
+(defclass kernel-object-mixin ()
+  ((kernel :initform nil
+           :initarg :kernel
+           :reader kernel)))
 
 (defclass server-object (kernel-object-mixin)
   ((kernel :initform nil
            :initarg :server
            :reader server)))
 
+(defmethod driver ((object kernel-object-mixin))
+  (kernel object))
+
+(defmethod driver ((object server))
+  object)
 
 
+(defun driver-options (server)
+  (cdr (server-path server)))

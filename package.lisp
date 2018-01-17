@@ -163,7 +163,8 @@
    #:k-handle-leave-event
    #:k-handle-wm-delete-event
 
-   #:display-server
+   #:multi-thread-display-server
+   #:single-thread-display-server
    #:lookup-server-object
    #:start-server
 

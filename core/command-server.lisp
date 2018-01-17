@@ -1,5 +1,8 @@
 (in-package :cldk-internals)
 
+;;;
+;;; command server
+;;;
 
 (defclass command-server-mixin ()
   ())
@@ -15,10 +18,7 @@
       (let ((result
              (case (car command)
                (:stop
-                (when *kernel-mode*
-                  (with-slots (shutdown-p) server
-                    (when (not shutdown-p)
-                      (shutdown server)))))
+                nil)
                (:fn
                 (apply (second command) (third command))))))
         result)
@@ -27,8 +27,8 @@
 
 (defgeneric call (server command &key block-p)
   (:method ((server command-server-mixin) command &key block-p)
-    (break)
-    (exec-command server command)))
+    (let ((*kernel-mode* t))
+      (exec-command server command))))
 
 (defmacro <call+ (server fn &rest args)
   `(call ,server (make-command ,fn (list ,@args)) :block-p t))
@@ -36,9 +36,11 @@
 (defmacro <call- (server fn &rest args)
   `(call ,server (make-command ,fn (list ,@args)) :block-p nil))
 
+(defmethod stop-server ((server command-server-mixin))
+  (call server (make-stop-command) :block-p t))
 
 ;;;
-;;;
+;;; command queue
 ;;;
 
 (defclass command-queue-mixin (command-server-mixin)
@@ -106,91 +108,3 @@
                       (not (eql (car command-and-promise) :stop)))))
       (when (> (get-internal-real-time) end-time)
         (log:info "next calls time exceded after ~A steps" count)))))
-
-;;;
-;;;
-;;;
-
-
-(defun check-kernel-mode ()
-  (unless *kernel-mode*
-    (error "a thread not in kernel mode is calling a kernel function")))
-
-(defclass single-thread-server-mixin (command-queue-mixin
-                                      server-with-thread-mixin)
-  ((kernel-thread :initform nil
-                  :reader server-kernel-thread)))
-
-(defgeneric boot (kernel))
-
-(defmethod boot ((server single-thread-server-mixin))
-  (driver-start server))
-
-(defgeneric shutdown (server))
-
-(defmethod shutdown :before ((server single-thread-server-mixin))
-  (with-slots (shutdown-p) server
-    (setf shutdown-p t)))
-
-(defmethod shutdown ((server single-thread-server-mixin))
-  (driver-stop server))
-
-(defmethod start-server ((server single-thread-server-mixin))
-  (with-slots (kernel-thread) server
-    (setf kernel-thread
-          (bt:make-thread #'(lambda ()
-                              (server-loop-fn server))
-                          :name "cldk server"))))
-
-(defmethod stop-server ((server single-thread-server-mixin))
-  (with-slots (kernel-thread) server
-    (call server (make-stop-command) :block-p t)))
-
-(defmethod kill-server ((server single-thread-server-mixin))
-  (with-slots (kernel-thread) server
-    (bt:destroy-thread kernel-thread)
-    (setf kernel-thread nil)))
-
-
-(defmethod shutdown :after ((server  single-thread-server-mixin))
-  (empty-call-queue server))
-
-
-
-(defgeneric server-loop-step (kernel))
-
-(defgeneric server-loop (kernel &key min-loop-time))
-
-(defmethod server-loop ((server single-thread-server-mixin)  &key (min-loop-time 0.01))
-  (block loop
-    (loop
-       (let ((end-time (+ (get-internal-real-time) (* min-loop-time internal-time-units-per-second))))
-         (server-loop-step server)
-         (let ((wait-time (- end-time (get-internal-real-time))))
-           (when (> wait-time 0)
-             (sleep (/ wait-time internal-time-units-per-second)))))
-       (with-slots (shutdown-p) server
-         (when shutdown-p
-           (return-from loop))))))
-  
-(defun server-loop-fn (server)
-  (boot server)
-  (block loop
-    (let ((*kernel-mode* t))
-      (loop
-         (with-simple-restart
-             (restart-server-loop
-              "restart cldk's server loop.")
-           (server-loop server)
-           (with-slots (shutdown-p) server
-             (setf shutdown-p nil))
-           (return-from loop))))))
-
-
-
-;;;
-;;;
-;;;
-
-(defclass multi-thread-server-mixin ()
-  ())

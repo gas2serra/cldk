@@ -1,6 +1,6 @@
 (in-package :cldk-sdl2)
 
-(defclass sdl2-server (display-server sdl2-driver)
+(defclass sdl2-server (single-thread-display-server sdl2-driver)
   ())
 
 (defmethod initialize-instance :after ((server sdl2-server) &rest args)

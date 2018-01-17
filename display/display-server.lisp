@@ -2,18 +2,21 @@
 
 (defvar *default-event-handler*)
 
-(defclass display-server (server
-                          callback-queue-with-thread-mixin
-                          single-thread-server-mixin
-                          display-server-kernel-mixin)
-  ((event-handler :initform *default-event-handler*
+(defclass display-server (server)
+  ((kwindows :initform nil
+             :reader kernel-kwindows)
+   (event-handler :initform *default-event-handler*
                   :accessor server-event-handler)
    (cursor-table :initform (make-hash-table :test #'eq)
                  :accessor server-cursor-table)))
 
+(defgeneric event-handler (server))
+
 (defmethod event-handler ((server display-server))
   (server-event-handler server))
-   
+
+
+
 ;;;
 ;;; Find server
 ;;;
@@ -59,3 +62,33 @@
 
 (defun avaiable-cursor-names (server)
   (<d+ server #'k-avaiable-cursor-names))
+
+;;;
+;;;
+;;;
+
+(defclass single-thread-display-server (display-server
+                                        callback-queue-with-thread-mixin
+                                        command-queue-mixin
+                                        server-with-thread-mixin)
+  ())
+
+(defmethod server-loop-step ((server single-thread-display-server))
+  (process-next-driver-events server)
+  (process-next-calles server)
+  (unless (server-stopping-p server)
+    (k-refresh-windows server)
+    (driver-force-output (driver server))))
+
+
+(defclass multi-thread-display-server (display-server
+                                       event-server-mixin
+                                       command-server-mixin
+                                       server-with-thread-mixin)
+  ())
+
+(defmethod server-loop-step ((server multi-thread-display-server))
+  (process-next-driver-events server)
+  (unless (server-stopping-p server)
+    (k-refresh-windows server)
+    (driver-force-output (driver server))))

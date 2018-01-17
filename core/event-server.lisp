@@ -114,44 +114,5 @@
          (callback-loop server)
          (return-from loop)))))
 
-;;;
-;;; event thread
-;;;
-
-(defclass event-server-with-thread-mixin (event-server-mixin  server-with-thread-mixin)
-  ((event-thread :initform nil
-                 :reader server-event-thread)))
-
-(defmethod start-server ((server event-server-with-thread-mixin))
-  (call-next-method)
-  (with-slots (event-thread) server
-    (setf event-thread (bt:make-thread #'(lambda ()
-                                           (event-loop-fn server))
-                                       :name "cldk event server"))))
-
-(defmethod stop-server ((server event-server-with-thread-mixin))
-  (call-next-method))
-
-(defmethod kill-server ((server event-server-with-thread-mixin))
-  (call-next-method)
-  (with-slots (event-thread) server
-    (bt:destroy-thread event-thread)
-    (setf event-thread nil)))
-
-(defgeneric event-loop (server)
-  (:method ((server callback-queue-with-thread-mixin))
-    (with-slots (shutdown-p) server
-      (loop do
-           (process-next-driver-events server)
-         while (not shutdown-p)))))
-
-(defun event-loop-fn (server)
-  (block loop
-    (loop
-       (with-simple-restart
-           (restart-callback-loop
-            "restart cldk's callback loop.")
-         (event-loop server)
-         (return-from loop)))))
 
 

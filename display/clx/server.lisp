@@ -1,6 +1,6 @@
 (in-package :cldk-clx)
 
-(defclass clx-server (display-server clx-driver)
+(defclass clx-server (multi-thread-display-server clx-driver)
   ())
 
 (defmethod initialize-instance :after ((server clx-server) &rest args)

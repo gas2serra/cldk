@@ -13,10 +13,9 @@
                         :depends-on ("package")
                         :components
                         ((:file "driver")
-                         (:file "event-server" :depends-on ("driver" "server"))
-                         (:file "single-thread-server" :depends-on ("event-server" "driver" "server"))
-                         (:file "kernel" :depends-on ("driver"))
-                         (:file "server" :depends-on ("kernel"))
+                         (:file "event-server" :depends-on ("command-server" "driver" "server"))
+                         (:file "command-server" :depends-on ("driver" "server"))
+                         (:file "server")
                          )))
   :description "Common Lisp Drawing Kit")
 
@@ -38,14 +37,13 @@
   :depends-on (#:cldk/image)
   :components ((:module "display"
                         :components
-                        ((:file "display-server" :depends-on ("display-driver" "display-kernel"))
-                         (:file "window" :depends-on ("display-driver" "display-kernel" "display-kernel-call" "event-handler"))
-                         (:file "buffer" :depends-on ("display-kernel" "display-kernel-call"))
-                         (:file "buffered-window" :depends-on ("window" "buffer" "display-kernel" "display-kernel-call"))
+                        ((:file "display-server" :depends-on ("display-driver"))
+                         (:file "window" :depends-on ("display-driver" "display-kernel-call" "event-handler"))
+                         (:file "buffer" :depends-on ("display-kernel-call"))
+                         (:file "buffered-window" :depends-on ("window" "buffer" "display-kernel-call"))
                          (:file "event-handler" :depends-on ())
-                         (:file "display-kernel-callback" :depends-on ("display-kernel" "display-driver" "event-handler"))
-                         (:file "display-kernel-call" :depends-on ("display-kernel" "display-driver"))
-                         (:file "display-kernel" :depends-on ("display-driver"))
+                         (:file "display-kernel-callback" :depends-on ("display-server" "display-driver" "event-handler"))
+                         (:file "display-kernel-call" :depends-on ("display-server" "display-driver"))
                          (:file "display-driver" :depends-on ()))))
   :description "Common Lisp Drawing Kit")
 
