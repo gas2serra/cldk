@@ -96,7 +96,7 @@
   (:export
 
    ;;  driver
-   #:driver
+   #:server-driver-mixin
    #:driver-options
    #:driver-start
    #:driver-stop
@@ -105,7 +105,7 @@
    #:driver-force-output
 
    ;; driver object
-   #:driver-object
+   #:driver-object-mixin
    #:driver-object-id
 
    ;; event driver
@@ -113,7 +113,7 @@
    #:driver-process-next-event
 
    ;; display driver
-   #:display-driver
+   #:display-driver-mixin
    #:display-driver-object
    #:driver-default-screen-index
    #:driver-screen-num
@@ -124,6 +124,7 @@
    ;; display window 
    #:driver-window
    #:driver-create-window
+   #:driver-initialize-window
    #:driver-destroy-window
    #:driver-show-window
    #:driver-hide-window
@@ -149,6 +150,7 @@
    ;; display buffer
    #:driver-buffer
    #:driver-create-buffer
+   #:driver-initialize-buffer
    #:driver-update-buffer
    #:driver-destroy-buffer
    #:driver-copy-buffer-to-window

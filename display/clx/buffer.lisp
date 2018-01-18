@@ -1,6 +1,6 @@
 (in-package :cldk-clx)
 
-(defclass clx-buffer (buffer)
+(defclass clx-buffer (buffer clx-driver-buffer)
   ())
 
 (defmethod create-buffer ((server clx-server) width height)

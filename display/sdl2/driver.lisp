@@ -1,6 +1,6 @@
 (in-package :cldk-sdl2)
 
-(defclass sdl2-driver (display-driver)
+(defclass sdl2-driver (display-driver-mixin)
   ())
 
 (defmethod driver-start ((driver sdl2-driver))
@@ -25,9 +25,9 @@
 
 ;;; events
 
-(defmethod driver-process-next-event ((driver sdl2-driver) kernel)
+(defmethod driver-process-next-event ((driver sdl2-driver))
   (setf sdl2::*event-loop* t)
-  (sdl2-event-handler driver kernel))
+  (sdl2-event-handler driver driver))
 
 ;;; screens
 (defmethod driver-screen-num ((driver sdl2-driver))
@@ -93,6 +93,24 @@
                                            height
                                            window-flags)))
       (make-instance 'sdl2-driver-window :sdlwindow window))))
+
+(defmethod driver-initialize-window ((driver sdl2-driver) win name pretty-name x y width height mode)
+  (let ((window-flags (sdl2::mask-apply 'sdl2::sdl-window-flags
+                                        (if (eql mode :managed)
+                                            '(:hidden :resizable)
+                                            '(:hidden :borderless)))))
+    ;; INPUT_GRABBED INPUT_FOCUS MOUSE_FOCUSSDL_WINDOW_ALWAYS_ON_TOP
+    ;; SKIP_TASKBAR WINDOW_UTILITY WINDOW_TOOLTIP
+    ;; WINDOW_POPUP_MENU
+    (let ((window (sdl2::sdl-create-window pretty-name
+                                           (or x (sdl2:windowpos-undefined))
+                                           (or y (sdl2:windowpos-undefined))
+                                           width
+                                           height
+                                           window-flags)))
+      (with-slots (sdlwindow) win
+        (setf sdlwindow window)))))
+
 
 (defmethod driver-destroy-window ((driver sdl2-driver) window)
   (with-slots (sdlwindow) window
@@ -206,6 +224,15 @@
                                            :b-mask #x00ff0000
                                            :a-mask #xff000000)))
     (make-instance 'sdl2-driver-buffer :surface surface)))
+
+(defmethod driver-initialize-buffer ((driver sdl2-driver) buffer width height)
+  (with-slots (surface) buffer
+    (setf surface (sdl2:create-rgb-surface width height 32
+                                           :r-mask #x000000ff
+                                           :g-mask #x0000ff00
+                                           :b-mask #x00ff0000
+                                           :a-mask #xff000000))))
+
 
 (defmethod driver-update-buffer ((driver sdl2-driver) buffer width height)
   (with-slots (surface) buffer

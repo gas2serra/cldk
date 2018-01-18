@@ -4,30 +4,30 @@
 ;;; driver
 ;;;
 
-(defclass driver ()
+(defclass server-driver-mixin ()
   ())
 
-(defgeneric driver-start (driver))
-(defgeneric driver-stop (driver))
-(defgeneric driver-kill (driver)
-  (:method ((driver driver))
+(defgeneric driver-start (server))
+(defgeneric driver-stop (server))
+(defgeneric driver-kill (server)
+  (:method ((server server-driver-mixin))
     t))
 
-(defgeneric driver-ping (driver)
-  (:method ((driver driver))
+(defgeneric driver-ping (server)
+  (:method ((server server-driver-mixin))
     t))
 
-(defgeneric driver-force-output (driver))
+(defgeneric driver-force-output (server))
 
-(defgeneric driver-process-next-event (driver kernel))
+(defgeneric driver-process-next-event (server))
 
 ;;;
 ;;; driver object
 ;;;
 
-(defclass driver-object ()
+(defclass driver-object-mixin ()
   ())
 
 (defgeneric driver-object-id (object)
-  (:method ((object driver-object))
+  (:method ((object driver-object-mixin))
     object))

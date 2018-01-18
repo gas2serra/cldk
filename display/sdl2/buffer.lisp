@@ -1,6 +1,6 @@
 (in-package :cldk-sdl2)
 
-(defclass sdl2-buffer (buffer)
+(defclass sdl2-buffer (buffer sdl2-driver-buffer)
   ())
 
 (defmethod create-buffer ((server sdl2-server) width height)

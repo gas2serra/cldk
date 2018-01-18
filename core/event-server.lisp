@@ -28,7 +28,7 @@
   (:method ((server event-server-mixin) &key (maxtime 0.01))
     (let ((end-time (+ (get-internal-real-time) (* maxtime internal-time-units-per-second))))
       (loop with event-p = nil do
-           (setq event-p (driver-process-next-event server server))
+           (setq event-p (driver-process-next-event server))
          while (and event-p
                     (< (get-internal-real-time) end-time)))
       (when (> (get-internal-real-time) end-time)

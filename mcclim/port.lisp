@@ -185,8 +185,10 @@
   (maphash #'(lambda (key val)
                (declare (ignore val))
                (when (typep key 'fb-mirrored-sheet-mixin)
-                 (mcclim-render-internals::%mirror-force-output (sheet-mirror key))))
+                 (mcclim-render-internals::%mirror-force-output
+                  (sheet-mirror key))))
            (slot-value port 'climi::sheet->mirror))
+  
   (cldki::driver-force-output (fb-port-server port)))
 
 (defmethod synthesize-pointer-motion-event ((pointer fb-pointer))

@@ -13,10 +13,10 @@
 
 (defmethod initialize-instance  :after ((buffer buffer) &key width height
                                                           &allow-other-keys)
-  #+nil (<kbuffer+ buffer #'k-initialize-buffer width height))
+  (<kbuffer+ buffer #'k-initialize-buffer width height))
 
 (defgeneric create-buffer (server width height))
 
 (defgeneric destroy-buffer (buffer)
   (:method ((buffer buffer))
-    ))
+    (<kbuffer+ buffer #'k-destroy-buffer)))

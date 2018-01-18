@@ -102,7 +102,7 @@
 (defun decode-x-key (event-key keycode state)
   (multiple-value-bind (clim-modifiers caps-lock? mode-switch?)
       (decode-x-modifier-state state)
-    (let* ((display (clx-driver-display (driver *clx-kernel*)))
+    (let* ((display (clx-driver-display *clx-kernel*))
            (shift? (logtest +shift-key+ clim-modifiers))
            (shifted-keysym (xlib:keycode->keysym display keycode
                                                  (+ 1 (if mode-switch?

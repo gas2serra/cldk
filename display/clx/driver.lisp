@@ -1,6 +1,6 @@
 (in-package :cldk-clx)
 
-(defclass clx-driver (display-driver)
+(defclass clx-driver (display-driver-mixin)
   ((display :initform nil :reader clx-driver-display)
    (screen :initform nil)
    (root-window :initform nil)))
@@ -60,12 +60,12 @@
 (defvar *clx-kernel*)
 (defvar *clx-error*)
 
-(defmethod driver-process-next-event ((driver clx-driver) kernel)
+(defmethod driver-process-next-event ((driver clx-driver))
   (with-slots (display) driver
     (if (not (xlib:event-listen display))
         nil
         (let ((*clx-driver* driver)
-              (*clx-kernel* kernel)
+              (*clx-kernel* driver)
               (*clx-error* nil))
           (xlib:process-event display :timeout 0
                               :handler #'clx-event-handler :discard-p t)
@@ -171,6 +171,49 @@
                          :gcontext (xlib:create-gcontext :drawable window
                                                          :background (values 0 0 0)
                                                          :foreground (values 255 255 255))))))))
+
+(defmethod driver-initialize-window ((driver clx-driver) win name pretty-name x y
+                                 width height mode)
+  (let ((background '(0.5 0.5 0.5)))
+    (with-slots (screen) driver
+      (let* ((color (multiple-value-bind (r g b)
+                        (values-list background)
+                      (xlib:make-color :red r :green g :blue b)))
+             (pixel (xlib:alloc-color (xlib:screen-default-colormap screen) color)))
+        (let ((window (xlib:create-window
+                       :parent (xlib:screen-root screen)
+                       :width (max width 1)
+                       :height (max height 1)
+                       :x (or x 0)
+                       :y (or y 0)
+                       :border-width 0
+                       :border 0
+                       :override-redirect (if (eql mode :managed) :off :on)
+                       :backing-store :not-useful
+                       :save-under :off
+                       :gravity :north-west
+                       :bit-gravity :forget
+                       :background pixel
+                       :event-mask (apply #'xlib:make-event-mask
+                                          *event-mask*))))
+          (when (eql mode :managed)
+            (setf (xlib:wm-hints window) (xlib:make-wm-hints :input :on))
+            (setf (xlib:wm-name window) pretty-name)
+            (setf (xlib:wm-icon-name window) pretty-name)
+            (xlib:set-wm-class
+             window
+             (string-downcase name)
+             (string-capitalize (string-downcase name)))
+            (setf (xlib:wm-protocols window) `(:wm_delete_window))
+            (xlib:change-property window
+                                  :WM_CLIENT_LEADER (list (xlib:window-id window))
+                                  :WINDOW 32))
+          (with-slots (xwindow gcontext) win
+            (setf xwindow window
+                  gcontext
+                  (xlib:create-gcontext :drawable window
+                                        :background (values 0 0 0)
+                                        :foreground (values 255 255 255)))))))))
 
 (defmethod driver-destroy-window ((driver clx-driver) window)
   (with-slots (xwindow gcontext) window
@@ -313,8 +356,10 @@
 ;;; buffer
 
 (defclass clx-driver-buffer (driver-buffer)
-  ((ximage :initarg :ximage)
+  ((ximage :initarg :ximage
+           :initform nil)
    (pixels :initarg :pixels
+           :initform nil
            :reader driver-buffer-pixels)))
 
 (defmethod driver-create-buffer ((driver clx-driver) width height)
@@ -332,6 +377,21 @@
                                     :format :z-pixmap)))
     
     (make-instance 'clx-driver-buffer :pixels pixels :ximage ximage)))
+
+(defmethod driver-initialize-buffer ((driver clx-driver) buffer width height)
+  (with-slots (pixels ximage) buffer
+    (setf pixels (make-array (list height width)
+                             :element-type '(unsigned-byte 32)
+                             :initial-element #x00FFFFFF)
+          ximage (xlib:create-image :bits-per-pixel 32
+                                    :data pixels
+                                    :depth 24
+                                    :width width
+                                    :height height
+                                    :blue-mask #x000000ff
+                                    :green-mask #x0000ff00
+                                    :red-mask #x00ff0000
+                                    :format :z-pixmap))))
 
 (defmethod driver-update-buffer ((driver clx-driver) buffer width height)
   (with-slots (pixels ximage) buffer

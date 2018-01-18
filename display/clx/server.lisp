@@ -65,3 +65,31 @@
 (setf (get :clx :server-path-parser-fn) 'parse-clx-server-path)
 
 
+(defclass clx-window (cldk::window clx-driver-window)
+  ())
+
+(defclass clx-buffered-window (buffered-window clx-driver-window)
+  ())
+
+#|
+(defmethod create-window ((server clx-server) name &key 
+                                                             (pretty-name name)
+                                                             (x nil) (y nil)
+                                                             (width 300) (height 300)
+                                                             (mode :managed)
+                                                             (window-class 'window))
+  (make-instance 'clx-window :server server :kernel server
+                   :name name :pretty-name pretty-name
+                   :x x :y y :width width :height height :mode mode))
+
+(defmethod create-buffered-window ((server clx-server) name
+                                   &key (pretty-name name) (x 0) (y 0)
+                                     (width 300) (height 300)
+                                     (mode :managed) (window-class 'buffered-window))
+  (let ((buffer (create-buffer server width height)))
+    (make-instance 'clx-buffered-window :server server :kernel server
+                   :obuffer buffer
+                   :name name :pretty-name pretty-name
+                   :x x :y y
+                   :width width :height height :mode mode)))
+|#

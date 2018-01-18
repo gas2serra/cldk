@@ -26,17 +26,17 @@
 ;;;
 
 (defclass k-window-mixin (server-object)
-  ((driver-window :initform nil
-                  :initarg :driver-window
-                  :reader window-driver-window)))
+  ())
+
+(defun window-driver-window (window)
+  window)
 
 (defun k-initialize-window (kwindow name pretty-name
                             x y width height mode)
   (check-kernel-mode)
-  (with-slots (driver-window) kwindow
-    (setf driver-window (driver-create-window (server kwindow) name pretty-name
-                                              x y width height mode))
-    (register-server-object (server kwindow) driver-window kwindow)))
+  (driver-initialize-window (server kwindow) kwindow name pretty-name
+                            x y width height mode)
+  (register-server-object (server kwindow) kwindow kwindow))
 
 (defun k-destroy-window (window)
   (check-kernel-mode)
@@ -119,15 +119,15 @@
 ;;;
 
 (defclass k-buffer-mixin (buffer-image-mixin server-object)
-  ((driver-buffer :initform nil
-                  :initarg :driver-buffer
-                  :reader buffer-driver-buffer)))
+  ())
+
+(defun buffer-driver-buffer (buffer)
+  buffer)
 
 (defun k-initialize-buffer (kbuffer width height)
   (check-kernel-mode)
-  (with-slots (driver-buffer) kbuffer
-    (setf driver-buffer (driver-create-buffer (server kbuffer) width height))
-    (register-server-object (server kbuffer) driver-buffer kbuffer)))
+  (driver-initialize-buffer (server kbuffer) kbuffer width height)
+  (register-server-object (server kbuffer) kbuffer kbuffer))
 
 (defun k-destroy-buffer (kbuffer)
   (check-kernel-mode)
@@ -152,7 +152,7 @@
 
 (defun k-initialize-buffered-window (kwindow width height)
   (check-kernel-mode)
-  (with-slots (obuffer) kwindow
+  #+nil (with-slots (obuffer) kwindow
     (k-initialize-buffer obuffer width height)))
 
 (defun k-destroy-buffered-window (window)

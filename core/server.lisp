@@ -9,13 +9,16 @@
 ;;; server class
 ;;;
 
-(defclass server ()
+(defclass server (server-driver-mixin)
   ((path :initform nil
          :initarg :path
          :reader server-path)
    (state :initform :stopped
           :type (member :starting :running :stopping :stopped)
           :reader server-state)))
+
+(defun driver-options (server)
+  (cdr (server-path server)))
 
 (defun server-running-p (server)
   (eql (server-state server) :running))
@@ -174,15 +177,13 @@
            (driver-stop server)
            (return-from loop))))))
 
-
 ;;;
 ;;; server objects
 ;;;
 
-(defclass server-object ()
+(defclass server-object (driver-object-mixin)
   ((server :initform nil
            :initarg :server
            :reader server)))
 
-(defun driver-options (server)
-  (cdr (server-path server)))
+

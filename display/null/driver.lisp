@@ -20,7 +20,7 @@
   (log:trace driver))
 
 ;;; events
-(defmethod driver-process-next-event ((driver null-driver) event-handler)
+(defmethod driver-process-next-event ((driver null-driver))
   (log:trace driver)
   nil)
 
