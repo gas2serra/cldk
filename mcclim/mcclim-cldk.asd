@@ -1,6 +1,6 @@
 (defsystem #:mcclim-cldk
     :depends-on (#:cldk
-                 #:mcclim-single-mirrored-standard
+                 #:mcclim-backend-common
 		 #:mcclim-render
                  #:mcclim-render/backend)
     :components

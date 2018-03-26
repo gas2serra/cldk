@@ -28,6 +28,7 @@
 (defmethod port-disable-sheet ((port fb-port) (mirror mirrored-sheet-mixin))
   (cldk:hide-window (sheet-direct-mirror mirror)))
 
+#|
 (defmethod port-mirror-width ((port fb-port) sheet)
   (multiple-value-bind (w h)
       (cldk:window-size (sheet-direct-mirror sheet))
@@ -37,7 +38,7 @@
   (multiple-value-bind (w h)
       (cldk:window-size (sheet-direct-mirror sheet))
     h))
-
+|#
 ;;;
 ;;;
 ;;;

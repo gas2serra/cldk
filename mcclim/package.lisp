@@ -24,8 +24,6 @@
                 #:note-space-requirements-changed
                 #:port-enable-sheet
                 #:port-disable-sheet
-                #:port-mirror-width
-                #:port-mirror-height
                 #:mirror-transformation
                 #:bury-mirror
                 #:raise-mirror
@@ -38,6 +36,7 @@
                 #:frame-managers
                 #:pointer-scroll-event
                 )
+
   (:import-from :mcclim-render-internals
                 #:render-medium-mixin
                 #:render-port-mixin
@@ -55,7 +54,7 @@
   (:import-from :clim-standard
                 #:standard-port
                 #:standard-handled-event-port-mixin
-                #:standard-single-mirrored-sheet-mixin
+                #:standard-mirrored-sheet-mixin
                 #:%sheet-mirror-region
                 #:%sheet-mirror-transformation
                 #:standard-graft

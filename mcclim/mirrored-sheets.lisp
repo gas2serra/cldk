@@ -2,7 +2,7 @@
 
 
 (defclass fb-mirrored-sheet-mixin (image-sheet-mixin
-                                   standard-single-mirrored-sheet-mixin)
+                                   standard-mirrored-sheet-mixin)
   ((state :initform :notadopted
           :accessor fb-mirrored-sheet-state)))
 
