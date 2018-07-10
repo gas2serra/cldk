@@ -61,8 +61,10 @@
 							     :clim-fb))
 	   (superclasses (if (subtypep concrete-pane-class 'sheet-with-medium-mixin)
 			     (list (fb-frame-manager-mirrored-sheet-mixin-class fm)
+                                   'climi::always-repaint-background-mixin
 				   concrete-pane-class-symbol)
 			     (list (fb-frame-manager-mirrored-sheet-mixin-class fm)
+                                   'climi::always-repaint-background-mixin
 				   'permanent-medium-sheet-output-mixin
 				   concrete-pane-class-symbol))))
       (unless concrete-mirrored-pane-class-symbol

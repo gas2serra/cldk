@@ -53,8 +53,8 @@
                 )
   (:import-from :clim-standard
                 #:standard-port
-                #:standard-handled-event-port-mixin
-                #:standard-mirrored-sheet-mixin
+                #:standard-event-port-mixin
+                #:mirrored-sheet-mixin
                 #:%sheet-mirror-region
                 #:%sheet-mirror-transformation
                 #:standard-graft

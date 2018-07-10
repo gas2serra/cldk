@@ -1,7 +1,7 @@
 (in-package :clim-fb)
 
 (defclass fb-port (standard-port
-                   standard-handled-event-port-mixin
+                   standard-event-port-mixin
                    render-port-mixin)
   ((server :accessor fb-port-server)
    (pointer :reader port-pointer)
@@ -23,6 +23,7 @@
     (remf options :cldk-driver)
     (let ((server (cldk:find-display-server :server-path (cons driver
                                                                options))))
+      (sleep 0.1)
       (setf (fb-port-server port) server)
       (setf (cldk:server-event-handler server)
             (make-instance 'clim-fb::fb-event-handler :port port))))
@@ -174,10 +175,11 @@
                               ;;:mirror (clx-port-window port)
                               :orientation orientation
                               :units units)))
-    (setf (sheet-region graft)
-          (make-bounding-rectangle 0 0
-                                   (first (cldk:screen-size (fb-port-server port) 0 units))
-                                   (second (cldk:screen-size (fb-port-server port) 0 units))))
+    (climi::%%set-sheet-region 
+                               (make-bounding-rectangle 0 0
+                                                        (first (cldk:screen-size (fb-port-server port) 0 units))
+                                                        (second (cldk:screen-size (fb-port-server port) 0 units)))
+                               graft)
     (push graft (port-grafts port))
     graft))
 
