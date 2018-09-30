@@ -3,7 +3,7 @@
 (defclass fb-mirror (image-mirror-mixin cldk:buffered-window)
   ((width :initform 0)
    (height :initform 0)
-   (image-family :initform :two-dim-array)
+   (mcclim-render-internals::image-medium :initform :two-dim-array)
    (img :initform nil)))
 
 (defmethod destroy-mirror ((port fb-port) (sheet mirrored-sheet-mixin))
@@ -57,7 +57,7 @@
 
 (defun image-mirror-pre-put (width height mirror dirty-r)
   (let ((pixels (image-pixels (image-mirror-image mirror))))
-    (declare (type rgb-image-pixels pixels))
+    (declare (type mcclim-render-internals::rgb-image-pixels pixels))
     (let ((rs  nil)
           (cldki::*epsilon* 2))
       (map-over-region-set-regions
