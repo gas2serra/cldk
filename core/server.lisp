@@ -34,6 +34,7 @@
 (defgeneric kill-server (server))
 (defgeneric restart-server (server))
 (defgeneric destroy-server (server))
+(defgeneric server-force-output (server))
 
 (defmethod start-server :around ((server server))
   (if (server-running-p server)
@@ -115,12 +116,6 @@
 ;;; server thread
 ;;;
 
-(defvar *kernel-mode* nil)
-
-(defun check-kernel-mode ()
-  (unless *kernel-mode*
-    (error "a thread not in kernel mode is calling a kernel function")))
-
 (defclass server-with-thread-mixin ()
   ((kernel-thread :initform nil
                   :reader server-kernel-thread)))
@@ -166,9 +161,9 @@
          (return-from loop)))))
   
 (defun server-loop-fn (server)
-  (driver-start server)
-  (block loop
-    (let ((*kernel-mode* t))
+  (let ((*kernel-mode* t))
+    (driver-start server)
+    (block loop
       (loop
          (with-simple-restart
              (restart-server-loop
@@ -185,5 +180,4 @@
   ((server :initform nil
            :initarg :server
            :reader server)))
-
 

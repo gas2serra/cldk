@@ -36,7 +36,7 @@
   (check-kernel-mode)
   (driver-initialize-window (server kwindow) kwindow name pretty-name
                             x y width height mode)
-  (register-server-object (server kwindow) kwindow kwindow))
+  (register-server-object (server kwindow) kwindow))
 
 (defun k-destroy-window (window)
   (check-kernel-mode)
@@ -127,7 +127,7 @@
 (defun k-initialize-buffer (kbuffer width height)
   (check-kernel-mode)
   (driver-initialize-buffer (server kbuffer) kbuffer width height)
-  (register-server-object (server kbuffer) kbuffer kbuffer))
+  (register-server-object (server kbuffer) kbuffer))
 
 (defun k-destroy-buffer (kbuffer)
   (check-kernel-mode)

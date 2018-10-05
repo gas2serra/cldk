@@ -88,7 +88,7 @@
 
 (defmethod adopt-frame :before ((fm fb-frame-manager) (frame menu-frame))
   ;; Temporary kludge.
-  (log:info "====ADOPT MENU ~A" (round (slot-value frame 'climi::top)))
+  (log:info "====ADOPT MENU ~A" (slot-value frame 'climi::top))
   (when (eq (slot-value frame 'climi::top) nil)
     (multiple-value-bind (x y)
         (values-list (cldk:screen-pointer-position (fb-port-server (port fm))))

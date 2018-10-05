@@ -75,7 +75,7 @@
 
 (defmethod server-loop-step ((server single-thread-display-server))
   (process-next-driver-events server)
-  (process-next-calles server)
+  (process-next-calls server)
   (unless (server-stopping-p server)
     (k-refresh-windows server)
     (driver-force-output server)))

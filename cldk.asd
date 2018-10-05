@@ -14,7 +14,8 @@
                         :components
                         ((:file "driver")
                          (:file "event-server" :depends-on ("command-server" "driver" "server"))
-                         (:file "command-server" :depends-on ("driver" "server"))
+                         (:file "command-server" :depends-on ("driver" "command" "server"))
+                         (:file "command" :depends-on ("server"))
                          (:file "server")
                          )))
   :description "Common Lisp Drawing Kit")

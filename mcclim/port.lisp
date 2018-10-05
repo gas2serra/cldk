@@ -191,7 +191,7 @@
                   (sheet-mirror key))))
            (slot-value port 'climi::sheet->mirror))
   
-  (cldki::driver-force-output (fb-port-server port)))
+  (cldki::server-force-output (fb-port-server port)))
 
 (defmethod synthesize-pointer-motion-event ((pointer fb-pointer))
   (let* ((port (port pointer))
