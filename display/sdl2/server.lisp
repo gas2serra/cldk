@@ -22,7 +22,7 @@
 (setf (get :sdl2 :server-class) 'sdl2-server)
 (setf (get :sdl2 :server-path-parser-fn) 'parse-sdl2-server-path)
 
-(defclass sdl2-window (cldk::window sdl2-driver-window)
+(defclass sdl2-window (window sdl2-driver-window)
   ())
 
 (defclass sdl2-buffered-window (buffered-window sdl2-driver-window)

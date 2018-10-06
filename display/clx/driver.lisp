@@ -114,7 +114,7 @@
 
 ;;; window
 
-(defclass clx-driver-window (driver-window)
+(defclass clx-driver-window (driver-window-mixin)
   ((xwindow :initarg :xwindow)
    (gcontext :initarg :gcontext)))
 
@@ -295,7 +295,7 @@
 
 ;;; cursor
 
-(defclass clx-driver-cursor (driver-cursor)
+(defclass clx-driver-cursor (driver-cursor-mixin)
   ((xcursor :initarg :xcursor)))
 
 (defvar *clx-cursor-mapping*  
@@ -355,7 +355,7 @@
 
 ;;; buffer
 
-(defclass clx-driver-buffer (driver-buffer)
+(defclass clx-driver-buffer (driver-buffer-mixin)
   ((ximage :initarg :ximage
            :initform nil)
    (pixels :initarg :pixels

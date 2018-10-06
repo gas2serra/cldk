@@ -78,7 +78,8 @@
    #:image-width
    #:image-height
    #:image-pixels
-   
+
+   #:window
    #:buffered-window
    #:create-buffered-window
    #:copy-image-to-buffered-window
@@ -108,6 +109,9 @@
    #:driver-object-mixin
    #:driver-object-id
 
+   ;; kernel
+   #:server-kernel
+   
    ;; event driver
    #:event-driver-mixin
    #:driver-process-next-event
@@ -122,7 +126,7 @@
    #:driver-screen-pointer-position
    
    ;; display window 
-   #:driver-window
+   #:driver-window-mixin
    #:driver-create-window
    #:driver-initialize-window
    #:driver-destroy-window
@@ -141,14 +145,14 @@
    #:driver-ungrab-pointer
 
    ;; display cursor
-   #:driver-cursor
+   #:driver-cursor-mixin
    #:driver-avaiable-cursor-names 
    #:driver-create-cursor
    #:driver-destroy-cursor
    #:driver-set-window-cursor
 
    ;; display buffer
-   #:driver-buffer
+   #:driver-buffer-mixin
    #:driver-create-buffer
    #:driver-initialize-buffer
    #:driver-update-buffer

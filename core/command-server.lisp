@@ -7,24 +7,14 @@
 (defclass command-server-mixin ()
   ())
 
-(defgeneric call (server command &key block-p)
-  (:method ((server command-server-mixin) command &key block-p)
-    (declare (ignore block-p))
-    (let ((*kernel-mode* t))
-      (exec-command server command))))
 
-(defmacro <call+ (server fn &rest args)
-  `(call ,server (make-command ,fn (list ,@args)) :block-p t))
-
-(defmacro <call- (server fn &rest args)
-  `(call ,server (make-command ,fn (list ,@args)) :block-p nil))
 
 (defmethod stop-server ((server command-server-mixin))
   (call-next-method)
   (call server (make-stop-command) :block-p t))
 
 (defmethod server-force-output ((server command-server-mixin))
-  (<call- server #'driver-force-output server))
+  (<call- server #'k-force-output server))
 
 ;;;
 ;;; command queue

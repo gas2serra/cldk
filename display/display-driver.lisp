@@ -19,7 +19,7 @@
 (defgeneric driver-screen-pointer-position (server))
 
 ;;; window
-(defclass driver-window (display-driver-object-mixin)
+(defclass driver-window-mixin (display-driver-object-mixin)
   ())
 
 (defgeneric driver-initialize-window (server window name pretty-name x y
@@ -42,7 +42,7 @@
 (defgeneric driver-ungrab-pointer (server window pointer))
 
 ;;; cursor
-(defclass driver-cursor (display-driver-object-mixin)
+(defclass driver-cursor-mixin (display-driver-object-mixin)
   ())
 
 (defgeneric driver-avaiable-cursor-names (server))
@@ -51,7 +51,7 @@
 (defgeneric driver-set-window-cursor (server window cursor))
 
 ;;; buffer
-(defclass driver-buffer (display-driver-object-mixin)
+(defclass driver-buffer-mixin (display-driver-object-mixin)
   ())
 
 (defgeneric driver-initialize-buffer (server buffer width height))

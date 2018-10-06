@@ -24,26 +24,6 @@
     (with-slots (driver-object-id->server-object) server
       (gethash driver-object-id driver-object-id->server-object))))
 
-(defgeneric process-next-driver-events (server &key maxtime)
-  (:method ((server event-server-mixin) &key (maxtime 0.01))
-    (let ((end-time (+ (get-internal-real-time) (* maxtime internal-time-units-per-second))))
-      (loop with event-p = nil do
-           (setq event-p (driver-process-next-event server))
-         while (and event-p
-                    (< (get-internal-real-time) end-time)))
-      (when (> (get-internal-real-time) end-time)
-        (log:info "event time exceded")))))
-
-(defgeneric callback (server command &key block-p)
-  (:method ((server event-server-mixin) command &key block-p)
-    (exec-command server command)))
-
-(defmacro <callback+ (server fn &rest args)
-  `(callback ,server (make-command ,fn (list ,@args)) :block-p t))
-
-(defmacro <callback- (server fn &rest args)
-  `(callback ,server (make-command ,fn (list ,@args)) :block-p nil))
-
 ;;;
 ;;; callback queue
 ;;;

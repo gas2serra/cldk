@@ -9,7 +9,7 @@
 ;;; server class
 ;;;
 
-(defclass server (server-driver-mixin)
+(defclass server (server-kernel)
   ((path :initform nil
          :initarg :path
          :reader server-path)
@@ -162,14 +162,14 @@
   
 (defun server-loop-fn (server)
   (let ((*kernel-mode* t))
-    (driver-start server)
+    (k-start server)
     (block loop
       (loop
          (with-simple-restart
              (restart-server-loop
               "restart cldk's server loop.")
            (server-loop server)
-           (driver-stop server)
+           (k-stop server)
            (return-from loop))))))
 
 ;;;

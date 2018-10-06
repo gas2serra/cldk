@@ -71,7 +71,7 @@
 
 ;;; window
 
-(defclass sdl2-driver-window (driver-window)
+(defclass sdl2-driver-window (driver-window-mixin)
   ((sdlwindow :initarg :sdlwindow)))
 
 (defmethod driver-object-id ((window sdl2-driver-window))
@@ -175,7 +175,7 @@
       (list (cffi:mem-ref xpos :int) (cffi:mem-ref ypos :int)))))
 
 ;;; cursors
-(defclass sdl2-driver-cursor (driver-cursor)
+(defclass sdl2-driver-cursor (driver-cursor-mixin)
   ((sdlcursor :initarg :sdlcursor)))
 
 (defvar *sdl2-cursor-mapping*  
@@ -213,7 +213,7 @@
 
 ;;; buffer
 
-(defclass sdl2-driver-buffer (driver-buffer)
+(defclass sdl2-driver-buffer (driver-buffer-mixin)
   ((surface :initarg :surface
             :initform nil)))
 
