@@ -2,13 +2,14 @@
 
 (defvar *default-event-handler*)
 
-(defclass display-server (server)
+(defclass display-server (server display-driver)
   ((kwindows :initform nil
              :reader kernel-kwindows)
    (event-handler :initform *default-event-handler*
                   :accessor server-event-handler)
    (cursor-table :initform (make-hash-table :test #'eq)
-                 :accessor server-cursor-table)))
+                 :accessor server-cursor-table))
+  (:default-initargs :callback-handler (make-instance 'default-display-callback-handler))) 
 
 (defgeneric event-handler (server))
 
@@ -84,6 +85,7 @@
 (defclass multi-thread-display-server (display-server
                                        event-server-mixin
                                        command-server-mixin
+                                       multi-threaded-driver-mixin
                                        server-with-thread-mixin)
   ())
 

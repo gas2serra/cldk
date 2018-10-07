@@ -1,19 +1,5 @@
 (in-package :cldk-internals)
 
-;;; Constants dealing with events
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (defconstant +pointer-left-button+   #x01)
-  (defconstant +pointer-middle-button+ #x02)
-  (defconstant +pointer-right-button+  #x04)
-  (defconstant +pointer-x1-button+     #x08)
-  (defconstant +pointer-x2-button+     #x10)
-  
-  (defconstant +shift-key+             #x0100)
-  (defconstant +control-key+           #x0200)
-  (defconstant +meta-key+              #x0400)
-  (defconstant +super-key+             #x0800)
-  (defconstant +hyper-key+             #x1000)
-  (defconstant +alt-key+               #x2000))
 
 ;;; event handler
 

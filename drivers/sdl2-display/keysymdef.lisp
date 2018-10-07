@@ -1,4 +1,4 @@
-(in-package :cldk-sdl2)
+(in-package :cldk-driver-sdl2)
 
 (define-keysym :|1| sdl2-ffi::+SDLK-1+ t)
 (define-keysym :|2| sdl2-ffi::+SDLK-2+ t)

@@ -18,7 +18,7 @@
 ;;; kernel
 ;;;
 
-(defclass server-kernel (server-driver-mixin)
+(defclass server-kernel (driver)
   ())
 
 (defgeneric call (server command &key block-p)

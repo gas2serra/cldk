@@ -1,6 +1,6 @@
-(in-package :cldk-clx)
+(in-package :cldk-driver-clx)
 
-(defclass clx-driver (display-driver-mixin)
+(defclass clx-driver (display-driver)
   ((display :initform nil :reader clx-driver-display)
    (screen :initform nil)
    (root-window :initform nil)))
@@ -114,7 +114,7 @@
 
 ;;; window
 
-(defclass clx-driver-window (driver-window-mixin)
+(defclass clx-driver-window (driver-window)
   ((xwindow :initarg :xwindow)
    (gcontext :initarg :gcontext)))
 
@@ -295,7 +295,7 @@
 
 ;;; cursor
 
-(defclass clx-driver-cursor (driver-cursor-mixin)
+(defclass clx-driver-cursor (driver-cursor)
   ((xcursor :initarg :xcursor)))
 
 (defvar *clx-cursor-mapping*  
@@ -355,12 +355,34 @@
 
 ;;; buffer
 
-(defclass clx-driver-buffer (driver-buffer-mixin)
+(defclass clx-driver-buffer (driver-buffer)
   ((ximage :initarg :ximage
            :initform nil)
    (pixels :initarg :pixels
            :initform nil
            :reader driver-buffer-pixels)))
+
+(deftype clx-buffer-pixels () '(simple-array (unsigned-byte 32) (* *)))
+
+(defmethod driver-buffer-rgb-get-fn ((driver clx-driver) buffer dx dy)
+  (with-slots (pixels) buffer
+    (declare (type clx-buffer-pixels pixels))
+    (lambda (x y)
+      (let ((p (aref pixels (+ dy y) (+ dx x))))
+        (values (ldb (byte 8 16) p)
+                (ldb (byte 8 8) p)
+                (ldb (byte 8 0) p)
+                (ldb (byte 8 24) p))))))
+
+(defmethod driver-buffer-rgb-set-fn ((driver clx-driver) buffer dx dy)
+  (with-slots (pixels) buffer
+    (declare (type clx-buffer-pixels pixels))
+    (lambda (x y r g b)
+      (setf (aref pixels (+ dy y) (+ dx x))
+            (dpb r (byte 8 16)
+                 (dpb g (byte 8 8)
+                      (dpb b (byte 8 0)
+                           (dpb 255 (byte 8 24) 0))))))))
 
 (defmethod driver-create-buffer ((driver clx-driver) width height)
   (let* ((pixels (make-array (list height width)
@@ -376,7 +398,8 @@
                                     :red-mask #x00ff0000
                                     :format :z-pixmap)))
     
-    (make-instance 'clx-driver-buffer :pixels pixels :ximage ximage)))
+    (make-instance 'clx-driver-buffer
+                   :pixels pixels :ximage ximage)))
 
 (defmethod driver-initialize-buffer ((driver clx-driver) buffer width height)
   (with-slots (pixels ximage) buffer

@@ -11,7 +11,7 @@
    #:restart-server
    #:destroy-server
    #:map-over-servers
-
+   #|
    #:+pointer-left-button+
    #:+pointer-middle-button+
    #:+pointer-right-button+
@@ -27,6 +27,7 @@
    #:+super-key+
    #:+hyper-key+
    #:+alt-key+
+   |#
    #:event-handler
    #:log-event-handler
    #:event-handler-events-to-log
@@ -90,88 +91,13 @@
 (defpackage :cldk-extension
   (:use :common-lisp)
   (:export
-   ))
-
-(defpackage :cldk-driver
-  (:use :common-lisp)
-  (:export
-
-   ;;  driver
-   #:server-driver-mixin
-   #:driver-options
-   #:driver-start
-   #:driver-stop
-   #:driver-kill
-   #:driver-ping
-   #:driver-force-output
-
-   ;; driver object
-   #:driver-object-mixin
-   #:driver-object-id
-
-   ;; kernel
    #:server-kernel
    
    ;; event driver
    #:event-driver-mixin
-   #:driver-process-next-event
-
-   ;; display driver
-   #:display-driver-mixin
-   #:display-driver-object
-   #:driver-default-screen-index
-   #:driver-screen-num
-   #:driver-screen-size
-   #:driver-screen-dpi
-   #:driver-screen-pointer-position
    
-   ;; display window 
-   #:driver-window-mixin
-   #:driver-create-window
-   #:driver-initialize-window
-   #:driver-destroy-window
-   #:driver-show-window
-   #:driver-hide-window
-   #:driver-window-position
-   #:driver-window-size
-   #:driver-set-window-position
-   #:driver-set-window-size
-   #:driver-set-window-hints
-   #:driver-raise-window
-   #:driver-bury-window
-   #:driver-window-pointer-position
-
-   #:driver-grab-pointer
-   #:driver-ungrab-pointer
-
-   ;; display cursor
-   #:driver-cursor-mixin
-   #:driver-avaiable-cursor-names 
-   #:driver-create-cursor
-   #:driver-destroy-cursor
-   #:driver-set-window-cursor
-
-   ;; display buffer
-   #:driver-buffer-mixin
-   #:driver-create-buffer
-   #:driver-initialize-buffer
-   #:driver-update-buffer
-   #:driver-destroy-buffer
-   #:driver-copy-buffer-to-window
-
-   #:k-handle-window-configuration-event
-   #:k-handle-repaint-event
-   #:k-handle-scroll-event
-   #:k-handle-button-event
-   #:k-handle-motion-event
-   #:k-handle-key-event
-   #:k-handle-enter-event
-   #:k-handle-leave-event
-   #:k-handle-wm-delete-event
-
    #:multi-thread-display-server
    #:single-thread-display-server
-   #:lookup-server-object
    #:start-server
 
    #:buffer

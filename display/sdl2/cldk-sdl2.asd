@@ -7,14 +7,8 @@
   :version "0.3"
   :author "Alessandro Serra"
   :license "LGPL"
-  :depends-on (#:cldk/basic #:sdl2 #:cffi)
+  :depends-on (#:cldk/basic #:cldk-driver/sdl2 #:sdl2 #:cffi)
   :components ((:file "package")
-               (:file "keysyms-common" :depends-on ("package"))
-               (:file "keysymdef" :depends-on ("package" "keysyms-common"))
-               (:file "keysyms" :depends-on ("package" "keysyms-common"))
-               (:file "server" :depends-on ("package" "driver"))
-               (:file "input" :depends-on ("package"))
-               ;;(:file "image" :depends-on ("package"))
-               (:file "buffer" :depends-on ("package" "server"))
-               (:file "driver" :depends-on ("package" "input")))
+               (:file "server" :depends-on ("package"))
+               (:file "buffer" :depends-on ("package" "server")))
   :description "SDL2 Backend for Common Lisp Drawing Kit")

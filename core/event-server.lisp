@@ -5,24 +5,7 @@
 ;;;
 
 (defclass event-server-mixin ()
-  ((driver-object-id->server-object :initform (make-hash-table))))
-
-(defgeneric register-server-object (server server-object)
-  (:method ((server event-server-mixin) server-object)
-    (with-slots (driver-object-id->server-object) server
-      (setf (gethash (driver-object-id server-object) driver-object-id->server-object)
-            server-object))))
-
-(defgeneric unregister-server-object (server server-object)
-  (:method ((server event-server-mixin) server-object)
-    (with-slots (driver-object-id->server-object) server
-      (setf (gethash (driver-object-id server-object) driver-object-id->server-object)
-            nil))))
-
-(defgeneric lookup-server-object (server driver-object-id)
-  (:method ((server event-server-mixin) driver-object-id)
-    (with-slots (driver-object-id->server-object) server
-      (gethash driver-object-id driver-object-id->server-object))))
+  ())
 
 ;;;
 ;;; callback queue

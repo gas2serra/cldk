@@ -25,7 +25,7 @@
 ;;; Support and port mixin for X based backends, handling keycode to
 ;;; keysym and character mapping, and handling of modifiers.
 
-(in-package :cldk-clx)
+(in-package :cldk-driver-clx)
 
 ;;; This hash table maps a keysym to a list of keysym names for that
 ;;; keysym.

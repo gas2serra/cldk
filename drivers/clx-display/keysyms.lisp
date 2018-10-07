@@ -22,7 +22,7 @@
 ;;; Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;;; Boston, MA  02111-1307  USA.
 
-(in-package :cldk-clx)
+(in-package :cldk-driver-clx)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defconstant +shift-bit+      #b00000001)

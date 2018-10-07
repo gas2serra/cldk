@@ -17,8 +17,9 @@
           :type (member :starting :running :stopping :stopped)
           :reader server-state)))
 
-(defun driver-options (server)
-  (cdr (server-path server)))
+(defmethod initialize-instance :after ((server server)
+                                       &key)
+  (setf (driver-options server) (cdr (server-path server))))
 
 (defun server-running-p (server)
   (eql (server-state server) :running))
@@ -176,7 +177,7 @@
 ;;; server objects
 ;;;
 
-(defclass server-object (driver-object-mixin)
+(defclass server-object (driver-object)
   ((server :initform nil
            :initarg :server
            :reader server)))

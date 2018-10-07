@@ -1,4 +1,4 @@
-(in-package :cldk-clx)
+(in-package :cldk-driver-clx)
 
 (defun decode-x-button-code (code)  
   (let ((button-mapping #.(vector +pointer-left-button+
@@ -22,11 +22,12 @@
                    target hint-p send-event-p override-redirect-p
                    mode requestor request))
   (handler-case
-      (let ((win window))
+      (let ((win window)
+            (handler (driver-callback-handler *clx-kernel*)))
         (case event-key
           ((:button-press :button-release)
            (if (and (>= code 4) (<= code 7))
-               (k-handle-scroll-event *clx-kernel*
+               (driver-cb-scroll-event handler *clx-kernel*
                                       0
                                       (case code
                                         (6 -1)
@@ -36,24 +37,24 @@
                                         (4 -1)
                                         (5 1)
                                         (otherwise 0))
-                                      win
+                                      (lookup-driver-object *clx-kernel* win)
                                       time)
-               (k-handle-button-event *clx-kernel* 
+               (driver-cb-button-event handler *clx-kernel* 
                                       (if (eq event-key :button-press)
                                           :press
                                           :release)
                                       0
                                       (decode-x-button-code code)
-                                      win
+                                      (lookup-driver-object *clx-kernel* win)
                                       time)))
           (:motion-notify
-           (k-handle-motion-event *clx-kernel* 0
+           (driver-cb-motion-event handler *clx-kernel* 0
                                   x y root-x root-y
-                                  win time))
+                                  (lookup-driver-object *clx-kernel* win) time))
           ((:key-press :key-release)
            (multiple-value-bind (keyname modifier-state keysym-name)
                (decode-x-key event-key code state)
-             (k-handle-key-event *clx-kernel* 
+             (driver-cb-key-event handler *clx-kernel* 
                                  (if (eq event-key :key-press)
                                      :press
                                      :release)
@@ -62,21 +63,21 @@
                                   (characterp keyname)
                                   keyname)
                                  modifier-state
-                                 win
+                                 (lookup-driver-object *clx-kernel* win)
                                  time)))
           ((:enter-notify)
-           (k-handle-enter-event *clx-kernel* 0
+           (driver-cb-enter-event handler *clx-kernel* 0
                                  x y root-x root-y
-                                 win time))
+                                 (lookup-driver-object *clx-kernel* win) time))
           ((:leave-notify)
-           (k-handle-leave-event *clx-kernel* 0 win time))
+           (driver-cb-leave-event handler *clx-kernel* 0 (lookup-driver-object *clx-kernel* win) time))
           (:configure-notify
            (with-slots (root-window) *clx-driver*
              (multiple-value-bind (x y)
                  (xlib:translate-coordinates window 0 0 root-window)
-               (k-handle-window-configuration-event *clx-kernel* win x y width height time))))
+               (driver-cb-window-configuration-event handler *clx-kernel* (lookup-driver-object *clx-kernel* win) x y width height time))))
           ((:exposure :display :graphics-exposure)
-           (k-handle-repaint-event *clx-kernel* win x y width height time))
+           (driver-cb-repaint-event handler *clx-kernel* (lookup-driver-object *clx-kernel* win) x y width height time))
           (:mapping-notify
            (load-mapping (clx-driver-display *clx-driver*)))
           (:client-message
@@ -101,7 +102,10 @@
 
 (defmethod port-wm-protocols-message (win time (message (eql :wm_delete_window)) data)
   (declare (ignore data))
-  (k-handle-wm-delete-event *clx-kernel* win time))
+  (driver-cb-wm-delete-event (driver-callback-handler *clx-kernel*)
+                             *clx-kernel*
+                             (lookup-driver-object *clx-kernel* win)
+                             time))
 
 (defmethod port-wm-protocols-message (sheet time (message t) data)
   (warn "Unprocessed WM Protocols message: ~:_message = ~S;~:_ data = ~S;~_ sheet = ~S."

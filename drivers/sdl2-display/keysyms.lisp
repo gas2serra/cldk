@@ -1,4 +1,4 @@
-(in-package :cldk-sdl2)
+(in-package :cldk-driver-sdl2)
 
 (defparameter mod-mappings (list (cons sdl2-ffi::+kmod-lalt+ :ALT-LEFT)
                                  (cons sdl2-ffi::+kmod-lctrl+ :CONTROL-LEFT)

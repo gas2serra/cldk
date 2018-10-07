@@ -1,6 +1,6 @@
 ;;; -*- Mode: Lisp; Package: CLIM-XCOMMON; -*-
 
-(in-package :cldk-clx)
+(in-package :cldk-driver-clx)
 
 ;;/***********************************************************
 ;;Copyright 1987, 1994, 1998  The Open Group

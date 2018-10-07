@@ -1,5 +1,5 @@
 
-(in-package :cldk-sdl2)
+(in-package :cldk-driver-sdl2)
 
 
 (defvar *keysym-name-table*

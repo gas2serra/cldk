@@ -1,55 +1,49 @@
 (in-package :cldk-internals)
 
+(defclass default-display-callback-handler (display-driver-callback-handler)
+  ())
+
 (defmacro <e- (kernel fn &rest args)
   `(<callback- ,kernel ,fn (event-handler ,kernel) ,@args))
 
-(defun k-handle-window-configuration-event (kernel window x y width height time)
+(defmethod driver-cb-window-configuration-event ((handler default-display-callback-handler) kernel win x y width height time)
   (check-kernel-mode)
-  (let ((win (lookup-server-object kernel window)))
-    (when (typep win 'k-buffered-window-mixin)
-      (k-notify-resize-buffered-window win width height))
-    (<e- kernel #'handle-configure-event win x y width height time)))
+  (when (typep win 'k-buffered-window-mixin)
+    (k-notify-resize-buffered-window win width height))
+  (<e- kernel #'handle-configure-event win x y width height time))
 
-(defun k-handle-repaint-event (kernel window x y width height time)
+(defmethod driver-cb-repaint-event ((handler default-display-callback-handler) kernel win x y width height time)
   (check-kernel-mode)
-  (let ((win (lookup-server-object kernel window)))
-    (<e- kernel #'handle-repaint-event win x y width height time)))
+  (<e- kernel #'handle-repaint-event win x y width height time))
 
-(defun k-handle-scroll-event (kernel pointer dx dy window timestamp)
+(defmethod driver-cb-scroll-event ((handler default-display-callback-handler) kernel pointer dx dy win timestamp)
   (check-kernel-mode)
-  (let ((win (lookup-server-object kernel window)))
-    (<e- kernel #'handle-scroll-event pointer dx dy win timestamp)))
+  (<e- kernel #'handle-scroll-event pointer dx dy win timestamp))
 
-(defun k-handle-button-event (kernel kind pointer button window timestamp)
+(defmethod driver-cb-button-event ((handler default-display-callback-handler) kernel kind pointer button win timestamp)
   (check-kernel-mode)
-  (let ((win (lookup-server-object kernel window)))
-    (<e- kernel #'handle-button-event kind pointer button win timestamp)))
+  (<e- kernel #'handle-button-event kind pointer button win timestamp))
 
-(defun k-handle-motion-event (kernel pointer x y root-x root-y
-                              window timestamp)
+(defmethod driver-cb-motion-event ((handler default-display-callback-handler) kernel pointer x y root-x root-y
+                              win timestamp)
   (check-kernel-mode)
-  (let ((win (lookup-server-object kernel window)))
-    (<e- kernel #'handle-motion-event pointer x y root-x root-y
-         win timestamp)))
+  (<e- kernel #'handle-motion-event pointer x y root-x root-y
+       win timestamp))
 
-(defun k-handle-key-event (kernel kind keyname character modifiers
-                           window timestamp)
+(defmethod driver-cb-key-event ((handler default-display-callback-handler) kernel kind keyname character modifiers
+                           win timestamp)
   (check-kernel-mode)
-  (let ((win (lookup-server-object kernel window)))
-    (<e- kernel #'handle-key-event kind keyname character modifiers
-         win timestamp)))
+  (<e- kernel #'handle-key-event kind keyname character modifiers
+       win timestamp))
 
-(defun k-handle-enter-event (kernel pointer x y root-x root-y window time)
+(defmethod driver-cb-enter-event ((handler default-display-callback-handler) kernel pointer x y root-x root-y win time)
   (check-kernel-mode)
-  (let ((win (lookup-server-object kernel window)))
-    (<e- kernel #'handle-enter-event pointer x y root-x root-y win time)))
+  (<e- kernel #'handle-enter-event pointer x y root-x root-y win time))
 
-(defun k-handle-leave-event (kernel pointer window time)
+(defmethod driver-cb-leave-event ((handler default-display-callback-handler) kernel pointer win time)
   (check-kernel-mode)
-  (let ((win (lookup-server-object kernel window)))
-    (<e- kernel #'handle-leave-event pointer win time)))
+  (<e- kernel #'handle-leave-event pointer win time))
 
-(defun k-handle-wm-delete-event (kernel window time)
+(defmethod driver-cb-wm-delete-event ((handler default-display-callback-handler) kernel win time)
   (check-kernel-mode)
-  (let ((win (lookup-server-object kernel window)))
-    (<e- kernel #'handle-wm-delete-event win time)))
+  (<e- kernel #'handle-wm-delete-event win time))

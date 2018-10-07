@@ -35,14 +35,11 @@
                             x y width height mode)
   (check-kernel-mode)
   (driver-initialize-window (server kwindow) kwindow name pretty-name
-                            x y width height mode)
-  (register-server-object (server kwindow) kwindow))
+                            x y width height mode))
 
 (defun k-destroy-window (window)
   (check-kernel-mode)
-  (driver-destroy-window (server window) (window-driver-window  window))
-  (unregister-server-object (server window)
-                            (window-driver-window window)))
+  (driver-destroy-window (server window) (window-driver-window  window)))
 
 (defun k-show-window (window)
   (check-kernel-mode)
@@ -126,14 +123,11 @@
 
 (defun k-initialize-buffer (kbuffer width height)
   (check-kernel-mode)
-  (driver-initialize-buffer (server kbuffer) kbuffer width height)
-  (register-server-object (server kbuffer) kbuffer))
+  (driver-initialize-buffer (server kbuffer) kbuffer width height))
 
 (defun k-destroy-buffer (kbuffer)
   (check-kernel-mode)
-  (driver-destroy-buffer (server kbuffer) (buffer-driver-buffer kbuffer))
-  (unregister-server-object (server kbuffer)
-                            (buffer-driver-buffer kbuffer)))
+  (driver-destroy-buffer (server kbuffer) (buffer-driver-buffer kbuffer)))
 
 (defun k-update-buffer (kbuffer width height)
   (check-kernel-mode)
