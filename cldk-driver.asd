@@ -1,4 +1,4 @@
-(in-package :cl-user)
+1(in-package :cl-user)
 (defpackage #:cldk-asd
   (:use :cl :asdf))
 (in-package #:cldk-asd)
@@ -8,7 +8,7 @@
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
   :depends-on (#:bordeaux-threads #:log4cl)
-  :components ((:module "drivers"
+  :components ((:module "driver"
                         :components
                         ((:file "package")
                          (:file "driver"
@@ -22,7 +22,7 @@
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
   :depends-on (#:cldk-driver)
-  :components ((:module "drivers"
+  :components ((:module "driver"
                         :components
                         ((:file "display-driver")))))
                
@@ -31,15 +31,15 @@
   :author "Alessandro Serra"
   :license "LGPL"
   :depends-on (#:cldk-driver/display #:clx #:cffi)
-  :components ((:module "drivers/clx-display"
+  :components ((:module "driver/clx"
                         :components
                         ((:file "package")
-                         (:file "keysyms-common"
+                         (:file "input-keysyms-common"
                                 :depends-on ("package"))
-                         (:file "keysymdef"
-                                :depends-on ("package" "keysyms-common"))
-                         (:file "keysyms"
-                                :depends-on ("package" "keysyms-common"))
+                         (:file "input-keysymdef"
+                                :depends-on ("package" "input-keysyms-common"))
+                         (:file "input-keysyms"
+                                :depends-on ("package" "input-keysyms-common"))
                          (:file "input"
                                 :depends-on ("package"))
                          (:file "driver"
@@ -51,15 +51,15 @@
   :author "Alessandro Serra"
   :license "LGPL"
   :depends-on (#:cldk-driver/display #:sdl2 #:cffi)
-  :components ((:module "drivers/sdl2-display"
+  :components ((:module "driver/sdl2"
                         :components
                         ((:file "package")
-                         (:file "keysyms-common"
+                         (:file "input-keysyms-common"
                                 :depends-on ("package"))
-                         (:file "keysymdef"
-                                :depends-on ("package" "keysyms-common"))
-                         (:file "keysyms"
-                                :depends-on ("package" "keysyms-common"))
+                         (:file "input-keysymdef"
+                                :depends-on ("package" "input-keysyms-common"))
+                         (:file "input-keysyms"
+                                :depends-on ("package" "input-keysyms-common"))
                          (:file "input"
                                 :depends-on ("package"))
                          (:file "driver"
