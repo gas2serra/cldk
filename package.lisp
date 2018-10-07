@@ -107,5 +107,5 @@
    ))
 
 (defpackage :cldk-internals
-  (:use :cldk :cldk-driver :cldk-extension :common-lisp)
+  (:use :cldk :cldk-driver :cldk-kernel :cldk-extension :common-lisp)
   (:nicknames :cldki))

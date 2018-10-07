@@ -3,7 +3,7 @@
 ;;;
 ;;; command
 ;;;
-
+#|
 (defun make-command (fn args)
   (list :fn fn args))
 
@@ -11,7 +11,7 @@
   (list :stop))
 
 (defun stop-command-p (command)
-  (eq (car command) :stop))
+  (and (consp command) (eq (car command) :stop)))
 
 (defun exec-command (server command)
   (handler-case
@@ -70,3 +70,4 @@
            (when (and command-and-promise (cdr command-and-promise))
              (lparallel:fulfill (cdr command-and-promise)
                nil))))))
+|#

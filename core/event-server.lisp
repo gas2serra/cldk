@@ -11,21 +11,15 @@
 ;;; callback queue
 ;;;
 
-(defclass callback-queue-mixin (event-server-mixin)
-  ((callback-queue :initform (lparallel.queue:make-queue))))
+(defclass callback-queue-mixin (event-server-mixin lparallel-kernel-callback-mixin)
+  ())
 
 (defmethod stop-server :after ((server callback-queue-mixin))
-  (with-slots (callback-queue) server
-    (empty-command-queue callback-queue)))
+  (empty-lparallel-queue (kernel-callback-queue server)))
 
 (defmethod kill-server :after ((server callback-queue-mixin))
-  (with-slots (callback-queue) server
-    (empty-command-queue callback-queue)))
+  (empty-lparallel-queue (kernel-callback-queue server)))
 
-(defmethod callback ((server callback-queue-mixin) command &key block-p)
-  (with-slots (callback-queue) server
-    (in-queue-command server command callback-queue block-p)))
-  
 ;;;
 ;;; callback queue thread
 ;;;
@@ -41,9 +35,8 @@
                                               (callback-loop-fn server))
                                           :name "cldk callback server"))))
 
-(defmethod stop-server ((server callback-queue-with-thread-mixin))
-  (call-next-method)
-  (callback server (make-stop-command) :block-p t))
+(defmethod stop-server :before ((server callback-queue-with-thread-mixin))
+  (kernel-callback server :stop t))
 
 (defmethod kill-server ((server callback-queue-with-thread-mixin))
   (call-next-method)
@@ -53,10 +46,9 @@
 
 (defgeneric callback-loop (server)
   (:method ((server callback-queue-with-thread-mixin))
-    (with-slots (callback-queue) server
-      (loop with com = nil do
-           (setq com (exec-next-queued-command server callback-queue :kernel-mode-p nil))
-         while (not (stop-command-p com))))))
+    (loop with res = nil do
+         (setq res (exec-next-kernel-callback server))
+       while (not (eql res :stop)))))
 
 (defun callback-loop-fn (server)
   (block loop
@@ -65,4 +57,5 @@
            (restart-callback-loop
             "restart cldk's callback loop.")
          (callback-loop server)
+         (log:info "Exit......!!!!!")
          (return-from loop)))))

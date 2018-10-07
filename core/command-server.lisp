@@ -7,11 +7,9 @@
 (defclass command-server-mixin ()
   ())
 
-
-
 (defmethod stop-server ((server command-server-mixin))
   (call-next-method)
-  (call server (make-stop-command) :block-p t))
+  (kernel-call server :stop t))
 
 (defmethod server-force-output ((server command-server-mixin))
   (<call- server #'k-force-output server))
@@ -20,31 +18,23 @@
 ;;; command queue
 ;;;
 
-(defclass command-queue-mixin (command-server-mixin)
-  ((call-queue :initform (lparallel.queue:make-queue))))
+(defclass command-queue-mixin (command-server-mixin lparallel-kernel-call-mixin)
+  ())
 
 (defmethod stop-server :after ((server  command-queue-mixin))
-  (with-slots (call-queue) server
-    (empty-command-queue call-queue)))
+  (empty-lparallel-queue (kernel-call-queue server)))
 
 (defmethod kill-server :after ((server  command-queue-mixin))
-  (with-slots (call-queue) server
-    (empty-command-queue call-queue)))
-
-(defmethod call ((server command-queue-mixin) command &key block-p)
-  (with-slots (call-queue) server
-    (in-queue-command server command call-queue block-p)))
+  (empty-lparallel-queue (kernel-call-queue server)))
 
 (defgeneric process-next-calls (server &key maxtime)
   (:method ((server command-queue-mixin) &key (maxtime 0.03))
     (let ((end-time (+ (get-internal-real-time) (* maxtime internal-time-units-per-second)))
           (count 0))
-      (with-slots (call-queue) server
-        (loop with com = nil do
-             (setq com (exec-next-queued-command server call-queue :block-p nil))
-             (setq count (1+ count))
-           while (and com
-                      (< (get-internal-real-time) end-time)
-                      (not (stop-command-p com)))))
+      (loop with res = nil do
+           (setq res (exec-next-kernel-call server))
+           (setq count (1+ count))
+         while (and res
+                    (< (get-internal-real-time) end-time)))
       (when (> (get-internal-real-time) end-time)
         (log:info "next calls time exceded after ~A steps" count)))))

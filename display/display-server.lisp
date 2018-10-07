@@ -17,7 +17,6 @@
   (server-event-handler server))
 
 
-
 ;;;
 ;;; Find server
 ;;;
@@ -69,6 +68,7 @@
 ;;;
 
 (defclass single-thread-display-server (display-server
+                                        ;;event-server-mixin
                                         callback-queue-with-thread-mixin
                                         command-queue-mixin
                                         server-with-thread-mixin)
@@ -84,6 +84,7 @@
 
 (defclass multi-thread-display-server (display-server
                                        event-server-mixin
+                                       ;;callback-queue-with-thread-mixin
                                        command-server-mixin
                                        multi-threaded-driver-mixin
                                        server-with-thread-mixin)

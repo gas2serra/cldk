@@ -162,7 +162,7 @@
       (log:info "win:~A k:~A p:~A b:~A p:~A[~A]" win kind pointer
                 (list button (button2keyword button))
                 (list cur-x cur-y) (list cur-root-x cur-root-y))
-      (when (member :modifiers to-log)
+      (when (or (eql to-log :all) (member :modifiers to-log))
         (with-slots (modifiers pressed-buttons) handler
           (log:info "keys:~A buts:~A"
                     (modifiers2keywords modifiers)
@@ -174,7 +174,7 @@
     (when (or (eql to-log :all) (member :scroll to-log))
       (log:info "win:~A  p:~A w:~A" win pointer 
                 (list dx dy))
-      (when (member :modifiers to-log)
+      (when (or (eql to-log :all) (member :modifiers to-log))
         (with-slots (modifiers pressed-buttons) handler
           (log:info "keys:~A buts:~A"
                     (modifiers2keywords modifiers)
@@ -200,7 +200,7 @@
     (when (or (eql to-log :all) (member :key to-log))
       (log:info "win:~A  k:~A name:~A char:~A mod:~A" win kind keyname character
                 (list modifiers (modifiers2keywords modifiers)))
-      (when (member :modifiers to-log)
+      (when (or (eql to-log :all) (member :modifiers to-log))
         (with-slots (modifiers pressed-buttons) handler
           (log:info "keys:~A buts:~A"
                     (modifiers2keywords modifiers)

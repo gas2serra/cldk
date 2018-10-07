@@ -3,7 +3,7 @@
 ;;;
 ;;; kernel mode
 ;;;
-
+#|
 (defvar *kernel-mode* nil)
 
 (defun check-kernel-mode ()
@@ -13,37 +13,46 @@
 (defun check-user-mode ()
   (when *kernel-mode*
     (error "a thread in kernel mode is calling a non kernel function")))
-
+|#
 ;;;
 ;;; kernel
 ;;;
 
-(defclass server-kernel (driver)
+(defclass server-kernel (kerneled-driver-mixin)
   ())
 
+#|
 (defgeneric call (server command &key block-p)
   (:method ((server server-kernel) command &key block-p)
     (declare (ignore block-p))
     (let ((*kernel-mode* t))
       (exec-command server command))))
+|#
 
 (defmacro <call+ (server fn &rest args)
-  `(call ,server (make-command ,fn (list ,@args)) :block-p t))
+  `(within-kernel-mode (,server :block-p t)
+     (funcall ,fn ,@args)))
 
 (defmacro <call- (server fn &rest args)
-  `(call ,server (make-command ,fn (list ,@args)) :block-p nil))
+  `(within-kernel-mode (,server :block-p nil)
+     (funcall ,fn ,@args)))
 
+#|
 (defgeneric callback (server command &key block-p)
   (:method ((server server-kernel) command &key block-p)
     (declare (ignore block-p))
     (let ((*kernel-mode* nil))
       (exec-command server command))))
+|#
 
 (defmacro <callback+ (server fn &rest args)
-  `(callback ,server (make-command ,fn (list ,@args)) :block-p t))
+  `(within-user-mode (,server :block-p t)
+     (funcall ,fn ,@args)))
 
 (defmacro <callback- (server fn &rest args)
-  `(callback ,server (make-command ,fn (list ,@args)) :block-p nil))
+  `(within-user-mode (,server :block-p nil)
+     (funcall ,fn ,@args)))
+
 
 ;;;
 ;;; Core Functions
