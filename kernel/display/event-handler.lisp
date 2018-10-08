@@ -1,4 +1,4 @@
-(in-package :cldk-internals)
+(in-package :cldk-kernel)
 
 
 ;;; event handler

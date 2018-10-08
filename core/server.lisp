@@ -178,7 +178,7 @@
 ;;;
 
 (defclass server-object (driver-object)
-  ((server :initform nil
+  ((driver :initform nil
            :initarg :server
            :reader server)))
 

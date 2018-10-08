@@ -13,10 +13,9 @@
                         :depends-on ("package")
                         :components
                         (
-                         (:file "kernel" :depends-on ("command"))
+                         (:file "kernel")
                          (:file "event-server" :depends-on ("command-server" "server"))
-                         (:file "command-server" :depends-on ("command" "server"))
-                         (:file "command" :depends-on ())
+                         (:file "command-server" :depends-on ("server"))
                          (:file "server" :depends-on ("kernel"))
                          )))
   :description "Common Lisp Drawing Kit")
@@ -36,17 +35,16 @@
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
-  :depends-on (#:cldk/image #:cldk-driver/display)
+  :depends-on (#:cldk/image #:cldk-kernel/display)
   :components (
                (:module "display"
                         :depends-on ()
                         :components
                         ((:file "display-server" :depends-on ())
-                         (:file "window" :depends-on ("display-kernel-call" "event-handler"))
+                         (:file "window" :depends-on ("display-kernel-call"))
                          (:file "buffer" :depends-on ("display-kernel-call"))
                          (:file "buffered-window" :depends-on ("window" "buffer" "display-kernel-call"))
-                         (:file "event-handler" :depends-on ())
-                         (:file "display-kernel-callback" :depends-on ("display-server" "event-handler"))
+                         (:file "display-kernel-callback" :depends-on ("display-server"))
                          (:file "display-kernel-call" :depends-on ("display-server"))
                          )))
   :description "Common Lisp Drawing Kit")

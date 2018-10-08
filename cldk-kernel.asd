@@ -16,3 +16,18 @@
                          (:file "lparallel-kernel"
                                 :depends-on ("package" "kernel")))))
   :description "Common Lisp Drawing Kit")
+
+(defsystem #:cldk-kernel/display
+  :version "0.3"
+  :author "Alessandro Serra (gas2serra@gmail.com)"
+  :license "LGPL"
+  :depends-on (#:cldk-kernel #:cldk-driver/display)
+  :components ((:module "kernel/display"
+                        :components
+                        ((:file "display-kernel")
+                         (:file "buffer" :depends-on ("display-kernel"))
+                         (:file "window" :depends-on ("display-kernel" "event-handler"))
+                         (:file "buffered-window" :depends-on ("window" "buffer"))
+                         (:file "event-handler" :depends-on ("display-kernel"))
+                         (:file "display-kernel-callback"
+                                :depends-on ("display-kernel" "event-handler"))))))

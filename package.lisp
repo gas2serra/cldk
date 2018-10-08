@@ -2,6 +2,61 @@
 
 (defpackage :cldk
   (:use :common-lisp)
+  (:import-from :cldk-kernel
+                #:event-handler
+                #:log-event-handler
+                #:event-handler-events-to-log
+                #:*events-to-log-list*
+                
+                #:event-handler-cur-x
+                #:event-handler-cur-y
+                #:event-handler-cur-root-x
+                #:event-handler-cur-root-y
+                #:event-handler-modifiers
+                #:event-handler-pressed-buttons
+                #:handle-button-event
+                #:handle-scroll-event
+                #:handle-motion-event
+                #:handle-key-event
+                #:handle-key-modifier-event
+                #:handle-enter-leave-event
+                #:handle-configure-event
+                #:handle-repaint-event
+                #:handle-wm-delete-event
+                
+                #:kerneled-buffer-mixin
+                #:destroy-buffer
+
+                #:create-window
+                #:destroy-window
+                #:window-size
+                #:window-position
+                #:set-window-size
+                #:set-window-position
+                #:set-window-hints
+                
+                #:raise-window
+                #:bury-window
+                #:show-window
+                #:hide-window
+                
+                #:window-pointer-position
+                #:grab-window-pointer
+                #:ungrab-window-pointer
+                #:set-window-cursor
+
+                #:buffered-window
+                #:create-buffered-window
+                #:copy-image-to-buffered-window
+                #:flush-buffered-window
+                #:kernel-kwindows
+
+                #:screen-num
+                #:screen-size
+                #:screen-dpi
+                #:screen-pointer-position
+                #:avaiable-cursor-names
+                )
   (:export
    #:*default-server-path*
    #:find-server
@@ -28,6 +83,8 @@
    #:+hyper-key+
    #:+alt-key+
    |#
+
+
    #:event-handler
    #:log-event-handler
    #:event-handler-events-to-log
@@ -86,10 +143,14 @@
    #:copy-image-to-buffered-window
    #:flush-buffered-window
    #:buffered-window-image
+   #:event-handler
    ))
+
 
 (defpackage :cldk-extension
   (:use :common-lisp)
+  (:import-from :cldk-kernel
+                #:create-buffer)
   (:export
    #:server-kernel
    

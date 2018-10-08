@@ -1,10 +1,11 @@
 (in-package :cldk-internals)
 
-(defclass buffered-window (window k-buffered-window-mixin)
+(defclass buffered-window (window kerneled-buffered-window-mixin k-buffered-window-mixin)
   ((buffer-lock :initform (bt:make-lock "buffer"))))
 
-(defmethod initialize-instance :after ((win buffered-window) &key width height &allow-other-keys)
-  (<kwindow+ win #'k-initialize-buffered-window width height))
+(defmethod initialize-instance :after ((win buffered-window)
+                                       &key width height &allow-other-keys)
+  (initialize-buffered-window win width height))
 
 (defgeneric create-buffered-window (server name &key pretty-name x y
                                                   width height mode
@@ -20,7 +21,3 @@
                      :width width :height height :mode mode))))
 
 
-(defmethod destroy-window ((window buffered-window))
-  (<kwindow- window #'k-destroy-buffered-window)
-  (destroy-buffer (window-obuffer window))
-  (call-next-method))

@@ -7,7 +7,7 @@
     :version "0.3"
     :author "Alessandro Serra"
     :license "LGPL"
-    :depends-on (#:cldk/basic #:uiop #:clx #:cldk-driver/clx)
+    :depends-on (#:cldk/basic #:uiop #:clx #:cldk-driver/clx #:cldk-kernel/display)
     :components ((:file "package")
                  (:file "server" :depends-on ("package"))
                  (:file "buffer" :depends-on ("package" "server")))

@@ -49,7 +49,9 @@
 ;;;
 
 (defclass driver-object ()
-  ())
+  ((driver :initform nil
+           :initarg :driver
+           :reader driver)))
 
 (defgeneric driver-object-id (object)
   (:method ((object driver-object))

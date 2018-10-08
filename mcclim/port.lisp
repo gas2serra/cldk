@@ -108,6 +108,7 @@
                             (t
                               +white+))))
       (let ((mirror
+
              (cldk:create-buffered-window (fb-port-server port) name
                                           :pretty-name pretty-name
                                           :x nil :y nil

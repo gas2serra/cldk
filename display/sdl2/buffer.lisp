@@ -8,17 +8,17 @@
 
 
 (defmethod image-width ((buffer sdl2-buffer))
-  (let ((db (cldki::buffer-driver-buffer buffer)))
+  (let ((db buffer))
     (with-slots (surface) db
       (sdl2:surface-width surface))))
 
 (defmethod image-height ((buffer sdl2-buffer))
-  (let ((db (cldki::buffer-driver-buffer buffer)))
+  (let ((db buffer))
     (with-slots (surface) db
       (sdl2:surface-height surface))))
 
 (defmethod image-pixels ((buffer sdl2-buffer))
-  (let ((db (cldki::buffer-driver-buffer buffer)))
+  (let ((db buffer))
     (with-slots (surface) db
       (sdl2:surface-pixels surface))))
 

@@ -12,7 +12,7 @@
   (kernel-call server :stop t))
 
 (defmethod server-force-output ((server command-server-mixin))
-  (<call- server #'k-force-output server))
+  #+nil (<call- server #'k-force-output server))
 
 ;;;
 ;;; command queue

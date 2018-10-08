@@ -7,17 +7,17 @@
   (make-instance 'clx-buffer :server server :width width :height height))
 
 (defmethod image-width ((buffer clx-buffer))
-  (let ((db (cldki::buffer-driver-buffer buffer)))
+  (let ((db buffer))
     (with-slots (ximage) db
       (xlib:image-width ximage))))
 
 (defmethod image-height ((buffer clx-buffer))
-  (let ((db (cldki::buffer-driver-buffer buffer)))
+  (let ((db buffer))
     (with-slots (ximage) db
       (xlib:image-height ximage))))
 
 (defmethod image-pixels ((buffer clx-buffer))
-  (let ((db (cldki::buffer-driver-buffer buffer)))
+  (let ((db buffer))
     (with-slots (pixels) db
       pixels)))
 

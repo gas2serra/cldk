@@ -1,21 +1,17 @@
 (in-package :cldk-internals)
 
-(defvar *default-event-handler*)
 
-(defclass display-server (server display-driver)
-  ((kwindows :initform nil
-             :reader kernel-kwindows)
-   (event-handler :initform *default-event-handler*
-                  :accessor server-event-handler)
-   (cursor-table :initform (make-hash-table :test #'eq)
-                 :accessor server-cursor-table))
-  (:default-initargs :callback-handler (make-instance 'default-display-callback-handler))) 
 
-(defgeneric event-handler (server))
+(defclass display-server (server display-kernel-mixin)
+  ()
+  (:default-initargs :callback-handler
+      (make-instance 'default-display-callback-handler)))
 
-(defmethod event-handler ((server display-server))
-  (server-event-handler server))
+(defun server-event-handler (server)
+  (event-handler server))
 
+(defun (setf server-event-handler) (val server)
+  (setf (event-handler server) val))
 
 ;;;
 ;;; Find server
@@ -36,32 +32,6 @@
   (if (null server-path)
       (setq server-path (find-default-display-server-path)))
   (find-server server-path))
-
-;;;
-;;;
-;;;
-
-(defmacro <d+ (server fn &rest args)
-  `(<call+ ,server ,fn ,server ,@args))
-
-(defmacro <d- (server fn &rest args)
-  `(<call- ,server ,fn ,server ,@args))
-
-
-(defun screen-num (server)
-  (<d+ server #'k-screen-num))
-
-(defun screen-size (server &optional (screen-index nil) (units :device))
-  (<d+ server #'k-screen-size screen-index units))
-
-(defun screen-dpi (server &optional (screen-index nil))
-  (<d+ server #'k-screen-dpi screen-index))
-
-(defun screen-pointer-position (server)
-  (<d+ server #'k-screen-pointer-position))
-
-(defun avaiable-cursor-names (server)
-  (<d+ server #'k-avaiable-cursor-names))
 
 ;;;
 ;;;
