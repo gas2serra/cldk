@@ -18,8 +18,8 @@
 
 (defmethod image-pixels ((buffer clx-buffer))
   (let ((db buffer))
-    (with-slots (pixels) db
-      pixels)))
+    (with-slots (xpixels) db
+      xpixels)))
 
 (defmethod image-rgb-get-fn ((image clx-buffer) &key (dx 0) (dy 0))
   (driver-buffer-rgb-get-fn (cldki::server image) image dx dy))

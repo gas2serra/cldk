@@ -7,24 +7,40 @@
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
-  :depends-on (#:log4cl #:bordeaux-threads  #:lparallel #:cldk-driver #:cldk-kernel)
-  :components ((:file "package" )
-               (:module "core"
-                        :depends-on ("package")
+  :depends-on (#:log4cl #:bordeaux-threads)
+  :components ((:module "src"
                         :components
-                        (
-                         (:file "kernel")
-                         (:file "event-server" :depends-on ("command-server" "server"))
-                         (:file "command-server" :depends-on ("server"))
-                         (:file "server" :depends-on ("kernel"))
-                         )))
-  :description "Common Lisp Drawing Kit")
+                        ((:file "package")))))
+
+(defsystem #:cldk/driver
+  :version "0.3"
+  :author "Alessandro Serra (gas2serra@gmail.com)"
+  :license "LGPL"
+  :depends-on (#:cldk/core #:lparallel)
+  :components ((:module "src/driver"
+                        :components
+                        ((:file "driver"
+                                :depends-on ())
+                         (:file "threaded-driver"
+                                :depends-on ("driver"))))))
+
+(defsystem #:cldk/kernel
+  :version "0.3"
+  :author "Alessandro Serra (gas2serra@gmail.com)"
+  :license "LGPL"
+  :depends-on (#:cldk/driver)
+  :components ((:module "src/kernel"
+                        :components
+                        ((:file "kernel")
+                         (:file "lparallel-kernel"
+                                :depends-on ("kernel"))))))
+
 
 (defsystem #:cldk/image
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
-  :depends-on (#:cldk/core)
+  :depends-on (#:cldk/core #:cldk-display/kernel)
   :components ((:module "image"
                         :components
                         ((:file "image")
@@ -35,7 +51,7 @@
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
-  :depends-on (#:cldk/image #:cldk-kernel/display)
+  :depends-on (#:cldk/image #:cldk-display/kernel)
   :components (
                (:module "display"
                         :depends-on ()
@@ -49,22 +65,34 @@
                          )))
   :description "Common Lisp Drawing Kit")
 
+(defsystem #:cldk/core2
+  :version "0.3"
+  :author "Alessandro Serra (gas2serra@gmail.com)"
+  :license "LGPL"
+  :depends-on (#:log4cl #:bordeaux-threads  #:lparallel #:cldk/driver #:cldk/kernel )
+  :components (
+               (:module "core"
+               
+                        :components
+                        (
+                         (:file "kernel")
+                         (:file "event-server" :depends-on ("command-server" "server"))
+                         (:file "command-server" :depends-on ("server"))
+                         (:file "server" :depends-on ("kernel"))
+                         )))
+  :description "Common Lisp Drawing Kit")
+
 (defsystem #:cldk/basic
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
-  :depends-on (#:cldk/core #:cldk/image #:cldk/display #:cldk-driver #:cldk-kernel)
-  :components ()
-  :description "Common Lisp Drawing Kit")
-
-
+  :depends-on (:cldk/kernel #:cldk/image #:cldk/display #:cldk/core2)
+  :components ())
 
 (defsystem #:cldk
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
-  :depends-on (#:cldk/basic #:cldk-null)
+  :depends-on (:cldk/basic #:cldk-null)
   :components ()
   :description "Common Lisp Drawing Kit")
-
-
