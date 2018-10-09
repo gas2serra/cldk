@@ -9,7 +9,7 @@
 ;;; server class
 ;;;
 
-(defclass server (server-kernel)
+(defclass server ()
   ((path :initform nil
          :initarg :path
          :reader server-path)
@@ -112,7 +112,6 @@
                (push server *all-servers*)
                (return server))))
 
-
 ;;;
 ;;; server thread
 ;;;
@@ -163,22 +162,88 @@
   
 (defun server-loop-fn (server)
   (let ((*kernel-mode* t))
-    (k-start server)
+    (driver-start server)
     (block loop
       (loop
          (with-simple-restart
              (restart-server-loop
               "restart cldk's server loop.")
            (server-loop server)
-           (k-stop server)
+           (driver-stop server)
            (return-from loop))))))
 
 ;;;
-;;; server objects
+;;; command server
 ;;;
 
-(defclass server-object (driver-object)
-  ((driver :initform nil
-           :initarg :server
-           :reader server)))
+(defclass command-server-mixin ()
+  ())
 
+(defmethod stop-server ((server command-server-mixin))
+  (call-next-method)
+  #+nil (kernel-call server :stop t))
+
+(defmethod server-force-output ((server command-server-mixin))
+  #+nil (<call- server #'k-force-output server)
+  )
+
+;;;
+;;; command queue
+;;;
+
+(defclass command-queue-mixin (command-server-mixin lparallel-kernel-call-mixin)
+  ())
+
+(defgeneric process-next-calls (server &key maxtime)
+  (:method ((server command-queue-mixin) &key (maxtime 0.03))
+    (process-next-kernel-calls server :maxtime maxtime)))
+
+;;;
+;;; event server mixin
+;;;
+
+(defclass event-server-mixin ()
+  ())
+
+;;;
+;;; callback queue
+;;;
+
+(defclass callback-queue-mixin (event-server-mixin lparallel-kernel-callback-mixin)
+  ())
+
+;;;
+;;; callback queue thread
+;;;
+
+(defclass callback-queue-with-thread-mixin (callback-queue-mixin  server-with-thread-mixin)
+  ((callback-thread :initform nil
+                    :reader server-callback-thread)))
+
+(defmethod start-server ((server callback-queue-with-thread-mixin))
+  (call-next-method)
+  (with-slots (callback-thread) server
+    (setf callback-thread (bt:make-thread #'(lambda ()
+                                              (callback-loop-fn server))
+                                          :name (format nil "cldk callback server ~A" (driver-id server))))))
+
+(defmethod kill-server ((server callback-queue-with-thread-mixin))
+  (call-next-method)
+  (with-slots (callback-thread) server
+    (bt:destroy-thread callback-thread)
+    (setf callback-thread nil)))
+
+(defgeneric callback-loop (server)
+  (:method ((server callback-queue-with-thread-mixin))
+    (process-next-kernel-callback-loop server)))
+
+
+(defun callback-loop-fn (server)
+  (block loop
+    (loop
+       (with-simple-restart
+           (restart-callback-loop
+            "restart cldk's callback loop.")
+         (callback-loop server)
+         (log:info "Exit......!!!!!")
+         (return-from loop)))))

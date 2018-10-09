@@ -1,5 +1,18 @@
 (in-package :cldk-internals)
+;;;
+;;;
+;;;
 
+(defclass buffer (buffer-image-mixin image)
+  ())
+
+(defgeneric destroy-buffer (buffer))
+(defgeneric update-buffer (buffer width height))
+(defgeneric create-buffer (driver width height))
+
+;;;
+;;;
+;;;
 (defclass kerneled-buffer-mixin (driver-object)
   ())
 
@@ -8,14 +21,10 @@
   (within-kernel-mode ((driver buffer) :block-p t)
     (driver-initialize-buffer (driver buffer) buffer width height)))
 
-(defgeneric create-buffer (driver width height))
+(defmethod destroy-buffer ((buffer kerneled-buffer-mixin))
+  (within-kernel-mode ((driver buffer) :block-p t)
+    (driver-destroy-buffer (driver buffer) buffer)))
 
-(defgeneric destroy-buffer (buffer)
-  (:method ((buffer kerneled-buffer-mixin))
-    (within-kernel-mode ((driver buffer) :block-p t)
-      (driver-destroy-buffer (driver buffer) buffer))))
-
-(defgeneric update-buffer (buffer width height)
-  (:method ((buffer kerneled-buffer-mixin) width height)
-    (within-kernel-mode ((driver buffer) :block-p t)
-      (driver-update-buffer (driver buffer) buffer width height))))
+(defmethod update-buffer ((buffer kerneled-buffer-mixin) width height)
+  (within-kernel-mode ((driver buffer) :block-p t)
+    (driver-update-buffer (driver buffer) buffer width height)))

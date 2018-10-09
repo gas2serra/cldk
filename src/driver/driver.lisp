@@ -40,7 +40,7 @@
 (defgeneric driver-process-next-event (driver))
 
 (defgeneric driver-process-next-events (driver &key maxtime)
-  (:method ((driver driver) &key maxtime)
+  (:method ((driver driver) &key (maxtime 0.03))
     (let ((end-time (+ (get-internal-real-time) (* maxtime internal-time-units-per-second))))
       (loop with event-p = nil do
            (setq event-p (driver-process-next-event driver))

@@ -65,10 +65,10 @@
 (setf (get :clx :server-path-parser-fn) 'parse-clx-server-path)
 
 
-(defclass clx-window (window clx-driver-window)
+(defclass clx-window (window clx-driver-window kerneled-window-mixin)
   ())
 
-(defclass clx-buffered-window (buffered-window clx-driver-window)
+(defclass clx-buffered-window (buffered-window clx-driver-window kerneled-buffered-window-mixin)
   ())
 
 (defmethod create-window ((server clx-server) name &key (pretty-name name) (x nil) (y nil)

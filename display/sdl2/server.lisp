@@ -22,10 +22,10 @@
 (setf (get :sdl2 :server-class) 'sdl2-server)
 (setf (get :sdl2 :server-path-parser-fn) 'parse-sdl2-server-path)
 
-(defclass sdl2-window (window sdl2-driver-window)
+(defclass sdl2-window (window sdl2-driver-window kerneled-window-mixin)
   ())
 
-(defclass sdl2-buffered-window (buffered-window sdl2-driver-window)
+(defclass sdl2-buffered-window (buffered-window sdl2-driver-window kerneled-buffered-window-mixin)
   ())
 
 (defmethod create-window ((server sdl2-server) name &key (pretty-name name) (x nil) (y nil)

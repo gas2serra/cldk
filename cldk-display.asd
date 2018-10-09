@@ -36,11 +36,25 @@
                          (:file "display-kernel-callback"
                                 :depends-on ("display-kernel" "event-handler"))))))
 
+(defsystem #:cldk-display/server
+  :version "0.3"
+  :author "Alessandro Serra (gas2serra@gmail.com)"
+  :license "LGPL"
+  :depends-on (#:cldk/image #:cldk-display/kernel)
+  :components (
+               (:module "src/display/server"
+                        :depends-on ()
+                        :components
+                        ((:file "display-server" :depends-on ())
+                         )))
+  :description "Common Lisp Drawing Kit")
+
+
 (defsystem #:cldk-display/basic
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
-  :depends-on (:cldk-display/driver)
+  :depends-on (:cldk-display/server)
   :components ())
 
 (defsystem #:cldk-display

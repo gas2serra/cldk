@@ -1,10 +1,10 @@
 (in-package :cldk-clx)
 
-(defclass clx-buffer (buffer clx-driver-buffer)
+(defclass clx-buffer (buffer clx-driver-buffer kerneled-buffer-mixin)
   ())
 
 (defmethod create-buffer ((server clx-server) width height)
-  (make-instance 'clx-buffer :server server :width width :height height))
+  (make-instance 'clx-buffer :driver server :width width :height height))
 
 (defmethod image-width ((buffer clx-buffer))
   (let ((db buffer))
@@ -22,7 +22,7 @@
       xpixels)))
 
 (defmethod image-rgb-get-fn ((image clx-buffer) &key (dx 0) (dy 0))
-  (driver-buffer-rgb-get-fn (cldki::server image) image dx dy))
+  (driver-buffer-rgb-get-fn (cldki::driver image) image dx dy))
 
 (defmethod image-rgb-set-fn ((image clx-buffer) &key (dx 0) (dy 0))
-  (driver-buffer-rgb-set-fn (cldki::server image) image dx dy))
+  (driver-buffer-rgb-set-fn (cldki::driver image) image dx dy))
