@@ -154,7 +154,7 @@
 	 (sheet (port-pointer-sheet port)))
     (when sheet
       (multiple-value-bind (x y)
-          (values-list (cldk:window-pointer-position (sheet-mirror sheet)))
+          (cldk:window-pointer-position (sheet-mirror sheet))
         (untransform-position (sheet-native-transformation sheet) x y)))))
 
 (defmethod set-sheet-pointer-cursor ((port fb-port) (sheet mirrored-sheet-mixin) cursor)
@@ -176,11 +176,11 @@
                               ;;:mirror (clx-port-window port)
                               :orientation orientation
                               :units units)))
-    (climi::%%set-sheet-region 
-                               (make-bounding-rectangle 0 0
-                                                        (first (cldk:screen-size (fb-port-server port) 0 units))
-                                                        (second (cldk:screen-size (fb-port-server port) 0 units)))
-                               graft)
+    (multiple-value-bind (w h)
+        (cldk:screen-size (fb-port-server port) 0 units)
+      (climi::%%set-sheet-region 
+       (make-bounding-rectangle 0 0 w h)
+       graft))
     (push graft (port-grafts port))
     graft))
 
@@ -203,7 +203,7 @@
                  (fb-port-server port))))
 	(when mirror
 	  (multiple-value-bind (x y)
-	      (values-list (cldk:window-pointer-position mirror))
+	      (cldk:window-pointer-position mirror)
             (make-instance
              'pointer-motion-event
              :pointer 0 :button (cldk:event-handler-pressed-buttons eh)

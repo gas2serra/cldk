@@ -60,10 +60,4 @@
 (defgeneric k-process-next-driver-events (kernel &key maxtime)
   (:method ((kernel server-kernel) &key (maxtime 0.01))
     (check-kernel-mode)
-    (let ((end-time (+ (get-internal-real-time) (* maxtime internal-time-units-per-second))))
-      (loop with event-p = nil do
-           (setq event-p (driver-process-next-event kernel))
-         while (and event-p
-                    (< (get-internal-real-time) end-time)))
-      (when (> (get-internal-real-time) end-time)
-        (log:info "event time exceded")))))
+    (driver-process-next-events kernel :maxtime maxtime)))

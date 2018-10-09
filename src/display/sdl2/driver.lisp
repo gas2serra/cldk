@@ -46,11 +46,11 @@
         (setf w (sdl2:rect-width rect))
         (setf h (sdl2:rect-height rect)))
       (ecase units
-        (:device (list w h))
-        (:inches (list (/ w (cffi:mem-ref hdpi :float))
-                       (/ h (cffi:mem-ref vdpi :float))))
-        (:millimeters (list (* 25.4s0 (/ w (cffi:mem-ref hdpi :float)))
-                            (* 25.4s0 (/ h (cffi:mem-ref vdpi :float)))))))))
+        (:device (values w h))
+        (:inches (values (/ w (cffi:mem-ref hdpi :float))
+                         (/ h (cffi:mem-ref vdpi :float))))
+        (:millimeters (values (* 25.4s0 (/ w (cffi:mem-ref hdpi :float)))
+                              (* 25.4s0 (/ h (cffi:mem-ref vdpi :float)))))))))
 
 (defmethod driver-screen-dpi ((driver sdl2-driver) screen-index)
   (cffi:with-foreign-objects ((ddpi :float)
@@ -59,7 +59,7 @@
     (unless screen-index
       (setf screen-index (driver-default-screen-index driver)))
     (sdl2-ffi.functions:sdl-get-display-dpi screen-index ddpi hdpi vdpi)
-    (list
+    (values
      (cffi:mem-ref hdpi :float)
      (cffi:mem-ref vdpi :float))))
 
@@ -67,7 +67,7 @@
   (cffi:with-foreign-objects ((xpos :int)
                               (ypos :int))
     (sdl2-ffi.functions:sdl-get-global-mouse-state xpos ypos)
-    (list (cffi:mem-ref xpos :int) (cffi:mem-ref ypos :int))))
+    (values (cffi:mem-ref xpos :int) (cffi:mem-ref ypos :int))))
 
 ;;; window
 
@@ -127,11 +127,11 @@
 
 (defmethod driver-window-position ((driver sdl2-driver) window)
   (with-slots (sdlwindow) window
-    (multiple-value-list (sdl2:get-window-position sdlwindow))))
+    (sdl2:get-window-position sdlwindow)))
 
 (defmethod driver-window-size ((driver sdl2-driver) window)
   (with-slots (sdlwindow) window
-    (multiple-value-list (sdl2:get-window-size sdlwindow))))
+    (sdl2:get-window-size sdlwindow)))
  
 (defmethod driver-set-window-position ((driver sdl2-driver) window x y)
   (log:info "POSITION ~A" (list x y))
@@ -172,7 +172,7 @@
     (cffi:with-foreign-objects ((xpos :int)
                                 (ypos :int))
       (sdl2-ffi.functions:sdl-get-mouse-state xpos ypos)
-      (list (cffi:mem-ref xpos :int) (cffi:mem-ref ypos :int)))))
+      (values (cffi:mem-ref xpos :int) (cffi:mem-ref ypos :int)))))
 
 ;;; cursors
 (defclass sdl2-driver-cursor (driver-cursor)

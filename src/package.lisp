@@ -107,26 +107,29 @@
    ;;
    #:driver
    #:driver-options
-   #:driver-callback-handler
+   #:driver-id
    #:driver-start
    #:driver-stop
    #:driver-kill
    #:driver-ping
    #:driver-force-output
    #:driver-process-next-event
+   #:driver-process-next-events
+   ;; callback hanlder
    #:register-driver-object
    #:unregister-driver-object
    #:lookup-driver-object
-   ;; callback hanlder
    #:driver-callback-handler
    ;; driver object
    #:driver-object
    #:driver-object-id
    ;; threaded driver
+   #:threaded-driver-mixin
+   #:driver-lock
+   #:with-driver-locked
+   #:invoke-with-driver-locked
    #:single-threaded-driver-mixin
    #:multi-threaded-driver-mixin
-   #:with-driver-locked
-   
    ;;
    ;; display drivers
    ;;
@@ -214,15 +217,13 @@
    #:kernel-callback
 
    #:lparallel-kernel-call-mixin
-   #:kernel-call-queue
-   #:exec-next-kernel-call
+   #:next-kernel-cal
+   #:process-next-kernel-calls
    
    #:lparallel-kernel-callback-mixin
-   #:kernel-callback-queue
-   #:exec-next-kernel-callback
+   #:next-kernel-callback
+   #:process-next-kernel-callback-loop
    
-   #:empty-lparallel-queue
-
    ;;
    ;; kernel display
    ;;

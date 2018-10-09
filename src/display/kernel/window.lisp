@@ -37,9 +37,10 @@
     (with-slots (cached-width cached-height) window
       (when (or force-query-p (null cached-width) (null cached-height))
         (within-kernel-mode ((driver window) :block-p t)
-          (let ((size (driver-window-size (driver window) window)))
-            (setf cached-width (first size)
-                  cached-height (second size)))))
+          (multiple-value-bind (w h)
+              (driver-window-size (driver window) window)
+            (setf cached-width w
+                  cached-height h))))
       (values cached-width cached-height))))
 
 (defgeneric window-position (window &key force-query-p)
@@ -47,9 +48,10 @@
     (with-slots (cached-x cached-y) window
       (when (or force-query-p (null cached-x) (null cached-y))
         (within-kernel-mode ((driver window) :block-p t)
-          (let ((pos (driver-window-position (driver window) window)))
-            (setf cached-x (first pos)
-                  cached-y (second pos)))))
+          (multiple-value-bind (x y)
+              (driver-window-position (driver window) window)
+            (setf cached-x x
+                  cached-y y))))
       (values cached-x cached-y))))
 
 (defgeneric set-window-size (window width height &key block-p)

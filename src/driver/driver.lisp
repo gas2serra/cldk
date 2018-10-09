@@ -9,18 +9,20 @@
    (driver-object-id->driver-object :initform (make-hash-table))
    (callback-handler :accessor driver-callback-handler :initarg :callback-handler)))
 
+(defgeneric driver-id (driver)
+  (:method ((driver driver))
+    (getf (driver-options driver) :id :null)))
+
 (defgeneric register-driver-object (driver driver-object)
   (:method ((driver driver) driver-object)
     (with-slots (driver-object-id->driver-object) driver
       (setf (gethash (driver-object-id driver-object) driver-object-id->driver-object)
             driver-object))))
-
 (defgeneric unregister-driver-object (driver driver-object)
   (:method ((driver driver) driver-object)
     (with-slots (driver-object-id->driver-object) driver
       (setf (gethash (driver-object-id driver-object) driver-object-id->driver-object)
             nil))))
-
 (defgeneric lookup-driver-object (driver driver-object-id)
   (:method ((driver driver) driver-object-id)
     (with-slots (driver-object-id->driver-object) driver
@@ -37,6 +39,16 @@
 (defgeneric driver-force-output (driver))
 (defgeneric driver-process-next-event (driver))
 
+(defgeneric driver-process-next-events (driver &key maxtime)
+  (:method ((driver driver) &key maxtime)
+    (let ((end-time (+ (get-internal-real-time) (* maxtime internal-time-units-per-second))))
+      (loop with event-p = nil do
+           (setq event-p (driver-process-next-event driver))
+         while (and event-p
+                    (< (get-internal-real-time) end-time)))
+      (when (> (get-internal-real-time) end-time)
+        (log:info "event time exceded")))))
+  
 ;;;
 ;;; callback handler
 ;;;

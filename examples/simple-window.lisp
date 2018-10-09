@@ -52,8 +52,9 @@
       (log:info "raising...")
       (cldk:raise-window w :block-p t)
       (sleep 1)
-      (format *debug-io* "mouse pos: ~A~%" (cldk:window-pointer-position w))
-      (format *debug-io* "mouse global pos: ~A~%" (cldk:screen-pointer-position *s*))
+      (format *debug-io* "mouse pos: ~A~%" (multiple-value-list (cldk:window-pointer-position w)))
+      (format *debug-io* "mouse global pos: ~A~%" (multiple-value-list
+                                                   (cldk:screen-pointer-position *s*)))
       (cldk:destroy-window w)
       )))
 
@@ -100,6 +101,8 @@
       (cldk:show-window w)
       (sleep 5)
       (format *debug-io* "Pos: ~A~%" (multiple-value-list (cldk:window-position w)))
-      (format *debug-io* "mouse pos: ~A~%" (cldk:window-pointer-position w))
-      (format *debug-io* "mouse global pos: ~A~%" (cldk:screen-pointer-position *s*))
+      (format *debug-io* "mouse pos: ~A~%" (multiple-value-list (cldk:window-pointer-position w)))
+      (format *debug-io* "mouse global pos: ~A~%"
+              (multiple-value-list (cldk:screen-pointer-position *s*)))
+      (format *debug-io* "==>~%")
       (cldk:destroy-window w))))

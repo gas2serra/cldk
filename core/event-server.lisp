@@ -14,12 +14,6 @@
 (defclass callback-queue-mixin (event-server-mixin lparallel-kernel-callback-mixin)
   ())
 
-(defmethod stop-server :after ((server callback-queue-mixin))
-  (empty-lparallel-queue (kernel-callback-queue server)))
-
-(defmethod kill-server :after ((server callback-queue-mixin))
-  (empty-lparallel-queue (kernel-callback-queue server)))
-
 ;;;
 ;;; callback queue thread
 ;;;
@@ -33,10 +27,7 @@
   (with-slots (callback-thread) server
     (setf callback-thread (bt:make-thread #'(lambda ()
                                               (callback-loop-fn server))
-                                          :name "cldk callback server"))))
-
-(defmethod stop-server :before ((server callback-queue-with-thread-mixin))
-  (kernel-callback server :stop t))
+                                          :name (format nil "cldk callback server ~A" (driver-id server))))))
 
 (defmethod kill-server ((server callback-queue-with-thread-mixin))
   (call-next-method)
@@ -46,9 +37,8 @@
 
 (defgeneric callback-loop (server)
   (:method ((server callback-queue-with-thread-mixin))
-    (loop with res = nil do
-         (setq res (exec-next-kernel-callback server))
-       while (not (eql res :stop)))))
+    (process-next-kernel-callback-loop server)))
+
 
 (defun callback-loop-fn (server)
   (block loop

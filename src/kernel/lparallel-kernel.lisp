@@ -1,41 +1,45 @@
 (in-package :cldk-kernel)
 
 ;;;
-;;; lparallel queue functions
+;;; lparallel queue
 ;;;
 
-(defun %exec-cont (kernel cont)
-  (handler-case
-      (if (eql cont :stop) nil (funcall cont))
-    (error (condition)
-      (log:error "~A ~A ~A" kernel cont condition))))
+(defclass lparallel-kerneled-driver-mixin (queued-kerneled-driver-mixin)
+  ())
 
-(defun %exec-cont-and-prom (kernel cont-and-prom &key (kernel-mode-p t))
-  (if kernel-mode-p
-      (check-kernel-mode)
-      (check-user-mode))
-  (let ((res (%exec-cont kernel (car cont-and-prom))))
-    (when (cdr cont-and-prom)
-      (lparallel:fulfill (cdr cont-and-prom)
-                         (lparallel:chain
-                          (lparallel:delay res))))
-    res))
+(defmethod %next-kernel-queued-continuation ((driver queued-kerneled-driver-mixin) queue
+                                             &key block-p kernel-mode-p)
+  (labels ((%exec-cont (kernel cont)
+             (handler-case
+                 (funcall cont)
+               (error (condition)
+                 (log:error "~A ~A ~A" kernel cont condition))))
+           (%exec-cont-and-prom (kernel cont-and-prom &key (kernel-mode-p t))
+             (if kernel-mode-p
+                 (check-kernel-mode)
+                 (check-user-mode))
+             (if (cdr cont-and-prom)
+                 (lparallel:fulfill (cdr cont-and-prom) #1=(%exec-cont kernel (car cont-and-prom)))
+                 #1#)))
+    (let ((command-and-promise
+           (if block-p
+               (lparallel.queue:pop-queue queue)
+               (lparallel.queue:peek-queue queue))))
+      (when command-and-promise
+        (unless block-p
+          (lparallel.queue:pop-queue queue))
+        (%exec-cont-and-prom driver command-and-promise
+                             :kernel-mode-p kernel-mode-p)))))
+  
+(defmethod %inqueue-kernel-continuation ((driver queued-kerneled-driver-mixin) queue continuation
+                                         &key block-p)
+  (if block-p
+      (let ((p (lparallel:promise)))
+        (lparallel.queue:push-queue (cons continuation p) queue)
+        (lparallel:force p))
+      (lparallel.queue:push-queue (cons continuation nil) queue)))
 
-(defun %exec-next-queued-command (kernel queue
-                                  &key (kernel-mode-p t) (block-p t))
-  (let ((command-and-promise
-         (if block-p
-             (lparallel.queue:pop-queue queue)
-             (lparallel.queue:peek-queue queue))))
-    (when command-and-promise
-      (unless block-p
-        (lparallel.queue:pop-queue queue))
-      (unless (eql :stop (car command-and-promise))
-        (%exec-cont-and-prom kernel command-and-promise
-                             :kernel-mode-p kernel-mode-p)
-        (car command-and-promise)))))
-
-(defun empty-lparallel-queue (queue)
+(defmethod %empty-kernel-queue ((driver queued-kerneled-driver-mixin) queue)
   (loop
      (if (lparallel.queue:queue-empty-p queue)
          (return)
@@ -45,42 +49,9 @@
              (lparallel:fulfill (cdr command-and-promise)
                nil))))))
 
-(defun in-lparallel-queue (continuation queue block-p)
-  (if block-p
-      (let ((p (lparallel:promise)))
-        (lparallel.queue:push-queue (cons continuation p) queue)
-        (lparallel:force p))
-      (lparallel.queue:push-queue (cons continuation nil) queue)))
+(defclass lparallel-kernel-call-mixin (call-queued-kerneled-driver-mixin lparallel-kerneled-driver-mixin)
+  ((call-queue :initform (lparallel.queue:make-queue))))
 
-;;;
-;;;
-;;;
-
-(defclass lparallel-kernel-callback-mixin (kerneled-driver-mixin)
-  ((callback-queue :initform (lparallel.queue:make-queue)
-                   :accessor kernel-callback-queue)))
-
-(defmethod kernel-callback ((driver lparallel-kernel-callback-mixin) continuation block-p)
-  (in-lparallel-queue continuation (kernel-callback-queue driver) block-p))
-
-(defgeneric exec-next-kernel-callback (driver))
-(defmethod exec-next-kernel-callback ((driver lparallel-kernel-callback-mixin))
-  (%exec-next-queued-command driver (kernel-callback-queue driver)
-                             :kernel-mode-p nil))
-
-;;;
-;;;
-;;;
-
-(defclass lparallel-kernel-call-mixin (kerneled-driver-mixin)
-  ((call-queue :initform (lparallel.queue:make-queue)
-               :accessor kernel-call-queue)))
-
-(defmethod kernel-call ((driver lparallel-kernel-call-mixin) continuation block-p)
-  (in-lparallel-queue continuation (kernel-call-queue driver) block-p))
-
-(defgeneric exec-next-kernel-call (driver))
-(defmethod exec-next-kernel-call ((driver lparallel-kernel-call-mixin))
-  (%exec-next-queued-command driver (kernel-call-queue driver)
-                             :block-p nil :kernel-mode-p t))
+(defclass lparallel-kernel-callback-mixin (callback-queued-kerneled-driver-mixin lparallel-kerneled-driver-mixin)
+  ((callback-queue :initform (lparallel.queue:make-queue))))
 

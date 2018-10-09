@@ -86,12 +86,12 @@
                     (with-slots (screen) driver
                       screen))))
     (ecase units
-      (:device (list (xlib:screen-width screen)
-                     (xlib:screen-height screen)))
-      (:inches (list (/ (xlib:screen-width-in-millimeters screen) 25.4s0)
-                     (/ (xlib:screen-height-in-millimeters screen) 25.4s0)))
-      (:millimeters (list (xlib:screen-width-in-millimeters screen)
-                          (xlib:screen-height-in-millimeters screen))))))
+      (:device (values (xlib:screen-width screen)
+                       (xlib:screen-height screen)))
+      (:inches (values (/ (xlib:screen-width-in-millimeters screen) 25.4s0)
+                       (/ (xlib:screen-height-in-millimeters screen) 25.4s0)))
+      (:millimeters (values (xlib:screen-width-in-millimeters screen)
+                            (xlib:screen-height-in-millimeters screen))))))
 
 (defmethod driver-screen-dpi ((driver clx-driver) screen-index)
   (let ((screen (if screen-index
@@ -104,13 +104,13 @@
           (h (xlib:screen-height screen))
           (in-w (/ (xlib:screen-width-in-millimeters screen) 25.4s0))
           (in-h (/ (xlib:screen-height-in-millimeters screen) 25.4s0)))
-      (list (/ w in-w) (/ h in-h)))))
+      (values (/ w in-w) (/ h in-h)))))
 
 (defmethod driver-screen-pointer-position ((driver clx-driver))
   (with-slots (root-window) driver
     (multiple-value-bind (x y #|same-screen-p|#)
         (xlib:query-pointer root-window)
-      (list x y))))
+      (values x y))))
 
 ;;; window
 
@@ -237,14 +237,13 @@
 
 (defmethod driver-window-position ((driver clx-driver) window)
   (with-slots (xwindow) window
-    (multiple-value-bind (sx sy)
-        (xlib:translate-coordinates xwindow 0 0 (slot-value driver 'root-window))
-      (list sx sy))))
+    (xlib:translate-coordinates xwindow 0 0 (slot-value driver 'root-window))))
+
 
 (defmethod driver-window-size ((driver clx-driver) window)
   (with-slots (xwindow) window
-    (list (xlib:drawable-width xwindow)
-          (xlib:drawable-height xwindow))))
+    (values (xlib:drawable-width xwindow)
+            (xlib:drawable-height xwindow))))
 
 (defmethod driver-set-window-position ((driver clx-driver) window x y)
   (log:info "POSITION ~A" (list x y))
@@ -291,7 +290,7 @@
   (with-slots (xwindow) window
     (multiple-value-bind (x y #|same-screen-p|#)
         (xlib:query-pointer xwindow)
-      (list x y))))
+      (values x y))))
 
 ;;; cursor
 

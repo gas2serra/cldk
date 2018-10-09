@@ -91,7 +91,7 @@
   (log:info "====ADOPT MENU ~A" (slot-value frame 'climi::top))
   (when (eq (slot-value frame 'climi::top) nil)
     (multiple-value-bind (x y)
-        (values-list (cldk:screen-pointer-position (fb-port-server (port fm))))
+        (cldk:screen-pointer-position (fb-port-server (port fm)))
       (incf x 10)
       (setf (slot-value frame 'climi::left) x
             (slot-value frame 'climi::top) y))))

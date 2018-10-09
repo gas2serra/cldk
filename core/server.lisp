@@ -19,7 +19,7 @@
 
 (defmethod initialize-instance :after ((server server)
                                        &key)
-  (setf (driver-options server) (cdr (server-path server))))
+  (setf (driver-options server) (cons :id (server-path server))))
 
 (defun server-running-p (server)
   (eql (server-state server) :running))
@@ -126,7 +126,7 @@
     (setf kernel-thread
           (bt:make-thread #'(lambda ()
                               (server-loop-fn server))
-                          :name "cldk server"))))
+                          :name (format nil "cldk server ~A" (driver-id server))))))
 
 (defmethod stop-server ((server server-with-thread-mixin))
   (bt:join-thread (server-kernel-thread server)))
