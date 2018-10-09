@@ -8,7 +8,10 @@
   :author "Alessandro Serra"
   :license "LGPL"
   :depends-on (#:cldk/basic #:cldk-display-sdl2 #:cldk-display #:sdl2 #:cffi )
-  :components ((:file "package")
-               (:file "server" :depends-on ("package"))
-               (:file "buffer" :depends-on ("package" "server")))
-  :description "SDL2 Backend for Common Lisp Drawing Kit")
+  :components
+  ((:module "SDL2"
+            :components
+            ((:file "package")
+             (:file "server" :depends-on ("package"))
+             (:file "buffer" :depends-on ("package" "server")))))
+  :description "Common Lisp Drawing Kit: SDL2 Backend")

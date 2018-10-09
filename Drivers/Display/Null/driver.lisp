@@ -1,4 +1,4 @@
-(in-package :cldk-null)
+(in-package :cldk-display-null)
 
 (defclass null-driver (display-driver)
   ())
