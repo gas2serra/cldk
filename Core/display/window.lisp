@@ -6,10 +6,11 @@
 (defclass window ()
   ())
 
-(defmethod initialize-instance  :after ((win window) &key driver name pretty-name
-                                                       x y width height mode
-                                                       &allow-other-keys)
-           )
+(defmethod initialize-instance  :after ((win window)
+                                        &key driver name pretty-name
+                                          x y width height mode
+                                          &allow-other-keys)
+  )
            
 (defgeneric create-window (display name &key pretty-name x y width height
                                           mode window-class))
@@ -39,9 +40,10 @@
    (cached-width :initform nil)
    (cached-height :initform nil)))
 
-(defmethod initialize-instance  :after ((win kerneled-window-mixin) &key driver name pretty-name
-                                                       x y width height mode
-                                                       &allow-other-keys)
+(defmethod initialize-instance  :after ((win kerneled-window-mixin)
+                                        &key driver name pretty-name
+                                          x y width height mode
+                                          &allow-other-keys)
   (within-kernel-mode ((driver win) :block-p t)
     (driver-initialize-window (driver win) win name pretty-name
                               x y width height mode)
@@ -138,12 +140,15 @@
 
 (defmethod set-window-cursor :around ((window kerneled-window-mixin) named-cursor &key (block-p t))
   (let ((driver (driver window)))
-    (let ((cursor (gethash (or named-cursor :default) (server-cursor-table driver))))
+    (let ((cursor (gethash (or named-cursor :default)
+                           (server-cursor-table driver))))
       (unless cursor
         (setf cursor
               (within-kernel-mode ((driver window) :block-p t)
-                (driver-create-cursor (driver window) (or named-cursor :default))))
-        (setf (gethash (or cursor :default) (server-cursor-table driver)) cursor))
+                                  (driver-create-cursor (driver window)
+                                                        (or named-cursor :default))))
+        (setf (gethash (or cursor :default) (server-cursor-table driver))
+              cursor))
       (call-next-method window cursor :block-p block-p))))
 
 ;;;
