@@ -38,8 +38,7 @@
 
 (defmethod create-buffered-window ((server sdl2-server) name &key (pretty-name name) (x nil) (y nil)
                                                                (width 300) (height 300)
-                                                               (mode :managed) (window-class 'window))
-  (declare (ignore window-class))
+                                                               (mode :managed) (window-class nil))
   (call-next-method server name :pretty-name pretty-name :x x :y y
                     :width width :height height
                     :mode mode :window-class (or window-class 'sdl2-buffered-window)))

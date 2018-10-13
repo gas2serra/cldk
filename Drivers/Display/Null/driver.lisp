@@ -39,15 +39,15 @@
 
 ;;; window
 
-(defclass null-window (driver-window)
+(defclass null-driver-window (driver-window)
   ())
 
-(defmethod driver-object-id ((window null-window))
+(defmethod driver-object-id ((window null-driver-window))
   window)
 
-(defmethod driver-create-window ((driver null-driver) name pretty-name x y width height mode)
-  (log:trace name x y width height mode)
-  (make-instance 'null-window))
+(defmethod driver-initialize-window ((driver null-driver) win name pretty-name x y
+                                 width height mode)
+  )
 
 (defmethod driver-destroy-window ((driver null-driver) window)
   (log:trace window))
@@ -107,10 +107,14 @@
 (defclass null-buffer (driver-buffer)
   ())
 
-(defmethod driver-create-buffer ((driver null-driver) width height)
+(defmethod driver-initialize-buffer ((driver null-driver) buffer width height)
   (log:trace driver)
   (make-instance 'null-buffer))
-                   
+
+(defmethod driver-update-buffer ((driver null-driver) buffer width height)
+  (log:trace driver)
+  (make-instance 'null-buffer))
+
 (defmethod driver-destroy-buffer ((driver null-driver) buffer)
   (log:trace driver))
 
@@ -119,9 +123,3 @@
   (log:trace driver)
   nil)
 
-(defmethod driver-create-image ((driver null-driver) buffer)
-  (log:trace driver)
-  nil)
-
-(defmethod driver-update-image ((driver null-driver) img buffer)
-  (log:trace driver))

@@ -1,7 +1,7 @@
 (in-package :common-lisp-user)
 
 (defpackage :clim-fb
-  (:use :clim :clim-lisp :clim-backend :mcclim-render-extensions)
+  (:use :clim :clim-lisp :clim-backend :cldk-mcclim-render-extensions)
   (:import-from :climi
                 #:basic-medium
                 #:port-allocate-pixmap
@@ -37,7 +37,7 @@
                 #:pointer-scroll-event
                 )
 
-  (:import-from :mcclim-render-internals
+  (:import-from :cldk-mcclim-render-internals
                 #:render-medium-mixin
                 #:render-port-mixin
                 #:image-pixmap-mixin

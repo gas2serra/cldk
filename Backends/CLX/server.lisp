@@ -81,7 +81,7 @@
 
 (defmethod create-buffered-window ((server clx-server) name &key (pretty-name name) (x nil) (y nil)
                                                               (width 300) (height 300)
-                                                              (mode :managed) (window-class 'window))
+                                                              (mode :managed) (window-class nil))
   (declare (ignore window-class))
   (call-next-method server name :pretty-name pretty-name :x x :y y
                     :width width :height height

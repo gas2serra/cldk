@@ -7,7 +7,7 @@
     :version "0.3"
     :author "Alessandro Serra"
     :license "LGPL"
-    :depends-on (#:cldk/basic #:uiop #:clx #:cldk-display-clx #:cldk-display)
+    :depends-on (#:uiop #:clx #:cldk #:cldk-display-clx #:cldk-display #:cldk-standard)
     :components
     ((:module "CLX"
               :components

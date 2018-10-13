@@ -238,4 +238,4 @@
     (when (or (eql to-log :all) (member :delete to-log))
       (log:info "win:~A" win))))
 
-(setf *default-event-handler* (make-instance 'log-event-handler))
+(setf *default-event-handler* (make-instance 'event-handler))

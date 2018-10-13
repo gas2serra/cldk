@@ -188,7 +188,7 @@
   (maphash #'(lambda (key val)
                (declare (ignore val))
                (when (typep key 'fb-mirrored-sheet-mixin)
-                 (mcclim-render-internals::%mirror-force-output
+                 (cldk-mcclim-render-internals::%mirror-force-output
                   (sheet-mirror key))))
            (slot-value port 'climi::sheet->mirror))
   

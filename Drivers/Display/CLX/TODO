@@ -1,0 +1,27 @@
+* Detect root window resizing...
+
+display = XOpenDisplay (NULL);
+    if (!display)
+    {
+        syslog(LOG_INFO, "Could not open display.\n");
+    }
+    screen = DefaultScreen (display);
+    root = RootWindow (display, screen);
+
+    window = DefaultRootWindow( display );
+    if ( 0 > window )
+    {
+         syslog(LOG_INFO, "Failed to obtain the root windows Id of the default screen of given display.\n");
+    }
+
+    Status ret = XGetWindowAttributes( display, window, &xwAttr );
+    width = xwAttr.width;
+    height = xwAttr.height;
+
+    XSelectInput (display, window, ExposureMask |
+                      /* Add StructureNotifyMask to send us events
+                         involving resizing of the window, etc. */
+                      StructureNotifyMask);
+
+    XMapWindow (display, window);
+    

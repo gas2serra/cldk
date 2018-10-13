@@ -7,7 +7,7 @@
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
-  :depends-on (#:sdl2 #:cldk-display)
+  :depends-on (#:sdl2 #:cldk-display #:static-vectors)
   :components ((:module "SDL2"
                         :components
                         ((:file "package")

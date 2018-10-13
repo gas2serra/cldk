@@ -10,7 +10,10 @@
   (with-slots (gcontext clx-image) (sheet-mirror sheet)
     (cldk:destroy-window (sheet-direct-mirror sheet))))
 
-(defclass fb-pixmap (image-pixmap-mixin permanent-medium-sheet-output-mixin basic-pane)
+(defclass fb-pixmap (image-pixmap-mixin
+                     basic-pane
+                     permanent-medium-sheet-output-mixin
+                     )
   ())
 
 (defmethod allocate-space :after ((sheet fb-mirrored-sheet-mixin) width height)

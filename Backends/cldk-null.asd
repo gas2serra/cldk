@@ -7,7 +7,7 @@
     :version "0.3"
     :author "Alessandro Serra"
     :license "LGPL"
-    :depends-on (#:cldk/basic #:cldk-display-clx)
+    :depends-on (#:cldk #:cldk-standard #:cldk-display #:cldk-display-null)
     :components
     ((:module "Null"
               :components

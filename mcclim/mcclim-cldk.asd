@@ -1,8 +1,8 @@
 (defsystem #:mcclim-cldk
     :depends-on (#:cldk
                  #:mcclim-backend-common
-		 #:mcclim-render
-                 #:mcclim-render/backend)
+		 #:cldk-mcclim-render
+                 #:cldk-mcclim-render/backend)
     :components
     ((:file "package")
      (:file "graft" :depends-on ("package"))

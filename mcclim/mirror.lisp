@@ -3,7 +3,7 @@
 (defclass fb-mirror (image-mirror-mixin cldk:buffered-window)
   ((width :initform 0)
    (height :initform 0)
-   (mcclim-render-internals::image-medium :initform :two-dim-array)
+   (cldk-mcclim-render-internals::image-medium :initform :two-dim-array)
    (img :initform nil)))
 
 (defmethod destroy-mirror ((port fb-port) (sheet mirrored-sheet-mixin))
@@ -44,9 +44,9 @@
 ;;;
 
 ;;; for port
-(defmethod mcclim-render-internals::%create-mirror-image :after ((sheet fb-mirror) w h)
-  (with-slots (mcclim-render-internals::dirty-region) sheet
-    (setf mcclim-render-internals::dirty-region nil))
+(defmethod cldk-mcclim-render-internals::%create-mirror-image :after ((sheet fb-mirror) w h)
+  (with-slots (cldk-mcclim-render-internals::dirty-region) sheet
+    (setf cldk-mcclim-render-internals::dirty-region nil))
     (with-slots (width height img) sheet
       (setf width w
 	    height h
@@ -57,7 +57,7 @@
 
 (defun image-mirror-pre-put (width height mirror dirty-r)
   (let ((pixels (image-pixels (image-mirror-image mirror))))
-    (declare (type mcclim-render-internals::rgb-image-pixels pixels))
+    (declare (type cldk-mcclim-render-internals::rgb-image-pixels pixels))
     (let ((rs  nil)
           (cldki::*epsilon* 2))
       (map-over-region-set-regions
@@ -81,13 +81,13 @@
           (when dimg
             (cldki::copy-image* img rs (cldk:buffered-window-image mirror) 0 0)))))))
 
-(defmethod mcclim-render-internals::%mirror-force-output ((mirror fb-mirror))
-  (with-slots (mcclim-render-internals::image-lock
-               mcclim-render-internals::dirty-region
+(defmethod cldk-mcclim-render-internals::%mirror-force-output ((mirror fb-mirror))
+  (with-slots (cldk-mcclim-render-internals::image-lock
+               cldk-mcclim-render-internals::dirty-region
                dirty-xr width height)
       mirror
-    (when mcclim-render-internals::dirty-region
-      (climi::with-lock-held (mcclim-render-internals::image-lock)
-        (when mcclim-render-internals::dirty-region
-          (image-mirror-pre-put width height mirror mcclim-render-internals::dirty-region)
-          (setf mcclim-render-internals::dirty-region nil))))))
+    (when cldk-mcclim-render-internals::dirty-region
+      (climi::with-lock-held (cldk-mcclim-render-internals::image-lock)
+        (when cldk-mcclim-render-internals::dirty-region
+          (image-mirror-pre-put width height mirror cldk-mcclim-render-internals::dirty-region)
+          (setf cldk-mcclim-render-internals::dirty-region nil))))))

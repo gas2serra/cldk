@@ -3,14 +3,15 @@
 (defpackage :cldk
   (:use :common-lisp)
   (:export
-     #:*default-server-path*
-     #:find-server
-     #:find-display-server
-     #:server-path
-     #:server-event-handler
-     #:restart-server
-     #:destroy-server
-     #:map-over-servers
+      #:*default-server-path*
+   #:find-server
+   #:find-display-server
+   #:server-path
+   #:server-event-handler
+   #:restart-server
+   #:destroy-server
+   #:map-over-servers
+
    #|
    #:+pointer-left-button+
    #:+pointer-middle-button+
@@ -236,12 +237,18 @@
 
    #:server-cursor-table
    #:kernel-kwindows
+
+   #:k-refresh-windows
    ))
 
 (defpackage :cldk-server
   (:use :common-lisp :cldk-driver :cldk-kernel)
   (:export
    #:server
+   #:start-server
+   #:stop-server
+   #:kill-server
+   #:display-server
    #:EVENT-SERVER-MIXIN
    #:COMMAND-SERVER-MIXIN
    #:SERVER-WITH-THREAD-MIXIN
@@ -258,6 +265,9 @@
    #:CALLBACK-QUEUE-WITH-THREAD-MIXIN
    #:COMMAND-QUEUE-MIXIN
    #:SERVER-LOOP-STEP
+   #:server-loop
+   #:callback-loop-fn
+   #:SERVER-FORCE-OUTPUT
    ;;#:BUFFER-IMAGE-MIXIN
    ;;#:UPDATED-REGION-SET
    ))

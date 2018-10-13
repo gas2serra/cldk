@@ -7,13 +7,13 @@
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
-  :depends-on (#:log4cl #:bordeaux-threads))
+  :depends-on (#:cldk #:log4cl #:bordeaux-threads))
 
 (defsystem #:cldk-display/driver
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
-  :depends-on (#:cldk-core/driver #:cldk-display/core)
+  :depends-on (#:cldk-display/core)
   :components
   ((:module "display"
             :components
@@ -23,7 +23,7 @@
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
-  :depends-on (#:cldk-core/kernel #:cldk-display/driver)
+  :depends-on (#:cldk-display/driver)
   :components
   ((:module "display"
             :components
@@ -50,6 +50,9 @@
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
-  :depends-on (#:cldk-display/driver #:cldk-display/kernel :cldk-display/server)
+  :depends-on (
+               #:cldk-display/driver
+               #:cldk-display/kernel
+               #:cldk-display/server)
   :components ()
   :description "Common Lisp Drawing Kit: Display")

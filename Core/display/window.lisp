@@ -6,6 +6,11 @@
 (defclass window ()
   ())
 
+(defmethod initialize-instance  :after ((win window) &key driver name pretty-name
+                                                       x y width height mode
+                                                       &allow-other-keys)
+           )
+           
 (defgeneric create-window (display name &key pretty-name x y width height
                                           mode window-class))
 (defgeneric destroy-window (window))
@@ -34,7 +39,7 @@
    (cached-width :initform nil)
    (cached-height :initform nil)))
 
-(defmethod initialize-instance  :after ((win kerneled-window-mixin) &key server name pretty-name
+(defmethod initialize-instance  :after ((win kerneled-window-mixin) &key driver name pretty-name
                                                        x y width height mode
                                                        &allow-other-keys)
   (within-kernel-mode ((driver win) :block-p t)
@@ -47,7 +52,7 @@
                           &key (pretty-name name) (x nil) (y nil)
                             (width 300) (height 300)
                             (mode :managed) (window-class 'window))
-  (make-instance window-class :driver display :kernel display
+  (make-instance window-class :driver display
                  :name name :pretty-name pretty-name
                  :x x :y y :width width :height height :mode mode))
 
@@ -145,7 +150,7 @@
 ;;; caching protocol
 ;;;
 
-(defmethod handler-configure-event :before ((handler event-handler) win x y w h time)
+(defmethod handle-configure-event :before ((handler event-handler) win x y w h time)
   (with-slots (cached-x cached-y cached-width cached-height) win
     (when x (setf cached-x x))
     (when y (setf cached-y y))

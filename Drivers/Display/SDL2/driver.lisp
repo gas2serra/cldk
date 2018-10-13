@@ -134,8 +134,6 @@
     (sdl2:get-window-size sdlwindow)))
  
 (defmethod driver-set-window-position ((driver sdl2-driver) window x y)
-  (log:info "POSITION ~A" (list x y))
-  ;;(break)
   (with-slots (sdlwindow) window
     (sdl2:set-window-position sdlwindow x y)))
 
@@ -144,10 +142,9 @@
     (sdl2:set-window-size sdlwindow width height)))
 
 (defmethod driver-set-window-hints ((driver sdl2-driver) window x y width height max-width max-height
-                                         min-width min-height)
+                                    min-width min-height)
   (with-slots (sdlwindow) window
-    (log:info "HINTS: ~A " (list x y))
-    #+nil (when (and x y)
+    (when (and x y)
       (sdl2:set-window-position sdlwindow x y))
     (when (or width height)
       (sdl2:set-window-size sdlwindow (or width 100) (or height 100)))
@@ -216,7 +213,8 @@
 (defclass sdl2-driver-buffer (driver-buffer)
   ((surface :initarg :surface
             :reader driver-buffer-surface
-            :initform nil)))
+            :initform nil)
+   (pixels :initform nil)))
 
 (defmethod driver-create-buffer ((driver sdl2-driver) width height)
   (let* ((surface (sdl2:create-rgb-surface width height 32
@@ -228,29 +226,34 @@
                    :surface surface)))
 
 (defmethod driver-initialize-buffer ((driver sdl2-driver) buffer width height)
-  (with-slots (surface) buffer
-    (setf surface (sdl2:create-rgb-surface width height 32
-                                           :r-mask #x000000ff
-                                           :g-mask #x0000ff00
-                                           :b-mask #x00ff0000
-                                           :a-mask #xff000000))))
-
+  (driver-update-buffer driver buffer width height))
 
 (defmethod driver-update-buffer ((driver sdl2-driver) buffer width height)
-  (with-slots (surface) buffer
+  (with-slots (surface pixels) buffer
     (when surface
+      (static-vectors:free-static-vector pixels)
       (sdl2:free-surface surface))
-    (setf surface (sdl2:create-rgb-surface width height 32
+    #+nil(setf surface (sdl2:create-rgb-surface width height 32
                                             :r-mask #x000000ff
                                             :g-mask #x0000ff00
                                             :b-mask #x00ff0000
-                                            :a-mask #xff000000))))
+                                            :a-mask #xff000000))
+    (setf pixels (static-vectors:make-static-vector (* width height 4) :element-type '(unsigned-byte 8)))
+    (setf surface (sdl2:create-rgb-surface-with-format-from (static-vectors:static-vector-pointer pixels)
+                                                            width
+                                                            height
+                                                            32
+                                                            (* 4 width)
+                                                            :format sdl2:+pixelformat-rgba8888+))))
+
 
 (defmethod driver-destroy-buffer ((driver sdl2-driver) buffer)
-  (with-slots (surface) buffer
+  (with-slots (surface pixels) buffer
     (when surface
+      (static-vectors:free-static-vector pixels)
       (sdl2:free-surface surface)
-      (setf surface nil))))
+      (setf pixels nil
+            surface nil))))
 
 (defmethod driver-copy-buffer-to-window ((driver sdl2-driver) buffer x y width height
                                          window to-x to-y)
@@ -291,10 +294,10 @@
       (declare (type sdl2-rgb-image-pixels pixels))
       (lambda (x y r g b)
         (cffi-sys:%mem-set
-         (dpb r (byte 8 0)
-              (dpb g (byte 8 8)
-                   (dpb b (byte 8 16)
-                        (dpb 255 (byte 8 24) 0))))
+         (dpb 255 (byte 8 0)
+              (dpb b (byte 8 8)
+                   (dpb g (byte 8 16)
+                        (dpb r (byte 8 24) 0))))
          pixels :UNSIGNED-INT (* 4
                                  (+
                                   (* (+ y dy) width)

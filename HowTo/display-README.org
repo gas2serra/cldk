@@ -1,0 +1,19 @@
+Example of creation of a new backend.
+
+* Preparation
+cd Backends
+cp -r Null XCB
+cp cldk-null.asd cldk-xcb.asd
+sed -i 's/Null/XCB/g' cldk-xcb.asd
+sed -i 's/null/xcb/g' cldk-xcb.asd
+sed -i 's/null/xcb/g' XCB/package.lisp
+sed -i 's/null/xcb/g' XCB/server.lisp
+cd ../Drivers/Display
+cp -r Null/ XCB
+cp cldk-display-null.asd cldk-display-xcb.asd
+sed -i 's/Null/XCB/g' cldk-display-xcb.asd
+sed -i 's/null/xcb/g' cldk-display-xcb.asd
+sed -i 's/null/xcb/g' XCB/package.lisp
+sed -i 's/null/xcb/g' XCB/driver.lisp
+
+* 

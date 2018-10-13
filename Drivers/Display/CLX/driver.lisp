@@ -246,7 +246,6 @@
             (xlib:drawable-height xwindow))))
 
 (defmethod driver-set-window-position ((driver clx-driver) window x y)
-  (log:info "POSITION ~A" (list x y))
   (with-slots (xwindow) window
     (setf (xlib:drawable-x xwindow) x
           (xlib:drawable-y xwindow) y)
@@ -382,23 +381,6 @@
                  (dpb g (byte 8 8)
                       (dpb b (byte 8 0)
                            (dpb 255 (byte 8 24) 0))))))))
-
-(defmethod driver-create-buffer ((driver clx-driver) width height)
-  (let* ((pixels (make-array (list height width)
-                             :element-type '(unsigned-byte 32)
-                             :initial-element #x00FFFFFF))
-         (ximage (xlib:create-image :bits-per-pixel 32
-                                    :data pixels
-                                    :depth 24
-                                    :width width
-                                    :height height
-                                    :blue-mask #x000000ff
-                                    :green-mask #x0000ff00
-                                    :red-mask #x00ff0000
-                                    :format :z-pixmap)))
-    
-    (make-instance 'clx-driver-buffer
-                   :xpixels pixels :ximage ximage)))
 
 (defmethod driver-initialize-buffer ((driver clx-driver) buffer width height)
   (with-slots (xpixels ximage) buffer

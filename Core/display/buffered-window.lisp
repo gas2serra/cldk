@@ -29,7 +29,7 @@
                                      (width 300) (height 300)
                                      (mode :managed) (window-class 'buffered-window))
   (let ((buffer (create-buffer server width height)))
-    (make-instance window-class :driver server :kernel server
+    (make-instance window-class :driver server 
                    :obuffer buffer
                    :name name :pretty-name pretty-name
                    :x x :y y
