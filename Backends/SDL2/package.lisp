@@ -1,6 +1,8 @@
 (in-package :common-lisp-user)
 
-(defpackage :cldk-sdl2
-  (:use :cldk :cldk-driver :cldk-kernel :cldk-server :cldk-display-sdl2 :common-lisp)
+(defpackage :cldk-sdl2-backend
+  (:use :cldk-backend :cldk-kernel :cldk :cldk-driver
+        :cldk-driver-sdl2 :common-lisp)
   (:export
+   #:cldk-sdl2-port-mixin
    ))

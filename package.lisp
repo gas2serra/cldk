@@ -57,6 +57,12 @@
    #:screen-dpi
    #:screen-pointer-position
    #:avaiable-cursor-names
+
+   #:root
+   #:create-root
+   #:destroy-root
+   #:root-size
+   #:root-pointer-position
    
    #:create-window
    #:destroy-window
@@ -143,7 +149,12 @@
    #:driver-screen-size
    #:driver-screen-dpi
    #:driver-screen-pointer-position
-   
+   ;; display root
+   #:driver-root
+   #:driver-initialize-root
+   #:driver-destroy-root
+   #:driver-root-size
+   #:driver-root-pointer-position
    ;; display window 
    #:driver-window
    #:driver-initialize-window
@@ -228,6 +239,7 @@
    ;;
    ;; kernel display
    ;;
+   #:kerneled-root-mixin
    #:kerneled-buffer-mixin
    #:kerneled-window-mixin
    #:kerneled-buffered-window-mixin

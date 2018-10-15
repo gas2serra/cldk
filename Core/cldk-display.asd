@@ -15,25 +15,14 @@
   :license "LGPL"
   :depends-on (#:cldk-display/core)
   :components
-  ((:module "display"
-            :components
-            ((:file "display-driver")))))
+  ())
 
 (defsystem #:cldk-display/kernel
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
-  :depends-on (#:cldk-display/driver)
-  :components
-  ((:module "display"
-            :components
-            ((:file "display-kernel")
-             (:file "buffer" :depends-on ("display-kernel"))
-             (:file "window" :depends-on ("display-kernel" "event-handler"))
-             (:file "buffered-window" :depends-on ("window" "buffer"))
-             (:file "event-handler" :depends-on ("display-kernel"))
-             (:file "display-kernel-callback"
-                    :depends-on ("display-kernel" "event-handler"))))))
+  :depends-on (#:cldk-display/driver #:cldk-core/mirror)
+  :components ())
 
 (defsystem #:cldk-display/server
   :version "0.3"

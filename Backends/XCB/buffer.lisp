@@ -8,13 +8,13 @@
 
 (defmethod image-width ((buffer xcb-buffer))
   (let ((db buffer))
-    (with-slots (cldk-display-xcb::w) db
-      cldk-display-xcb::w)))
+    (with-slots (cldk-driver-xcb::w) db
+      cldk-driver-xcb::w)))
 
 (defmethod image-height ((buffer xcb-buffer))
   (let ((db buffer))
-    (with-slots (cldk-display-xcb::h) db
-      cldk-display-xcb::h)))
+    (with-slots (cldk-driver-xcb::h) db
+      cldk-driver-xcb::h)))
 
 (defmethod image-pixels ((buffer xcb-buffer))
   (let ((db buffer))
