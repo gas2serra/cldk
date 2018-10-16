@@ -110,7 +110,6 @@
                            :x x
                            :y y
                            :width w :height h)))
-      (log:info "CONF: ~A ~A " (list x y) (list w h))
       (clim:distribute-event (handler-port handler) event)))
 
 (defmethod cldk:handle-repaint-event ((handler fb-event-handler) win x y w h time)
@@ -129,6 +128,3 @@
     (clim:distribute-event (handler-port handler) event)))
 
 ;;(setf *fb-event-handler* (make-instance 'fb-event-handler))
-
-(defmethod clim:dispatch-event ((client fb-graft) event)
-  )

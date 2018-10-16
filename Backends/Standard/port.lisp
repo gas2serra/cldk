@@ -17,10 +17,5 @@
                               :mirror nil
                               :orientation orientation
                               :units units)))
-    (multiple-value-bind (w h)
-        (cldk:screen-size (port-display-driver port) units)
-      (climi::%%set-sheet-region 
-       (clim:make-bounding-rectangle 0 0 w h)
-       graft))
     (push graft (port-grafts port))
     graft))

@@ -20,7 +20,6 @@
 (defmethod driver-start ((driver clx-driver))
   (with-slots (display screen root-window) driver
     (let ((options (driver-options driver)))
-      (log:warn "!!~A" options)
       (setf (driver-default-screen-index driver) (getf options :screen-id 0))
       (setf display (xlib:open-display (getf options :host) 
                                        :display (getf options :display-id 0) 
@@ -74,24 +73,6 @@
             (error *clx-error*))
           t))))
 
-;;; screens
-(defmethod driver-screen-size ((driver clx-driver) units)
-  (with-slots (screen display) driver
-    (log:warn "~A ~A ~A" driver display screen)
-    (ecase units
-      (:device (values (xlib:screen-width screen)
-                       (xlib:screen-height screen)))
-      (:inches (values (/ (xlib:screen-width-in-millimeters screen) 25.4s0)
-                       (/ (xlib:screen-height-in-millimeters screen) 25.4s0)))
-      (:millimeters (values (xlib:screen-width-in-millimeters screen)
-                            (xlib:screen-height-in-millimeters screen))))))
-
-(defmethod driver-screen-pointer-position ((driver clx-driver))
-  (with-slots (root-window) driver
-    (multiple-value-bind (x y #|same-screen-p|#)
-        (xlib:query-pointer root-window)
-      (values x y))))
-
 ;;; root
 (defclass clx-driver-root (driver-root)
   ((xroot)
@@ -101,18 +82,18 @@
   (with-slots (xroot) root
     xroot))
 
-(defmethod driver-initialize-root ((driver clx-driver) root)
+(defmethod driver-initialize-root ((driver clx-driver) (root clx-driver-root))
   (with-slots (root-window screen) driver
     (with-slots (xroot xscreen) root
       (setf xroot root-window)
       (setf xscreen screen))))
 
-(defmethod driver-destroy-root ((driver clx-driver) root)
+(defmethod driver-destroy-root ((root clx-driver-root))
   (with-slots (xroot) root
     (setf xroot nil
           xscreen nil)))
 
-(defmethod driver-root-size ((driver clx-driver) root units)
+(defmethod driver-root-size ((root clx-driver-root) units)
   (with-slots (xscreen) root
     (ecase units
       (:device (values (xlib:screen-width xscreen)
@@ -122,12 +103,11 @@
       (:millimeters (values (xlib:screen-width-in-millimeters xscreen)
                             (xlib:screen-height-in-millimeters xscreen))))))
 
-(defmethod driver-root-pointer-position ((driver clx-driver) root)
+(defmethod driver-root-pointer-position ((root clx-driver-root))
   (with-slots (xroot) root
     (multiple-value-bind (x y #|same-screen-p|#)
         (xlib:query-pointer xroot)
       (values x y))))
-
 
 ;;; window
 

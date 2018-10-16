@@ -1,10 +1,8 @@
-(in-package :cldk-xcb)
+(in-package :cldk-xcb-backend)
 
 (defclass xcb-buffer (buffer xcb-driver-buffer kerneled-buffer-mixin)
   ())
 
-(defmethod create-buffer ((server xcb-server) width height)
-  (make-instance 'xcb-buffer :driver server :width width :height height))
 
 (defmethod image-width ((buffer xcb-buffer))
   (let ((db buffer))

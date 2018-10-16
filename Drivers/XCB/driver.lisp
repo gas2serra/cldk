@@ -45,24 +45,6 @@
             (xcb-event-handler driver e)
             t)))))
 
-;;; screens
-(defmethod driver-screen-size ((driver xcb-driver) units)
-  (with-slots (screen) driver
-    (ecase units
-      (:device (cffi:with-foreign-slots ((width-in-pixels height-in-pixels) screen (:struct screen-t))
-                 (values width-in-pixels height-in-pixels)))
-      (:inches (cffi:with-foreign-slots ((width-in-mm height-in-mm) screen (:struct screen-t))
-                 (values (/ width-in-mm 25.4s0) (/ height-in-mm 25.4s0))))
-      (:millimeters (cffi:with-foreign-slots ((width-in-mm height-in-mm) screen (:struct screen-t))
-                      (values width-in-mm height-in-mm))))))
-
-(defmethod driver-screen-pointer-position ((driver xcb-driver))
-  (with-slots (display root-window) driver
-    (let ((cookie (xcb-query-pointer display root-window)))
-      (let ((response (xcb-query-pointer-reply display cookie (cffi:null-pointer))))
-        (cffi:with-foreign-slots ((root-x root-y) response (:struct xcb-query-pointer-replay-t))
-                                 (values root-x root-y))))))
-
 ;;; root
 (defclass xcb-driver-root (driver-root)
   ((xroot)
@@ -78,12 +60,12 @@
       (setf xroot root-window)
       (setf xscreen screen))))
 
-(defmethod driver-destroy-root ((driver xcb-driver) root)
+(defmethod driver-destroy-root ((root xcb-driver-root))
   (with-slots (xroot xscreen) root
     (setf xroot nil
           xscreen nil)))
 
-(defmethod driver-root-size ((driver xcb-driver) root units)
+(defmethod driver-root-size ((root xcb-driver-root) units)
   (with-slots (xscreen) root
     (ecase units
       (:device (cffi:with-foreign-slots ((width-in-pixels height-in-pixels)
@@ -95,8 +77,8 @@
       (:millimeters (cffi:with-foreign-slots ((width-in-mm height-in-mm) xscreen (:struct screen-t))
                       (values width-in-mm height-in-mm))))))
 
-(defmethod driver-root-pointer-position ((driver xcb-driver) root)
-  (with-slots (display) driver
+(defmethod driver-root-pointer-position ((root xcb-driver-root))
+  (with-slots (display) (driver root)
     (with-slots (xroot) root
       (let ((cookie (xcb-query-pointer display xroot)))
       (let ((response (xcb-query-pointer-reply display cookie (cffi:null-pointer))))

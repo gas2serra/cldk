@@ -25,21 +25,26 @@
 
 (defmethod destroy-root ((root kerneled-root-mixin))
   (within-kernel-mode ((driver root) :block-p t)
-      (driver-destroy-root (driver root) root)))
+    (driver-destroy-root root)))
 
 (defmethod root-size ((root kerneled-root-mixin) &key (units :device) (force-query-p nil))
-  (with-slots (cached-width cached-height) root
-    (when (or force-query-p (null cached-width) (null cached-height))
+  (if (eq units :device)
+      (with-slots (cached-width cached-height) root
+        (when (or force-query-p (null cached-width) (null cached-height))
+          (within-kernel-mode ((driver root) :block-p t)
+            (multiple-value-bind (w h)
+                (driver-root-size root units)
+              (setf cached-width w
+                    cached-height h))))
+        (values cached-width cached-height))
       (within-kernel-mode ((driver root) :block-p t)
         (multiple-value-bind (w h)
-            (driver-root-size (driver root) root units)
-          (setf cached-width w
-                cached-height h))))
-    (values cached-width cached-height)))
+            (driver-root-size root units)
+          (values w h)))))
 
 (defmethod root-pointer-position ((root kerneled-root-mixin))
   (within-kernel-mode ((driver root) :block-p t)
-    (driver-window-pointer-position (driver root) root)))
+    (driver-window-pointer-position root)))
 
 
 

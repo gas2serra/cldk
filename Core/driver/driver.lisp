@@ -14,22 +14,13 @@
   (:method ((driver driver))
     (getf (driver-options driver) :id :null)))
 
-(defgeneric register-driver-object (driver driver-object)
-  (:method ((driver driver) driver-object)
-    (with-slots (driver-object-id->driver-object) driver
-      (setf (gethash (driver-object-id driver-object)
-                     driver-object-id->driver-object)
-            driver-object))))
-(defgeneric unregister-driver-object (driver driver-object)
-  (:method ((driver driver) driver-object)
-    (with-slots (driver-object-id->driver-object) driver
-      (setf (gethash (driver-object-id driver-object)
-                     driver-object-id->driver-object)
-            nil))))
-(defgeneric lookup-driver-object (driver driver-object-id)
-  (:method ((driver driver) driver-object-id)
-    (with-slots (driver-object-id->driver-object) driver
-      (gethash driver-object-id driver-object-id->driver-object))))
+(defgeneric register-driver-object (driver driver-object))
+(defgeneric unregister-driver-object (driver driver-object))
+(defgeneric lookup-driver-object (driver driver-object-id))
+
+(defmethod lookup-driver-object ((driver driver) driver-object-id)
+  (with-slots (driver-object-id->driver-object) driver
+    (gethash driver-object-id driver-object-id->driver-object)))
 
 (defgeneric driver-start (driver))
 (defgeneric driver-stop (driver))
@@ -72,3 +63,14 @@
 (defgeneric driver-object-id (object)
   (:method ((object driver-object))
     object))
+
+(defmethod register-driver-object ((driver driver) (driver-object driver-object))
+  (with-slots (driver-object-id->driver-object) driver
+    (setf (gethash (driver-object-id driver-object)
+                   driver-object-id->driver-object)
+          driver-object)))
+(defmethod unregister-driver-object ((driver driver) (driver-object  driver-object))
+  (with-slots (driver-object-id->driver-object) driver
+    (setf (gethash (driver-object-id driver-object)
+                   driver-object-id->driver-object)
+          nil)))

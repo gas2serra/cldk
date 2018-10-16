@@ -15,17 +15,13 @@
 ;;; driver API
 ;;;
 
-;;; screen
-(defgeneric driver-screen-size (driver units))
-(defgeneric driver-screen-pointer-position (driver))
-
 ;;; root
 (defclass driver-root (display-driver-object)
   ())
 (defgeneric driver-initialize-root (driver root))
-(defgeneric driver-destroy-root (driver root))
-(defgeneric driver-root-size (driver root units))
-(defgeneric driver-root-pointer-position (driver root))
+(defgeneric driver-destroy-root (root))
+(defgeneric driver-root-size (root units))
+(defgeneric driver-root-pointer-position (root))
 
 ;;; window
 (defclass driver-window (display-driver-object)

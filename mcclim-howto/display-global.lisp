@@ -1,14 +1,8 @@
-;;(ql:quickload :cldk-null)
-;;(ql:quickload :mcclim-cldk-xcb)
-
-;;(ql:quickload :cldk-clx)
-;;(ql:quickload :cldk-sdl2)
-;;(ql:quickload :cldk-xcb)
 (ql:quickload :mcclim-cldk)
 (ql:quickload :cldk-backend)
 (ql:quickload :cldk-clx-backend)
 (ql:quickload :cldk-sdl2-backend)
-;;(ql:quickload :cldk-xcb-backend)
+(ql:quickload :cldk-xcb-backend)
 
 
 (defparameter *clx-backend* '(:clx-cldk :cldk-driver :clx))

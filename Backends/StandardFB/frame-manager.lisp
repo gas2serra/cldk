@@ -127,5 +127,5 @@
   ;; hmm
   nil)
 
-(defmethod note-space-requirements-changed :after ((graft fb-graft) pane)
+(defmethod note-space-requirements-changed :after ((graft cldk-graft-mixin) pane)
   (tell-window-manager-about-space-requirements pane))

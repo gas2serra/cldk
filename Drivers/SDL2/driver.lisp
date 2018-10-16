@@ -29,31 +29,6 @@
   (setf sdl2::*event-loop* t)
   (sdl2-event-handler driver driver))
 
-;;; screens
-(defmethod driver-screen-size ((driver sdl2-driver) units)
-  (let ((screen-index (driver-default-screen-index driver)))
-    (cffi:with-foreign-objects ((ddpi :float)
-                                (hdpi :float)
-                                (vdpi :float))
-      (sdl2-ffi.functions:sdl-get-display-dpi screen-index ddpi hdpi vdpi)
-      (let ((w)
-            (h))
-        (let ((rect (sdl2:get-display-bounds 0)))
-          (setf w (sdl2:rect-width rect))
-          (setf h (sdl2:rect-height rect)))
-        (ecase units
-          (:device (values w h))
-          (:inches (values (/ w (cffi:mem-ref hdpi :float))
-                           (/ h (cffi:mem-ref vdpi :float))))
-          (:millimeters (values (* 25.4s0 (/ w (cffi:mem-ref hdpi :float)))
-                                (* 25.4s0 (/ h (cffi:mem-ref vdpi :float))))))))))
-
-(defmethod driver-screen-pointer-position ((driver sdl2-driver))
-  (cffi:with-foreign-objects ((xpos :int)
-                              (ypos :int))
-    (sdl2-ffi.functions:sdl-get-global-mouse-state xpos ypos)
-    (values (cffi:mem-ref xpos :int) (cffi:mem-ref ypos :int))))
-
 ;;; root
 (defclass sdl2-driver-root (driver-root)
   ((screen-index)))
@@ -62,11 +37,11 @@
   (with-slots (screen-index) root
     (setf screen-index (driver-default-screen-index driver))))
 
-(defmethod driver-destroy-root ((driver sdl2-driver) root)
+(defmethod driver-destroy-root ((root sdl2-driver-root))
   (with-slots (screen-index) root
     (setf screen-index nil)))
 
-(defmethod driver-root-size ((driver sdl2-driver) root units)
+(defmethod driver-root-size ((root sdl2-driver-root) units)
   (with-slots (screen-index) root
     (cffi:with-foreign-objects ((ddpi :float)
                                 (hdpi :float)
@@ -84,7 +59,7 @@
           (:millimeters (values (* 25.4s0 (/ w (cffi:mem-ref hdpi :float)))
                                 (* 25.4s0 (/ h (cffi:mem-ref vdpi :float))))))))))
 
-(defmethod driver-root-pointer-position ((driver sdl2-driver) root)
+(defmethod driver-root-pointer-position ((root sdl2-driver-root))
   (cffi:with-foreign-objects ((xpos :int)
                               (ypos :int))
     (sdl2-ffi.functions:sdl-get-global-mouse-state xpos ypos)
