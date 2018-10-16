@@ -3,17 +3,19 @@
 (defclass fb-port (render-port-mixin
                    cldk-port-mixin
                    standard-event-port-mixin
-                   standard-port
+                   ;;standard-port
                    )
   ((server :accessor fb-port-server)
    (pointer :reader port-pointer)
    (font-families :initform nil :accessor font-families)))
 
 (defmethod port-display-driver ((port fb-port))
-  (fb-port-server port))
+  port
+  #+nil(fb-port-server port))
 
 (defmethod port-display-mirror ((port fb-port))
-  (fb-port-server port))
+  port
+  #+nil(fb-port-server port))
  
 
 (defun parse-cldk-server-path (path)
@@ -30,12 +32,15 @@
   (let* ((options (cdr (port-server-path port)))
          (driver (getf options :cldk-driver :null)))
     (remf options :cldk-driver)
-    (let ((server (cldk:find-display-server :server-path (cons driver
+    (setf (fb-port-server port) port)
+    #+nil (let ((server (cldk:find-display-server :server-path (cons driver
                                                                options))))
       (sleep 0.1)
       (setf (fb-port-server port) server)
       (setf (cldk:server-event-handler server)
             (make-instance 'clim-fb::fb-event-handler :port port))))
+  (sleep 0.1)
+  (log:warn "HELP!!")
   (make-graft port)
   (setf (slot-value port 'pointer)
         (make-instance 'fb-pointer :port port))

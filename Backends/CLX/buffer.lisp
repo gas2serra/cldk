@@ -1,10 +1,9 @@
-(in-package :cldk-clx)
+(in-package :cldk-clx-backend)
 
 (defclass clx-buffer (buffer clx-driver-buffer kerneled-buffer-mixin)
   ())
 
-(defmethod create-buffer ((server clx-server) width height)
-  (make-instance 'clx-buffer :driver server :width width :height height))
+
 
 (defmethod image-width ((buffer clx-buffer))
   (let ((db buffer))

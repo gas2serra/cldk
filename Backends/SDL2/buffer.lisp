@@ -1,10 +1,9 @@
-(in-package :cldk-sdl2)
+(in-package :cldk-sdl2-backend)
 
 (defclass sdl2-buffer (buffer sdl2-driver-buffer kerneled-buffer-mixin)
   ())
 
-(defmethod create-buffer ((server sdl2-server) width height)
-  (make-instance 'sdl2-buffer :driver server :width width :height height))
+
 
 
 (defmethod image-width ((buffer sdl2-buffer))

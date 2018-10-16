@@ -5,8 +5,8 @@
 ;;;
 
 (defclass threaded-driver-mixin (driver)
-  ((lock :initform (bt:make-recursive-lock "driver lock")
-         :accessor driver-lock)))
+  ((dlock :initform (bt:make-recursive-lock "driver lock")
+          :accessor driver-lock)))
 
 (defmacro with-driver-locked ((driver) &body body)
   (let ((fn (gensym "CONT.")))

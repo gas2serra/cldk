@@ -20,6 +20,7 @@
 (defmethod driver-start ((driver clx-driver))
   (with-slots (display screen root-window) driver
     (let ((options (driver-options driver)))
+      (log:warn "!!~A" options)
       (setf (driver-default-screen-index driver) (getf options :screen-id 0))
       (setf display (xlib:open-display (getf options :host) 
                                        :display (getf options :display-id 0) 
@@ -75,7 +76,8 @@
 
 ;;; screens
 (defmethod driver-screen-size ((driver clx-driver) units)
-  (with-slots (screen) driver
+  (with-slots (screen display) driver
+    (log:warn "~A ~A ~A" driver display screen)
     (ecase units
       (:device (values (xlib:screen-width screen)
                        (xlib:screen-height screen)))

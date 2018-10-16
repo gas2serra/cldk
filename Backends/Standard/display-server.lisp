@@ -1,4 +1,4 @@
-(in-package :cldk-standard-backend)
+(in-package :cldk-backend)
 
 ;;;
 ;;;

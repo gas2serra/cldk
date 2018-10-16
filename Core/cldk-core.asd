@@ -7,7 +7,7 @@
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
-  :depends-on (#:log4cl #:bordeaux-threads #:lparallel))
+  :depends-on (#:log4cl #:bordeaux-threads #:lparallel #:cldk/core))
 
 (defsystem #:cldk-core/driver
   :version "0.3"

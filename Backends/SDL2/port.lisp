@@ -1,10 +1,12 @@
 (in-package :cldk-sdl2-backend)
 
-(defclass cldk-sdl2-port-mixin (cldk-port-mixin)
+(defclass cldk-sdl2-port-mixin (cldk-port-mixin
+                                cldk-backend::single-thread-display-server
+                                sdl2-driver)
   ())
 
 (defmethod port-graft-mirror-class ((port cldk-sdl2-port-mixin))
-  'cldk-sdl2::sdl2-root)
+  'sdl2-root)
 
 (defclass sdl2-graft (cldk-graft-mixin root sdl2-driver-root kerneled-root-mixin)
   ())
@@ -22,6 +24,12 @@
   ())
 
 
+(defmethod initialize-instance :after ((server cldk-sdl2-port-mixin) &rest args)
+  (declare (ignore args))
+  (setf (driver-options server) (cons :id (clim:port-server-path server)))
+  (cldk-server:start-server server)
+  (setf (cldk:server-event-handler server)
+        (make-instance 'clim-fb::fb-event-handler :port server)))
 
 
 
@@ -38,3 +46,24 @@
 
 (defmethod fb-mirror-class ((port sdl2-fb-port))
   'sdl2-fb-mirror)
+
+;;;
+;;;
+;;;
+(defun parse-sdl2-server-path (path)
+  (pop path)
+  (if path
+      (list :cldk-fb-sdl2
+	    :screen-id  (getf path :screen-id 0))
+      (list :cldk-fb-sdl2
+	    :screen-id  0)))
+
+(setf (get :sdl2 :server-class) 'sdl2-server)
+(setf (get :sdl2 :server-path-parser-fn) 'parse-sdl2-server-path)
+
+
+(setf (get :cldk-fb-sdl2 :port-type) 'sdl2-fb-port)
+(setf (get :cldk-fb-sdl2 :server-path-parser) 'parse-sdl2-server-path)
+
+(defmethod cldk:create-buffer ((server sdl2-fb-port) width height)
+  (make-instance 'cldk-sdl2-backend::sdl2-buffer :driver server :width width :height height))
