@@ -23,8 +23,8 @@
 
 (defmethod destroy-buffer ((buffer kerneled-buffer-mixin))
   (within-kernel-mode ((driver buffer) :block-p t)
-    (driver-destroy-buffer (driver buffer) buffer)))
+    (driver-destroy-buffer buffer)))
 
 (defmethod update-buffer ((buffer kerneled-buffer-mixin) width height)
   (within-kernel-mode ((driver buffer) :block-p t)
-    (driver-update-buffer (driver buffer) buffer width height)))
+    (driver-update-buffer buffer width height)))

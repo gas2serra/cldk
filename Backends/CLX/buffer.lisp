@@ -21,7 +21,7 @@
       xpixels)))
 
 (defmethod image-rgb-get-fn ((image clx-buffer) &key (dx 0) (dy 0))
-  (driver-buffer-rgb-get-fn (cldki::driver image) image dx dy))
+  (driver-buffer-rgb-get-fn image dx dy))
 
 (defmethod image-rgb-set-fn ((image clx-buffer) &key (dx 0) (dy 0))
-  (driver-buffer-rgb-set-fn (cldki::driver image) image dx dy))
+  (driver-buffer-rgb-set-fn image dx dy))

@@ -32,21 +32,21 @@
   (:method :after ((driver display-driver) window name pretty-name
                    x y width height mode)
            (register-driver-object driver window)))
-(defgeneric driver-destroy-window (driver window)
-  (:method :before ((driver display-driver) window)
-           (unregister-driver-object driver window)))
-(defgeneric driver-show-window (driver window))
-(defgeneric driver-hide-window (driver window))
-(defgeneric driver-window-position (driver window))
-(defgeneric driver-window-size (driver window))
-(defgeneric driver-set-window-position (driver window x y))
-(defgeneric driver-set-window-size (driver window width height))
-(defgeneric driver-set-window-hints (driver window x y width height
+(defgeneric driver-destroy-window (window)
+  (:method :before ((window driver-window))
+           (unregister-driver-object (driver window) window)))
+(defgeneric driver-show-window (window))
+(defgeneric driver-hide-window (window))
+(defgeneric driver-window-position (window))
+(defgeneric driver-window-size (window))
+(defgeneric driver-set-window-position (window x y))
+(defgeneric driver-set-window-size (window width height))
+(defgeneric driver-set-window-hints (window x y width height
                                      max-width max-height
                                      min-width min-height))
-(defgeneric driver-raise-window (driver window))
-(defgeneric driver-bury-window (driver window))
-(defgeneric driver-window-pointer-position (driver window))
+(defgeneric driver-raise-window (window))
+(defgeneric driver-bury-window (window))
+(defgeneric driver-window-pointer-position (window))
 
 (defgeneric driver-grab-pointer (driver window pointer))
 (defgeneric driver-ungrab-pointer (driver window pointer))
@@ -57,8 +57,8 @@
 
 (defgeneric driver-avaiable-cursor-names (driver))
 (defgeneric driver-create-cursor (driver named-cursor))
-(defgeneric driver-destroy-cursor (driver cursor))
-(defgeneric driver-set-window-cursor (driver window cursor))
+(defgeneric driver-destroy-cursor (cursor))
+(defgeneric driver-set-window-cursor (window cursor))
 
 ;;; buffer
 (defclass driver-buffer (display-driver-object)
@@ -67,14 +67,14 @@
 (defgeneric driver-initialize-buffer (driver buffer width height)
   (:method :after ((driver display-driver) buffer width height)
            (register-driver-object driver buffer)))
-(defgeneric driver-update-buffer (driver buffer width height))
-(defgeneric driver-destroy-buffer (driver buffer)
-  (:method :before ((driver display-driver) buffer)
-           (unregister-driver-object driver buffer)))
-(defgeneric driver-copy-buffer-to-window (driver buffer x y width height
+(defgeneric driver-update-buffer (buffer width height))
+(defgeneric driver-destroy-buffer (buffer)
+  (:method :before (buffer)
+           (unregister-driver-object (driver buffer) buffer)))
+(defgeneric driver-copy-buffer-to-window (buffer x y width height
                                           window to-x to-y))
-(defgeneric driver-buffer-rgb-get-fn (driver buffer dx dy))
-(defgeneric driver-buffer-rgb-set-fn (driver buffer dx dy))
+(defgeneric driver-buffer-rgb-get-fn (buffer dx dy))
+(defgeneric driver-buffer-rgb-set-fn (buffer dx dy))
 
 ;;;
 ;;; driver callback

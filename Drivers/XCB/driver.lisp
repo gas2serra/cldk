@@ -120,28 +120,28 @@
                     (+ CW-EVENT-MASK)
                     vals))))))))
 
-(defmethod driver-destroy-window ((driver xcb-driver) window)
+(defmethod driver-destroy-window ((window xcb-driver-window))
   (log:trace window)
   (with-slots (display) driver
     (with-slots (xwindow) window
       (xcb-destroy-window display xwindow))))
 
-(defmethod driver-show-window ((driver xcb-driver) window)
+(defmethod driver-show-window ((window xcb-driver-window))
   (log:trace window)
-  (with-slots (display) driver
+  (with-slots (display) (driver window)
     (with-slots (xwindow) window
       (xcb-map-window-checked display xwindow)
       (xcb-flush display))))
 
-(defmethod driver-hide-window ((driver xcb-driver) window)
+(defmethod driver-hide-window ((window xcb-driver-window))
   (log:trace window)
-  (with-slots (display) driver
+  (with-slots (display) (driver window)
     (with-slots (xwindow) window
       (xcb-unmap-window display xwindow)
       (xcb-flush display))))
 
-(defmethod driver-window-position ((driver xcb-driver) window)
-  (with-slots (display root) driver
+(defmethod driver-window-position ((window xcb-driver-window))
+  (with-slots (display root) (driver window)
     (with-slots (xwindow) window
       (let ((geom (xcb-get-geometry-reply display
                                           (xcb-get-geometry display xwindow)
@@ -157,8 +157,8 @@
 			              (:struct translate-coordinates-reply-t))
               (values dest-x dest-y))))))))
 
-(defmethod driver-window-size ((driver xcb-driver) window)
-  (with-slots (display) driver
+(defmethod driver-window-size ((window xcb-driver-window))
+  (with-slots (display) (driver window)
     (with-slots (xwindow) window
       (let ((geom (xcb-get-geometry-reply display
                                           (xcb-get-geometry display xwindow)
@@ -168,8 +168,8 @@
 			          (:struct get-geometry-reply-t))
                                  (values width height))))))
  
-(defmethod driver-set-window-position ((driver xcb-driver) window x y)
-  (with-slots (display) driver
+(defmethod driver-set-window-position ((window xcb-driver-window) x y)
+  (with-slots (display) (driver window)
     (with-slots (xwindow) window
       (w-foreign-values (vals
 	                 :uint32 x
@@ -179,8 +179,8 @@
                 (+ CONFIG-WINDOW-X CONFIG-WINDOW-Y)
                 vals))))))
 
-(defmethod driver-set-window-size ((driver xcb-driver) window width height)
-  (with-slots (display) driver
+(defmethod driver-set-window-size ((window xcb-driver-window) width height)
+  (with-slots (display) (driver window)
     (with-slots (xwindow) window
       (w-foreign-values (vals
 	                 :uint32 width
@@ -191,9 +191,10 @@
                 vals))))))
 
 
-(defmethod driver-set-window-hints ((driver xcb-driver) window x y width height max-width max-height
+(defmethod driver-set-window-hints ((window xcb-driver-window)
+                                    x y width height max-width max-height
                                     min-width min-height)
-  (with-slots (display) driver
+  (with-slots (display) (driver window)
     (with-slots (xwindow) window
       (log:trace "hints")
       (w-foreign-values (hints
@@ -215,8 +216,8 @@
         (check (set-wm-normal-hints display xwindow hints))))))
 
 
-(defmethod driver-bury-window ((driver xcb-driver) window)
-  (with-slots (display) driver
+(defmethod driver-bury-window ((window xcb-driver-window))
+  (with-slots (display) (driver window)
     (with-slots (xwindow) window
       (w-foreign-values (vals
 	                 :uint32 STACK-MODE-BOTTOM-IF)
@@ -225,8 +226,8 @@
                 (+ CONFIG-WINDOW-STACK-MODE)
                 vals))))))
 
-(defmethod driver-raise-window ((driver xcb-driver) window)
-  (with-slots (display) driver
+(defmethod driver-raise-window ((window xcb-driver-window))
+  (with-slots (display) (driver window)
     (with-slots (xwindow) window
       (w-foreign-values (vals
 	                 :uint32 STACK-MODE-TOP-IF)
@@ -235,8 +236,8 @@
                 (+ CONFIG-WINDOW-STACK-MODE)
                 vals))))))
 
-(defmethod driver-window-pointer-position ((driver xcb-driver) window)
-  (with-slots (display) driver
+(defmethod driver-window-pointer-position ((window xcb-driver-window))
+  (with-slots (display) (driver window)
     (with-slots (xwindow) window
       (let ((cookie (xcb-query-pointer display xwindow)))
         (let ((response (xcb-query-pointer-reply display cookie (cffi:null-pointer))))
@@ -244,7 +245,7 @@
             (values win-x win-y)))))))
 
 ;;; cursors
-(defclass xcb-cursor (driver-cursor)
+(defclass xcb-driver-cursor (driver-cursor)
   ((xcursor :initarg :xcursor)))
 
 (defvar *xcb-cursor-mapping*  
@@ -287,15 +288,15 @@
       (check (xcb-open-font display font-id (length "cursor") "cursor"))
       (check (xcb-create-glyph-cursor display cid font-id font-id code (+ code 1)
                                       0 0 0 0 0 0))
-      (make-instance 'xcb-cursor :xcursor cid))))
+      (make-instance 'xcb-driver-cursor :xcursor cid))))
 
-(defmethod driver-destroy-cursor ((driver xcb-driver) cursor)
-  (with-slots (display) driver
+(defmethod driver-destroy-cursor ((cursor xcb-driver-cursor))
+  (with-slots (display) (driver cursor)
     (with-slots (xcursor) cursor
       (xcb-free-cursor display xcursor))))
 
-(defmethod driver-set-window-cursor ((driver xcb-driver) window cursor)
-  (with-slots (display) driver
+(defmethod driver-set-window-cursor ((window xcb-driver-window) cursor)
+  (with-slots (display) (driver window)
     (with-slots (xwindow) window
       (with-slots (xcursor) cursor
         (w-foreign-values (vals
@@ -315,10 +316,10 @@
 (deftype xcb-rgb-image-pixels () 'cffi-sys:foreign-pointer)
 
 (defmethod driver-initialize-buffer ((driver xcb-driver) buffer width height)
-  (driver-update-buffer driver buffer width height))
+  (driver-update-buffer buffer width height))
 
-(defmethod driver-update-buffer ((driver xcb-driver) buffer width height)
-  (with-slots (display screen) driver
+(defmethod driver-update-buffer ((buffer xcb-driver-buffer) width height)
+  (with-slots (display screen) (driver buffer)
     (cffi:with-foreign-slots ((root-depth)
                               screen
 			      (:struct screen-t))
@@ -330,16 +331,17 @@
               xpixels (static-vectors:make-static-vector (* width height 4)
                                                         :element-type '(unsigned-byte 8)))))))
                    
-(defmethod driver-destroy-buffer ((driver xcb-driver) buffer)
+(defmethod driver-destroy-buffer ((buffer xcb-driver-buffer))
   (with-slots (xpixels) buffer
     (when xpixels
       (static-vectors:free-static-vector xpixels)
       (setf xpixels nil))))
 
-(defmethod driver-copy-buffer-to-window ((driver xcb-driver) buffer src-x src-y
+(defmethod driver-copy-buffer-to-window ((buffer xcb-driver-buffer)
+                                         src-x src-y
                                          width height
                                          window to-x to-y)
-  (with-slots (display screen gc) driver
+  (with-slots (display screen gc) (driver buffer)
     (cffi:with-foreign-slots ((root-depth)
                               screen
 			      (:struct screen-t))
@@ -360,7 +362,7 @@
 
 #+nil(xcb-image-put display xwindow gc xpixels to-x to-y)
 
-(defmethod driver-buffer-rgb-get-fn ((driver xcb-driver) buffer dx dy)
+(defmethod driver-buffer-rgb-get-fn ((buffer xcb-driver-buffer) dx dy)
   (with-slots (xpixels w) buffer
     (let ((pixels (static-vectors:static-vector-pointer xpixels))
           (width w))
@@ -372,7 +374,7 @@
                                   (* (+ y dy) width)
                                   (+ x dx))))))))
 
-(defmethod driver-buffer-rgb-set-fn ((driver xcb-driver) buffer dx dy)
+(defmethod driver-buffer-rgb-set-fn ((buffer xcb-driver-buffer) dx dy)
   (with-slots (xpixels w) buffer
     (let ((pixels (static-vectors:static-vector-pointer xpixels))
           (width w))

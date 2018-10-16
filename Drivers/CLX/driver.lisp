@@ -127,48 +127,6 @@
 			     :structure-notify
 			     :pointer-motion :button-motion))
 
-(defmethod driver-create-window ((driver clx-driver) name pretty-name x y
-                                 width height mode)
-  (let ((background '(0.5 0.5 0.5)))
-    (with-slots (screen) driver
-      (let* ((color (multiple-value-bind (r g b)
-                        (values-list background)
-                      (xlib:make-color :red r :green g :blue b)))
-             (pixel (xlib:alloc-color (xlib:screen-default-colormap screen) color)))
-        (let ((window (xlib:create-window
-                       :parent (xlib:screen-root screen)
-                       :width (max width 1)
-                       :height (max height 1)
-                       :x (or x 0)
-                       :y (or y 0)
-                       :border-width 0
-                       :border 0
-                       :override-redirect (if (eql mode :managed) :off :on)
-                       :backing-store :not-useful
-                       :save-under :off
-                       :gravity :north-west
-                       :bit-gravity :forget
-                       :background pixel
-                       :event-mask (apply #'xlib:make-event-mask
-                                          *event-mask*))))
-          (when (eql mode :managed)
-            (setf (xlib:wm-hints window) (xlib:make-wm-hints :input :on))
-            (setf (xlib:wm-name window) pretty-name)
-            (setf (xlib:wm-icon-name window) pretty-name)
-            (xlib:set-wm-class
-             window
-             (string-downcase name)
-             (string-capitalize (string-downcase name)))
-            (setf (xlib:wm-protocols window) `(:wm_delete_window))
-            (xlib:change-property window
-                                  :WM_CLIENT_LEADER (list (xlib:window-id window))
-                                  :WINDOW 32))
-          (make-instance 'clx-driver-window
-                         :xwindow window
-                         :gcontext (xlib:create-gcontext :drawable window
-                                                         :background (values 0 0 0)
-                                                         :foreground (values 255 255 255))))))))
-
 (defmethod driver-initialize-window ((driver clx-driver) win name pretty-name x y
                                  width height mode)
   (let ((background '(0.5 0.5 0.5)))
@@ -212,7 +170,7 @@
                                         :background (values 0 0 0)
                                         :foreground (values 255 255 255)))))))))
 
-(defmethod driver-destroy-window ((driver clx-driver) window)
+(defmethod driver-destroy-window ((window clx-driver-window))
   (with-slots (xwindow gcontext) window
     (when xwindow 
       (xlib:destroy-window xwindow)
@@ -220,43 +178,43 @@
     (setf window nil
           gcontext nil)))
 
-(defmethod driver-show-window ((driver clx-driver) window)
+(defmethod driver-show-window ((window clx-driver-window))
   (with-slots (xwindow) window
     (xlib:map-window xwindow)
-    (with-slots (display) driver
+    (with-slots (display) (driver window)
       (xlib:display-force-output display))))
 
-(defmethod driver-hide-window ((driver clx-driver) window)
+(defmethod driver-hide-window ((window clx-driver-window))
   (with-slots (xwindow) window
     (xlib:unmap-window xwindow)
-    (with-slots (display) driver
+    (with-slots (display) (driver window)
       (xlib:display-force-output display))))
 
-(defmethod driver-window-position ((driver clx-driver) window)
+(defmethod driver-window-position ((window clx-driver-window))
   (with-slots (xwindow) window
     (xlib:translate-coordinates xwindow 0 0 (slot-value driver 'root-window))))
 
 
-(defmethod driver-window-size ((driver clx-driver) window)
+(defmethod driver-window-size ((window clx-driver-window))
   (with-slots (xwindow) window
     (values (xlib:drawable-width xwindow)
             (xlib:drawable-height xwindow))))
 
-(defmethod driver-set-window-position ((driver clx-driver) window x y)
+(defmethod driver-set-window-position ((window clx-driver-window) x y)
   (with-slots (xwindow) window
     (setf (xlib:drawable-x xwindow) x
           (xlib:drawable-y xwindow) y)
-    (with-slots (display) driver
+    (with-slots (display) (driver window)
       (xlib:display-force-output display))))
 
-(defmethod driver-set-window-size ((driver clx-driver) window width height)
+(defmethod driver-set-window-size ((window clx-driver-window) width height)
   (with-slots (xwindow) window
     (setf (xlib:drawable-width xwindow) width
           (xlib:drawable-height xwindow) height)
-    (with-slots (display) driver
+    (with-slots (display) (driver window)
       (xlib:display-force-output display))))
 
-(defmethod driver-set-window-hints ((driver clx-driver) window x y width height max-width max-height
+(defmethod driver-set-window-hints ((window clx-driver-window) x y width height max-width max-height
                                     min-width min-height)
   (with-slots (xwindow) window
     (setf (xlib:wm-normal-hints xwindow)
@@ -270,19 +228,19 @@
            :min-width (and min-width (max min-width 1))
            :min-height (and min-height (max min-height 1))))))
 
-(defmethod driver-bury-window ((driver clx-driver) window)
+(defmethod driver-bury-window ((window clx-driver-window))
   (with-slots (xwindow) window
     (xlib:circulate-window-down xwindow)
-    (with-slots (display) driver
+    (with-slots (display) (driver window)
       (xlib:display-force-output display))))
 
-(defmethod driver-raise-window ((driver clx-driver) window)
+(defmethod driver-raise-window ((window clx-driver-window))
   (with-slots (xwindow) window
     (xlib:circulate-window-up xwindow)
-    (with-slots (display) driver
+    (with-slots (display) (driver window)
       (xlib:display-force-output display))))
 
-(defmethod driver-window-pointer-position ((driver clx-driver) window)
+(defmethod driver-window-pointer-position ((window clx-driver-window))
   (with-slots (xwindow) window
     (multiple-value-bind (x y #|same-screen-p|#)
         (xlib:query-pointer xwindow)
@@ -339,11 +297,11 @@
         (xlib:close-font font)
         (make-instance 'clx-driver-cursor :xcursor cursor)))))
 
-(defmethod driver-destroy-cursor ((driver clx-driver) cursor)
+(defmethod driver-destroy-cursor ((cursor clx-driver-cursor))
   (with-slots (xcursor) cursor
     (xlib:free-cursor xcursor)))
 
-(defmethod driver-set-window-cursor ((driver clx-driver) window cursor)
+(defmethod driver-set-window-cursor ((window clx-driver-window) cursor)
   (with-slots (xwindow) window
     (with-slots (xcursor) cursor
     (setf (xlib:window-cursor xwindow) xcursor))))
@@ -359,7 +317,7 @@
 
 (deftype clx-buffer-pixels () '(simple-array (unsigned-byte 32) (* *)))
 
-(defmethod driver-buffer-rgb-get-fn ((driver clx-driver) buffer dx dy)
+(defmethod driver-buffer-rgb-get-fn ((buffer clx-driver-buffer) dx dy)
   (with-slots (xpixels) buffer
     (declare (type clx-buffer-pixels xpixels))
     (lambda (x y)
@@ -369,7 +327,7 @@
                 (ldb (byte 8 0) p)
                 (ldb (byte 8 24) p))))))
 
-(defmethod driver-buffer-rgb-set-fn ((driver clx-driver) buffer dx dy)
+(defmethod driver-buffer-rgb-set-fn ((buffer clx-driver-buffer) dx dy)
   (with-slots (xpixels) buffer
     (declare (type clx-buffer-pixels xpixels))
     (lambda (x y r g b)
@@ -394,7 +352,7 @@
                                     :red-mask #x00ff0000
                                     :format :z-pixmap))))
 
-(defmethod driver-update-buffer ((driver clx-driver) buffer width height)
+(defmethod driver-update-buffer ((buffer clx-driver-buffer) width height)
   (with-slots (xpixels ximage) buffer
     (setf xpixels (make-array (list height width)
                               :element-type '(unsigned-byte 32)
@@ -409,12 +367,12 @@
                                     :red-mask #x00ff0000
                                     :format :z-pixmap))))
 
-(defmethod driver-destroy-buffer ((driver clx-driver) buffer)
+(defmethod driver-destroy-buffer ((buffer clx-driver-buffer))
   (with-slots (xpixels ximage) buffer
     (setf xpixels nil
           ximage nil)))
 
-(defmethod driver-copy-buffer-to-window ((driver clx-driver) buffer x y width height
+(defmethod driver-copy-buffer-to-window ((buffer clx-driver-buffer) x y width height
                                          window to-x to-y)
   (with-slots (xwindow gcontext) window
     (with-slots (ximage) buffer

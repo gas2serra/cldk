@@ -82,8 +82,7 @@
         (bt:with-lock-held (pixels-lock)
           (map-over-rectangle-set-regions 
            #'(lambda (x1 y1 x2 y2)
-               (driver-copy-buffer-to-window (driver kwindow)
-                                             obuffer
+               (driver-copy-buffer-to-window obuffer
                                              x1 y1
                                              (- x2 x1)
                                              (- y2 y1)

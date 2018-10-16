@@ -108,36 +108,36 @@
         (setf sdlwindow window)))))
 
 
-(defmethod driver-destroy-window ((driver sdl2-driver) window)
+(defmethod driver-destroy-window ((window sdl2-driver-window))
   (with-slots (sdlwindow) window
     (sdl2::sdl-destroy-window sdlwindow)
     (setf sdlwindow nil)))
 
-(defmethod driver-show-window ((driver sdl2-driver) window)
+(defmethod driver-show-window ((window sdl2-driver-window))
   (with-slots (sdlwindow) window
     (sdl2:show-window sdlwindow)))
   
-(defmethod driver-hide-window ((driver sdl2-driver) window)
+(defmethod driver-hide-window ((window sdl2-driver-window))
   (with-slots (sdlwindow) window
     (sdl2:hide-window sdlwindow)))
 
-(defmethod driver-window-position ((driver sdl2-driver) window)
+(defmethod driver-window-position ((window sdl2-driver-window))
   (with-slots (sdlwindow) window
     (sdl2:get-window-position sdlwindow)))
 
-(defmethod driver-window-size ((driver sdl2-driver) window)
+(defmethod driver-window-size ((window sdl2-driver-window))
   (with-slots (sdlwindow) window
     (sdl2:get-window-size sdlwindow)))
  
-(defmethod driver-set-window-position ((driver sdl2-driver) window x y)
+(defmethod driver-set-window-position ((window sdl2-driver-window) x y)
   (with-slots (sdlwindow) window
     (sdl2:set-window-position sdlwindow x y)))
 
-(defmethod driver-set-window-size ((driver sdl2-driver) window width height)
+(defmethod driver-set-window-size ((window sdl2-driver-window) width height)
   (with-slots (sdlwindow) window
     (sdl2:set-window-size sdlwindow width height)))
 
-(defmethod driver-set-window-hints ((driver sdl2-driver) window x y width height max-width max-height
+(defmethod driver-set-window-hints ((window sdl2-driver-window) x y width height max-width max-height
                                     min-width min-height)
   (with-slots (sdlwindow) window
     (when (and x y)
@@ -153,14 +153,14 @@
                                                       (or min-width 0)
                                                       (or min-height 0)))))
 
-(defmethod driver-bury-window ((driver sdl2-driver) window)
+(defmethod driver-bury-window ((window sdl2-driver-window))
   nil)
 
-(defmethod driver-raise-window ((driver sdl2-driver) window)
+(defmethod driver-raise-window ((window sdl2-driver-window))
   (with-slots (sdlwindow) window
     (sdl2-ffi.functions:sdl-raise-window sdlwindow)))
 
-(defmethod driver-window-pointer-position ((driver sdl2-driver) window)
+(defmethod driver-window-pointer-position ((window sdl2-driver-window))
   (with-slots (sdlwindow) window
     (cffi:with-foreign-objects ((xpos :int)
                                 (ypos :int))
@@ -195,11 +195,11 @@
                           (assoc :default *sdl2-cursor-mapping*)))))
       (make-instance 'sdl2-driver-cursor :sdlcursor (sdl2-ffi.functions:sdl-create-system-cursor code)))))
 
-(defmethod driver-destroy-cursor ((driver sdl2-driver) cursor)
+(defmethod driver-destroy-cursor ((cursor sdl2-driver-cursor))
   (with-slots (sdlcursor) cursor
     (sdl2-ffi.functions:sdl-free-cursor sdlcursor)))
 
-(defmethod driver-set-window-cursor ((driver sdl2-driver) window cursor)
+(defmethod driver-set-window-cursor ((window sdl2-driver-window) cursor)
   (declare (ignore window))
   (with-slots (sdlcursor) cursor
     (sdl2-ffi.functions:sdl-set-cursor sdlcursor)))
@@ -212,38 +212,26 @@
             :initform nil)
    (pixels :initform nil)))
 
-(defmethod driver-create-buffer ((driver sdl2-driver) width height)
-  (let* ((surface (sdl2:create-rgb-surface width height 32
-                                           :r-mask #x000000ff
-                                           :g-mask #x0000ff00
-                                           :b-mask #x00ff0000
-                                           :a-mask #xff000000)))
-    (make-instance 'sdl2-driver-buffer
-                   :surface surface)))
-
 (defmethod driver-initialize-buffer ((driver sdl2-driver) buffer width height)
   (driver-update-buffer driver buffer width height))
 
-(defmethod driver-update-buffer ((driver sdl2-driver) buffer width height)
+(defmethod driver-update-buffer ((buffer sdl2-driver-buffer) width height)
   (with-slots (surface pixels) buffer
     (when surface
       (static-vectors:free-static-vector pixels)
       (sdl2:free-surface surface))
-    #+nil(setf surface (sdl2:create-rgb-surface width height 32
-                                            :r-mask #x000000ff
-                                            :g-mask #x0000ff00
-                                            :b-mask #x00ff0000
-                                            :a-mask #xff000000))
-    (setf pixels (static-vectors:make-static-vector (* width height 4) :element-type '(unsigned-byte 8)))
-    (setf surface (sdl2:create-rgb-surface-with-format-from (static-vectors:static-vector-pointer pixels)
-                                                            width
-                                                            height
-                                                            32
-                                                            (* 4 width)
-                                                            :format sdl2:+pixelformat-rgba8888+))))
+    (setf pixels (static-vectors:make-static-vector (* width height 4)
+                                                    :element-type '(unsigned-byte 8)))
+    (setf surface (sdl2:create-rgb-surface-with-format-from
+                   (static-vectors:static-vector-pointer pixels)
+                   width
+                   height
+                   32
+                   (* 4 width)
+                   :format sdl2:+pixelformat-rgba8888+))))
 
 
-(defmethod driver-destroy-buffer ((driver sdl2-driver) buffer)
+(defmethod driver-destroy-buffer ((buffer sdl2-driver-buffer))
   (with-slots (surface pixels) buffer
     (when surface
       (static-vectors:free-static-vector pixels)
@@ -251,7 +239,7 @@
       (setf pixels nil
             surface nil))))
 
-(defmethod driver-copy-buffer-to-window ((driver sdl2-driver) buffer x y width height
+(defmethod driver-copy-buffer-to-window ((buffer sdl2-driver-buffer) x y width height
                                          window to-x to-y)
   (with-slots (sdlwindow) window
     (with-slots (surface) buffer
@@ -271,7 +259,7 @@
 
 (deftype sdl2-rgb-image-pixels () 'cffi-sys:foreign-pointer)
 
-(defmethod driver-buffer-rgb-get-fn ((driver sdl2-driver) buffer dx dy)
+(defmethod driver-buffer-rgb-get-fn ((buffer sdl2-driver-buffer) dx dy)
   (with-slots (surface) buffer
     (let ((pixels (sdl2:surface-pixels surface))
           (width (sdl2:surface-width surface)))
@@ -283,7 +271,7 @@
                                 (* (+ y dy) width)
                                 (+ x dx))))))))
 
-(defmethod driver-buffer-rgb-set-fn ((driver sdl2-driver) buffer dx dy)
+(defmethod driver-buffer-rgb-set-fn ((buffer sdl2-driver-buffer) dx dy)
   (with-slots (surface) buffer
     (let ((pixels (sdl2:surface-pixels surface))
           (width (sdl2:surface-width surface)))

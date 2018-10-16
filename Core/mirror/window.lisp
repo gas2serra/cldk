@@ -61,7 +61,7 @@
 (defmethod destroy-window ((win kerneled-window-mixin))
   (with-slots (kwindows) (driver win)
     (within-kernel-mode ((driver win) :block-p t)
-      (driver-destroy-window (driver win) win))
+      (driver-destroy-window win))
     (setf kwindows (delete win kwindows))))
 
 (defmethod window-size ((window kerneled-window-mixin) &key (force-query-p nil))
@@ -69,7 +69,7 @@
     (when (or force-query-p (null cached-width) (null cached-height))
       (within-kernel-mode ((driver window) :block-p t)
         (multiple-value-bind (w h)
-            (driver-window-size (driver window) window)
+            (driver-window-size window)
           (setf cached-width w
                 cached-height h))))
     (values cached-width cached-height)))
@@ -79,7 +79,7 @@
     (when (or force-query-p (null cached-x) (null cached-y))
       (within-kernel-mode ((driver window) :block-p t)
         (multiple-value-bind (x y)
-            (driver-window-position (driver window) window)
+            (driver-window-position window)
           (setf cached-x x
                 cached-y y))))
     (values cached-x cached-y)))
@@ -89,42 +89,42 @@
     (setf cached-width nil
           cached-height nil))
   (within-kernel-mode ((driver window) :block-p block-p)  
-    (driver-set-window-size (driver window) window width height)))
+    (driver-set-window-size window width height)))
 
 (defmethod set-window-position ((window kerneled-window-mixin) x y &key (block-p nil))
   (with-slots (cached-x cached-y) window
     (setf cached-x nil
           cached-y nil))
   (within-kernel-mode ((driver window) :block-p block-p)    
-    (driver-set-window-position (driver window) window x y)))
+    (driver-set-window-position window x y)))
   
 (defmethod set-window-hints ((window kerneled-window-mixin) &key x y width height max-width max-height
                                                               min-width min-height (block-p nil))
   (within-kernel-mode ((driver window) :block-p block-p)    
-    (driver-set-window-hints (driver window) window x y width height
+    (driver-set-window-hints window x y width height
                              max-width max-height min-width min-height)))
 
 (defmethod raise-window ((window kerneled-window-mixin) &key (block-p nil))
   (within-kernel-mode ((driver window) :block-p block-p)
-    (driver-raise-window (driver window) window)))
+    (driver-raise-window window)))
 
 (defmethod bury-window ((window kerneled-window-mixin) &key (block-p nil))
   (within-kernel-mode ((driver window) :block-p block-p)
-    (driver-bury-window (driver window) window)))
+    (driver-bury-window window)))
 
 (defmethod show-window ((window kerneled-window-mixin) &key (block-p nil))
   (within-kernel-mode ((driver window) :block-p block-p)
-    (driver-show-window (driver window) window)))
+    (driver-show-window window)))
 
 (defmethod hide-window ((window kerneled-window-mixin) &key (block-p nil))
   (within-kernel-mode ((driver window) :block-p block-p)
-    (driver-hide-window (driver window) window)))
+    (driver-hide-window window)))
 
 ;;; pointer
 
 (defmethod window-pointer-position ((window kerneled-window-mixin))
   (within-kernel-mode ((driver window) :block-p t)
-    (driver-window-pointer-position (driver window) window)))
+    (driver-window-pointer-position window)))
 
 (defmethod grab-window-pointer ((window kerneled-window-mixin) pointer &key (block-p t))
   (within-kernel-mode ((driver window) :block-p block-p)
@@ -136,7 +136,7 @@
 
 (defmethod set-window-cursor ((window kerneled-window-mixin) cursor &key (block-p t))
   (within-kernel-mode ((driver window) :block-p block-p)
-    (driver-set-window-cursor (driver window) window cursor)))
+    (driver-set-window-cursor window cursor)))
 
 (defmethod set-window-cursor :around ((window kerneled-window-mixin) named-cursor &key (block-p t))
   (let ((driver (driver window)))

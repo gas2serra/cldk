@@ -22,7 +22,7 @@
       (sdl2:surface-pixels surface))))
 
 (defmethod image-rgb-get-fn ((image sdl2-buffer) &key (dx 0) (dy 0))
-  (driver-buffer-rgb-get-fn (cldki::driver image) image dx dy))
+  (driver-buffer-rgb-get-fn image dx dy))
 
 (defmethod image-rgb-set-fn ((image sdl2-buffer) &key (dx 0) (dy 0))
-  (driver-buffer-rgb-set-fn (cldki::driver image) image dx dy))
+  (driver-buffer-rgb-set-fn image dx dy))
