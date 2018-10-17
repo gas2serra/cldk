@@ -1,4 +1,4 @@
-(in-package :cldk-mcclim-render-internals)
+(in-package :cldk-render-internals)
 
 ;;;
 ;;; draw
@@ -468,7 +468,7 @@
                            y1
                            x2
                             y2)
-  (format *debug-io* "~A ~%" (list x1 y1 x2 y2))
+  ;;(format *debug-io* "~A ~%" (list x1 y1 x2 y2))
   (let ((blend-fn (%image-blend-fn image))
         (blend-span-fn (%image-blend-span-fn image))
         (image-type (image-type image))

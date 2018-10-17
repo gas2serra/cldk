@@ -1,4 +1,4 @@
-(in-package :cldk-mcclim-render-internals)
+(in-package :cldk-render-internals)
 
 (defclass opticl-image-adapter (image-adapter-mixin)
   ((width :initform 0 :initarg :width :reader image-width :type fixnum)

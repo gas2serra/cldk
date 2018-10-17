@@ -1,6 +1,6 @@
 
 
-(defpackage :cldk-mcclim-render
+(defpackage :cldk-render
   (:use)
   (:export
    ;; colors
@@ -57,7 +57,7 @@
    #:make-imago-image-adapter
    ))
 
-(defpackage :cldk-mcclim-render-extensions
+(defpackage :cldk-render-extensions
   (:use)
   (:export
    ;; colors
@@ -115,8 +115,8 @@
    ;; opticl image
    ))
 
-(defpackage :cldk-mcclim-render-internals
-  (:use #:clim #:clim-lisp #:cldk-mcclim-render #:cldk-mcclim-render-extensions)
+(defpackage :cldk-render-internals
+  (:use #:clim #:clim-lisp #:cldk-render #:cldk-render-extensions)
   (:import-from :clim-internals
                 #:standard-color
                 #:named-color

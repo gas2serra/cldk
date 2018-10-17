@@ -1,4 +1,4 @@
-(in-package :cldk-mcclim-render-internals)
+(in-package :cldk-render-internals)
 
 (defclass image-sheet-mixin (mirrored-sheet-mixin design)
   ((updating-p :initform nil)))

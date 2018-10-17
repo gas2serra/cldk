@@ -47,6 +47,8 @@
 (defgeneric driver-raise-window (window))
 (defgeneric driver-bury-window (window))
 (defgeneric driver-window-pointer-position (window))
+(defgeneric driver-copy-image-to-window (image x y width height
+                                         window to-x to-y))
 
 (defgeneric driver-grab-pointer (driver window pointer))
 (defgeneric driver-ungrab-pointer (driver window pointer))

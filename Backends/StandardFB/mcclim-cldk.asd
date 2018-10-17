@@ -3,8 +3,8 @@
                #:cldk-backend
                  #:mcclim-backend-common
                  #:mcclim-render
-		 #:cldk-mcclim-render
-                 #:cldk-mcclim-render/backend)
+		 #:cldk-render
+                 #:cldk-render/backend)
     :components
     ((:file "package")
      (:file "event-handler" :depends-on ("package"))

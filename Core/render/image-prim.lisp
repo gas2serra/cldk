@@ -1,4 +1,4 @@
-(in-package :cldk-mcclim-render-internals)
+(in-package :cldk-render-internals)
 
 #+nil (declaim (optimize speed))
 
@@ -18,9 +18,9 @@
          (,y (round ,y))
          (,width (round ,width))
          (,height (round ,height)))
-     (assert (and (>= ,x 0) (>= ,y 0) (>= ,width 0) (>= ,height 0)
-                  (<= (+ ,x ,width) (image-width ,src-img))
-                  (<= (+ ,y ,height) (image-height ,src-img))))
+     (assert (and (>= ,x 0) (>= ,y 0) (>= ,width 0) (>= ,height 0)))
+     (assert (<= (+ ,x ,width) (image-width ,src-img)))
+     (assert (<= (+ ,y ,height) (image-height ,src-img)))
      ,@code))
 
 (defmacro with-copy-image-bounds ((src-img sx sy width height dst-img x y) &body code)
@@ -31,11 +31,11 @@
          (,height (round ,height))
          (,x (round ,x))
          (,y (round ,y)))
-     (assert (and (>= ,sx 0) (>= ,sy 0) (>= ,x 0) (>= ,y 0) (>= ,width 0) (>= ,height 0)
-                  (<= (+ ,sx ,width) (image-width ,src-img))
-                  (<= (+ ,sy ,height) (image-height src-img))
-                  (<= (+ ,x ,width) (image-width ,dst-img))
-                  (<= (+ ,y ,height) (image-height ,dst-img))))
+     (assert (and (>= ,sx 0) (>= ,sy 0) (>= ,x 0) (>= ,y 0) (>= ,width 0) (>= ,height 0)))
+     (assert (<= (+ ,sx ,width) (image-width ,src-img)))
+     (assert (<= (+ ,sy ,height) (image-height src-img)))
+     (assert (<= (+ ,x ,width) (image-width ,dst-img)))
+     (assert (<= (+ ,y ,height) (image-height ,dst-img)))
      ,@code))
 
 (defmacro with-fill-image-bounds ((image x y width height stencil stencil-dx stencil-dy) &body code)

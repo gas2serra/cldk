@@ -30,7 +30,8 @@
 (defgeneric grab-window-pointer (window pointer &key block-p))
 (defgeneric ungrab-window-pointer (window pointer &key block-p))
 (defgeneric set-window-cursor (window named-cursor &key block-p))
-                   
+
+(defgeneric copy-image-to-window (image x y w h window to-x to-y &key block-p))
 ;;;
 ;;; kerneled window
 ;;;
@@ -150,6 +151,12 @@
         (setf (gethash (or cursor :default) (server-cursor-table driver))
               cursor))
       (call-next-method window cursor :block-p block-p))))
+
+(defmethod copy-image-to-window (image x y w h (window kerneled-window-mixin) to-x to-y
+                                 &key (block-p t))
+  (within-kernel-mode ((driver window) :block-p block-p)
+                      (driver-copy-image-to-window
+                       image x y w h window to-x to-y)))
 
 ;;;
 ;;; caching protocol

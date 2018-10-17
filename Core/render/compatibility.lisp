@@ -1,4 +1,4 @@
-(in-package :cldk-mcclim-render-internals)
+(in-package :cldk-render-internals)
 
 (deftype clim-rgb-image-data () '(simple-array (unsigned-byte 32) (* *)))
 #|

@@ -3,7 +3,7 @@
 (defclass sdl2-buffer (buffer sdl2-driver-buffer kerneled-buffer-mixin)
   ())
 
-
+#|
 
 
 (defmethod image-width ((buffer sdl2-buffer))
@@ -26,3 +26,4 @@
 
 (defmethod image-rgb-set-fn ((image sdl2-buffer) &key (dx 0) (dy 0))
   (driver-buffer-rgb-set-fn image dx dy))
+|#

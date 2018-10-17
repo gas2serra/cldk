@@ -167,6 +167,24 @@
       (sdl2-ffi.functions:sdl-get-mouse-state xpos ypos)
       (values (cffi:mem-ref xpos :int) (cffi:mem-ref ypos :int)))))
 
+(defmethod driver-copy-image-to-window (image x y width height
+                                        (window sdl2-driver-window) to-x to-y)
+  (let ((surface (cldk-render-internals::sdl2-image->sdl2-surface image)))
+    (with-slots (sdlwindow) window
+      (when (and surface sdlwindow
+                 (>= x 0) (>= y 0) (> width 0) (> height 0) (>= to-x 0) (>= to-y 0))
+        (let ((w (min width
+                      (- (sdl2:surface-width surface) x)))
+              (h (min height
+                      (- (sdl2:surface-height surface) y))))
+          (let ((windsurf (sdl2-ffi.functions:sdl-get-window-surface sdlwindow)))
+            (sdl2:with-rects
+                ((src x y  w h))
+              (sdl2:with-rects
+                  ((dst to-x to-y  w h))
+                (sdl2:blit-surface  surface src windsurf dst)
+                (sdl2-ffi.functions:sdl-update-window-surface-rects sdlwindow dst 1)))))))))
+
 ;;; cursors
 (defclass sdl2-driver-cursor (driver-cursor)
   ((sdlcursor :initarg :sdlcursor)))
@@ -260,32 +278,39 @@
 (deftype sdl2-rgb-image-pixels () 'cffi-sys:foreign-pointer)
 
 (defmethod driver-buffer-rgb-get-fn ((buffer sdl2-driver-buffer) dx dy)
-  (with-slots (surface) buffer
-    (let ((pixels (sdl2:surface-pixels surface))
-          (width (sdl2:surface-width surface)))
-    (declare (type sdl2-rgb-image-pixels pixels))
-    (lambda (x y)
-      (cffi-sys:%mem-ref
-       pixels :UNSIGNED-INT (* 4
-                               (+
-                                (* (+ y dy) width)
-                                (+ x dx))))))))
+  (if buffer
+      (with-slots (surface) buffer
+        (let ((pixels (sdl2:surface-pixels surface))
+              (width (sdl2:surface-width surface)))
+          (declare (type sdl2-rgb-image-pixels pixels))
+          (lambda (x y)
+            (cffi-sys:%mem-ref
+             pixels :UNSIGNED-INT (* 4
+                                     (+
+                                      (* (+ y dy) width)
+                                      (+ x dx)))))))
+      nil))
 
 (defmethod driver-buffer-rgb-set-fn ((buffer sdl2-driver-buffer) dx dy)
   (with-slots (surface) buffer
-    (let ((pixels (sdl2:surface-pixels surface))
-          (width (sdl2:surface-width surface)))
-      (declare (type sdl2-rgb-image-pixels pixels))
-      (lambda (x y r g b)
-        (cffi-sys:%mem-set
-         (dpb 255 (byte 8 0)
-              (dpb b (byte 8 8)
-                   (dpb g (byte 8 16)
-                        (dpb r (byte 8 24) 0))))
-         pixels :UNSIGNED-INT (* 4
-                                 (+
-                                  (* (+ y dy) width)
-                                  (+ x dx))))))))
+    (if surface
+        (let ((pixels (sdl2:surface-pixels surface))
+              (width (sdl2:surface-width surface)))
+          (declare (type sdl2-rgb-image-pixels pixels))
+          (log:warn "~A ~A" width (cldki::image-width buffer))
+          
+          (lambda (x y r g b)
+            (cffi-sys:%mem-set
+             (dpb 255 (byte 8 0)
+                  (dpb b (byte 8 8)
+                       (dpb g (byte 8 16)
+                            (dpb r (byte 8 24) 0))))
+             pixels :UNSIGNED-INT (* 4
+                                     (+
+                                      (* (+ y dy) width)
+                                      (+ x dx))))))
+        #'(lambda (x y r g b)
+                 ))))
 
 ;; pointer
 

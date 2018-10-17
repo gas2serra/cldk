@@ -4,7 +4,22 @@
 ;;;
 
 (defclass buffer (buffer-image-mixin image)
-  ())
+  ((width :initarg :width)
+   (height :initarg :height)))
+
+(defmethod image-width ((buffer buffer))
+  (with-slots (width) buffer
+    width))
+
+(defmethod image-height ((buffer buffer))
+  (with-slots (height) buffer
+    height))
+
+(defmethod image-rgb-get-fn ((image buffer) &key (dx 0) (dy 0))
+  (driver-buffer-rgb-get-fn image dx dy))
+
+(defmethod image-rgb-set-fn ((image buffer) &key (dx 0) (dy 0))
+  (driver-buffer-rgb-set-fn image dx dy))
 
 (defgeneric destroy-buffer (buffer))
 (defgeneric update-buffer (buffer width height))

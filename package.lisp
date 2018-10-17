@@ -169,7 +169,8 @@
    #:driver-raise-window
    #:driver-bury-window
    #:driver-window-pointer-position
-
+   #:driver-copy-image-to-window
+   
    #:driver-grab-pointer
    #:driver-ungrab-pointer
 

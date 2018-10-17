@@ -3,7 +3,7 @@
 (defclass xcb-buffer (buffer xcb-driver-buffer kerneled-buffer-mixin)
   ())
 
-
+#|
 (defmethod image-width ((buffer xcb-buffer))
   (let ((db buffer))
     (with-slots (cldk-driver-xcb::w) db
@@ -24,3 +24,4 @@
 
 (defmethod image-rgb-set-fn ((image xcb-buffer) &key (dx 0) (dy 0))
   (driver-buffer-rgb-set-fn image dx dy))
+|#

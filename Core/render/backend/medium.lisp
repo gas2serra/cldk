@@ -1,4 +1,4 @@
-(in-package :cldk-mcclim-render-internals)
+(in-package :cldk-render-internals)
 
 (defclass render-medium-mixin (basic-medium)
   ((render :initform (make-instance 'vectors-image-render) :reader medium-render)))

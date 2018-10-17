@@ -246,6 +246,22 @@
         (xlib:query-pointer xwindow)
       (values x y))))
 
+(defmethod driver-copy-image-to-window (image x y width height
+                                        (window clx-driver-window) to-x to-y)
+  (let ((ximage (cldk-render-internals::clx-image->xlib-image image)))
+    (with-slots (xwindow gcontext) window
+      (when (and ximage
+                 (>= x 0) (>= y 0) (> width 0) (> height 0) (>= to-x 0) (>= to-y 0))
+        (xlib::put-image xwindow
+                         gcontext
+                         ximage
+                         :src-x x :src-y y
+                         :x to-x :y to-y
+                         :width  (max 0 (min width
+                                             (- (xlib:image-width ximage) x)))
+                         :height (max 0 (min height
+                                             (- (xlib:image-height ximage) y))))))))
+
 ;;; cursor
 
 (defclass clx-driver-cursor (driver-cursor)

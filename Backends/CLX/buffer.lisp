@@ -4,7 +4,7 @@
   ())
 
 
-
+#|
 (defmethod image-width ((buffer clx-buffer))
   (let ((db buffer))
     (with-slots (ximage) db
@@ -25,3 +25,4 @@
 
 (defmethod image-rgb-set-fn ((image clx-buffer) &key (dx 0) (dy 0))
   (driver-buffer-rgb-set-fn image dx dy))
+|#

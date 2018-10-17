@@ -19,5 +19,6 @@
    (:file "input"
           :depends-on ("package"))
    (:file "driver"
-          :depends-on ("input")))
+          :depends-on ("input"))
+   (:file "image" :depends-on ("package" "driver")))
   :description "Common Lisp Drawing Kit: CLX driver")

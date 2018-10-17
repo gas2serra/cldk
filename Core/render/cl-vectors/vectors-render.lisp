@@ -1,4 +1,4 @@
-(in-package :cldk-mcclim-render-internals)
+(in-package :cldk-render-internals)
 
 (defclass vectors-image-render (image-render)
   ((state :initform (aa:make-state))))
@@ -7,7 +7,7 @@
 (defgeneric render-stroke-paths (render image paths))
 
 (defmethod render-fill-paths ((render vectors-image-render) image paths)
-  (format *debug-io* "render: fill paths (aa) ~A~%" (render-pixeled-design-ink render))
+  ;;(format *debug-io* "render: fill paths (aa) ~A~%" (render-pixeled-design-ink render))
   (with-slots (state) render
     (aa-fill-paths image
                    (render-pixeled-design-ink render)
@@ -48,7 +48,7 @@
 (defmethod render-draw-circle* ((render vectors-image-render) image
                                 center-x center-y radius start-angle end-angle
 				filled)
-  (format *debug-io* "!!!! render: draw circle (aa)~%")
+  ;;(format *debug-io* "!!!! render: draw circle (aa)~%")
   (let ((path (arc center-x center-y radius (+ pi start-angle) (+ pi end-angle))))
     (if filled
 	(render-fill-paths render image
@@ -57,7 +57,7 @@
                              (list path)))))
 
 (defmethod render-draw-poligon* ((render vectors-image-render) image coord-seq closed filled)
-  (format *debug-io* "render: draw poligon (aa) ~A ~A~%" coord-seq filled)
+  ;;(format *debug-io* "render: draw poligon (aa) ~A ~A~%" coord-seq filled)
   (let ((x (elt coord-seq 0))
 	(y (elt coord-seq 1)))	  
     (let ((path (make-path x y)))

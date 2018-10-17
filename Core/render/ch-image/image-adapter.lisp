@@ -1,4 +1,4 @@
-(in-package :cldk-mcclim-render-internals)
+(in-package :cldk-render-internals)
 
 (defclass ch-image-image-adapter (image-adapter-mixin rgb-image-mixin)
   ())

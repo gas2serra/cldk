@@ -7,7 +7,7 @@
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
-  :depends-on (#:log4cl #:bordeaux-threads #:lparallel #:cldk/core))
+  :depends-on (#:log4cl #:bordeaux-threads #:lparallel #:cldk/core #:mcclim #:cldk-render))
 
 (defsystem #:cldk-core/driver
   :version "0.3"
@@ -32,6 +32,7 @@
                         :components
                         ((:file "display-kernel")
                          (:file "buffer" :depends-on ("display-kernel"))
+                         (:file "image" :depends-on ())
                          (:file "root" :depends-on ("display-kernel"))
                          (:file "window" :depends-on ("display-kernel" "event-handler"))
                          (:file "buffered-window" :depends-on ("window" "buffer"))

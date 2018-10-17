@@ -1,10 +1,10 @@
-(defsystem #:cldk-mcclim-render
+(defsystem #:cldk-render
     :description "Support for raster images McCLIM."
-    :depends-on (#:cldk-mcclim-render/core
-                 #:cldk-mcclim-render/two-dim-array
-                 #:cldk-mcclim-render/opticl))
+    :depends-on (#:cldk-render/core
+                 #:cldk-render/two-dim-array
+                 #:cldk-render/opticl))
 
-(defsystem #:cldk-mcclim-render/core
+(defsystem #:cldk-render/core
   :depends-on (#:clim-basic
                #:mcclim-image
                #:mcclim-fonts/truetype)
@@ -18,8 +18,8 @@
                (:file "recording")
                (:file "compatibility")))
 
-(defsystem #:cldk-mcclim-render/render
-    :depends-on (#:cldk-mcclim-render/core)
+(defsystem #:cldk-render/render
+    :depends-on (#:cldk-render/core)
     :components
     ((:module "render"
               :serial t
@@ -27,8 +27,8 @@
               ((:file "render")
                (:file "fonts")))))
 
-(defsystem #:cldk-mcclim-render/cl-vectors
-    :depends-on (#:clim-basic #:mcclim-fonts/truetype  #:cldk-mcclim-render/render #:cldk-mcclim-render/two-dim-array #:cldk-mcclim-render/opticl #:cldk-mcclim-render/render #:mcclim-bezier)
+(defsystem #:cldk-render/cl-vectors
+    :depends-on (#:clim-basic #:mcclim-fonts/truetype  #:cldk-render/render #:cldk-render/two-dim-array #:cldk-render/opticl #:cldk-render/render #:mcclim-bezier)
     :components
     ((:module "cl-vectors"
               :serial t
@@ -40,16 +40,16 @@
                (:file "prim-text")
                (:file "vectors-render")))))
 
-(defsystem #:cldk-mcclim-render/two-dim-array
-  :depends-on (#:cldk-mcclim-render/core)
+(defsystem #:cldk-render/two-dim-array
+  :depends-on (#:cldk-render/core)
   :serial t
   :components ((:module "two-dim-array"
                         :serial t
                         :components
                         ((:file "two-dim-array-image")))))
 
-(defsystem #:cldk-mcclim-render/opticl
-  :depends-on (#:cldk-mcclim-render/two-dim-array #:opticl)
+(defsystem #:cldk-render/opticl
+  :depends-on (#:cldk-render/two-dim-array #:opticl)
   :serial t
   :components ((:module "opticl"
                         :serial t
@@ -58,8 +58,8 @@
                          (:file "opticl-image")
                          (:file "opticl-image-opt")))))
 
-(defsystem #:cldk-mcclim-render/backend
-    :depends-on (#:cldk-mcclim-render/cl-vectors #:mcclim-bezier)
+(defsystem #:cldk-render/backend
+    :depends-on (#:cldk-render/cl-vectors #:mcclim-bezier)
     :components
     ((:module "backend"
               :serial t
@@ -71,11 +71,11 @@
                (:file "fonts")
                (:file "port")))))
 
-(defsystem #:cldk-mcclim-render/clx
+(defsystem #:cldk-render/clx
     :depends-on (#:mcclim-clx
-                 #:cldk-mcclim-render/backend
-                 #:cldk-mcclim-render/two-dim-array
-                 #:cldk-mcclim-render/opticl)
+                 #:cldk-render/backend
+                 #:cldk-render/two-dim-array
+                 #:cldk-render/opticl)
   :serial t
   :components ((:module "clx"
                         :serial t
@@ -83,8 +83,8 @@
                         ((:file "clx-image")
                          (:file "clx-extension")))))
 
-(defsystem #:cldk-mcclim-render/imago
-    :depends-on (#:cldk-mcclim-render/core
+(defsystem #:cldk-render/imago
+    :depends-on (#:cldk-render/core
                  #:imago)
   :serial t
   :components ((:module "imago"
@@ -92,8 +92,8 @@
                         :components
                         ((:file "image-adapter")))))
 
-(defsystem #:cldk-mcclim-render/ch-image
-    :depends-on (#:cldk-mcclim-render/core
+(defsystem #:cldk-render/ch-image
+    :depends-on (#:cldk-render/core
                  #:ch-image)
   :serial t
   :components ((:module "ch-image"

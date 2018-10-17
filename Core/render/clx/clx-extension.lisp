@@ -1,4 +1,4 @@
-(in-package :cldk-mcclim-render-internals)
+(in-package :cldk-render-internals)
 
 (defmethod medium-draw-image*
     ((medium sheet-with-medium-mixin) design x y)

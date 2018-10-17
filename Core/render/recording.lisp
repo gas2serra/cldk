@@ -1,4 +1,4 @@
-(in-package :cldk-mcclim-render-internals)
+(in-package :cldk-render-internals)
 
 (def-grecording draw-image (() image x y) ()
   (let ((width (image-width image))
