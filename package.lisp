@@ -81,14 +81,14 @@
    #:grab-window-pointer
    #:ungrab-window-pointer
    #:set-window-cursor
-
+#|
    #:rgb-image
    #:copy-image
    #:image
    #:image-width
    #:image-height
    #:image-pixels
-
+|#
    #:window
    #:buffered-window
    #:create-buffered-window
@@ -214,7 +214,7 @@
    #:driver-cb-wm-delete-event
    ))
 
-(defpackage :cldk-kernel
+(defpackage :cldk-mirror
   (:use :common-lisp :cldk-driver)
   (:export
    ;;
@@ -251,11 +251,11 @@
    #:server-cursor-table
    #:kernel-kwindows
 
-   #:k-refresh-windows
+   #:refresh-windows
    ))
 
 (defpackage :cldk-server
-  (:use :common-lisp :cldk-driver :cldk-kernel)
+  (:use :common-lisp :cldk-driver :cldk-mirror)
   (:export
    #:server
    #:start-server
@@ -285,6 +285,6 @@
    ;;#:UPDATED-REGION-SET
    ))
 (defpackage :cldk-internals
-  (:use :cldk :cldk-driver :cldk-kernel :cldk-server
+  (:use :cldk :cldk-driver :cldk-mirror :cldk-server
         :common-lisp)
   (:nicknames :cldki))

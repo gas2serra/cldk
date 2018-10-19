@@ -1,7 +1,7 @@
 (in-package :common-lisp-user)
 
 (defpackage :cldk-backend
-  (:use :cldk-kernel :cldk :common-lisp :cldk-driver :cldk-server)
+  (:use :cldk-mirror :cldk :common-lisp :cldk-driver :cldk-server)
   (:import-from :clim-standard
                 #:standard-graft
                 #:standard-port)

@@ -3,7 +3,7 @@
 
 ;;; event handler
 
-(defclass event-handler ()
+(defclass event-handler (display-driver-callback-handler)
   ((cur-x :initform nil
           :reader event-handler-cur-x)
    (cur-y :initform nil
@@ -239,3 +239,51 @@
       (log:info "win:~A" win))))
 
 (setf *default-event-handler* (make-instance 'event-handler))
+
+;;;
+;;;
+;;;
+
+(defmacro <e- (kernel fn &rest args)
+  `(within-user-mode (,kernel :block-p nil)
+                     (funcall ,fn (event-handler ,kernel) ,@args)))
+
+(defmethod driver-cb-window-configuration-event ((handler event-handler) kernel win x y width height time)
+  (check-kernel-mode)
+  (<e- kernel #'handle-configure-event win x y width height time))
+
+(defmethod driver-cb-repaint-event ((handler event-handler) kernel win x y width height time)
+  (check-kernel-mode)
+  (<e- kernel #'handle-repaint-event win x y width height time))
+
+(defmethod driver-cb-scroll-event ((handler event-handler) kernel pointer dx dy win timestamp)
+  (check-kernel-mode)
+  (<e- kernel #'handle-scroll-event pointer dx dy win timestamp))
+
+(defmethod driver-cb-button-event ((handler event-handler) kernel kind pointer button win timestamp)
+  (check-kernel-mode)
+  (<e- kernel #'handle-button-event kind pointer button win timestamp))
+
+(defmethod driver-cb-motion-event ((handler event-handler) kernel pointer x y root-x root-y
+                              win timestamp)
+  (check-kernel-mode)
+  (<e- kernel #'handle-motion-event pointer x y root-x root-y
+       win timestamp))
+
+(defmethod driver-cb-key-event ((handler event-handler) kernel kind keyname character modifiers
+                           win timestamp)
+  (check-kernel-mode)
+  (<e- kernel #'handle-key-event kind keyname character modifiers
+       win timestamp))
+
+(defmethod driver-cb-enter-event ((handler event-handler) kernel pointer x y root-x root-y win time)
+  (check-kernel-mode)
+  (<e- kernel #'handle-enter-event pointer x y root-x root-y win time))
+
+(defmethod driver-cb-leave-event ((handler event-handler) kernel pointer win time)
+  (check-kernel-mode)
+  (<e- kernel #'handle-leave-event pointer win time))
+
+(defmethod driver-cb-wm-delete-event ((handler event-handler) kernel win time)
+  (check-kernel-mode)
+  (<e- kernel #'handle-wm-delete-event win time))

@@ -5,13 +5,6 @@
                                xcb-driver)
   ())
 
-(defmethod initialize-instance :after ((server cldk-xcb-port-mixin) &rest args)
-  (declare (ignore args))
-  (setf (driver-options server) (cons :id (clim:port-server-path server)))
-  (cldk-server:start-server server)
-  (setf (cldk:server-event-handler server)
-        (make-instance 'clim-fb::fb-event-handler :port server)))
-
 (defmethod port-graft-mirror-class ((port cldk-xcb-port-mixin))
   'xcb-root)
 
@@ -48,8 +41,8 @@
 (setf (get :cldk-fb-xcb :port-type) 'xcb-fb-port)
 (setf (get :cldk-fb-xcb :server-path-parser) 'cldk-xcb-backend::parse-xcb-server-path)
 
-(defmethod cldk:create-buffer ((server xcb-fb-port) width height)
-  (make-instance 'cldk-xcb-backend::xcb-buffer :driver server :width width :height height))
+(defmethod cldk:create-buffer ((port xcb-fb-port) width height)
+  (make-instance 'cldk-xcb-backend::xcb-buffer :driver port :width width :height height))
 
 ;;;
 ;;;

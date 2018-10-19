@@ -7,7 +7,7 @@
     :version "0.3"
     :author "Alessandro Serra"
     :license "LGPL"
-    :depends-on (#:cldk-backend #:cldk-driver-clx #:cldk-display #:mcclim-cldk)
+    :depends-on (#:cldk-backend #:cldk-driver-clx #:mcclim-cldk)
     :components
     ((:file "package")
      (:file "buffer" :depends-on ("package"))

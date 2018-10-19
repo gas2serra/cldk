@@ -244,6 +244,24 @@
           (cffi:with-foreign-slots ((win-x win-y) response (:struct xcb-query-pointer-replay-t))
             (values win-x win-y)))))))
 
+(defmethod driver-copy-image-to-window (image x y width height
+                                        (window xcb-driver-window) to-x to-y)
+  (let ((xpixels (cldk-render:image-pixels image))
+        (width (cldk-render:image-width image))
+        (height (cldk-render:image-height image)))
+    (with-slots (display screen gc) (driver window)
+      (cffi:with-foreign-slots ((root-depth)
+                                screen
+			        (:struct screen-t))
+        (with-slots (xwindow) window
+          (check (xcb-put-image display IMAGE-FORMAT-Z-PIXMAP xwindow gc
+                                width height
+                                0 0
+                                0 root-depth
+                                (* 4 width height)
+                                xpixels)))))))
+
+
 ;;; cursors
 (defclass xcb-driver-cursor (driver-cursor)
   ((xcursor :initarg :xcursor)))

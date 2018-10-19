@@ -22,6 +22,8 @@
           :depends-on ("cffi"))
    (:file "cffi-image"
           :depends-on ("cffi" "cffi-xcb"))
+   (:file "image"
+          :depends-on ("cffi" "cffi-xcb" "driver"))
    (:file "driver"
           :depends-on ("driver-input" "cffi-xcb" "cffi-icccm" "cffi-image" "package"))
    (:file "driver-input" :depends-on ("cffi-events")))

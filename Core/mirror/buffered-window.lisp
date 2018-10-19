@@ -6,17 +6,45 @@
 
 (defclass buffered-window (window)
   ((buffer-lock :initform (bt:make-lock "buffer"))
+   (updated-region-set :initform nil)
    (last-refresh-time :initform nil)))
 
 (defgeneric create-buffered-window (display name &key pretty-name x y
                                                   width height mode
                                                    window-class))
 
-(defmacro with-buffered-window-image ((buffer image) &rest body)
-  `(with-slots (buffer-lock) ,buffer
+(defmacro with-buffered-window-locked ((buffered-window) &rest body)
+  `(with-slots (buffer-lock) ,buffered-window
      (bt:with-lock-held (buffer-lock)
-       (let ((,image (buffered-window-image ,buffer)))
-         ,@body))))
+         ,@body)))
+
+(defgeneric copy-image-to-buffered-window (image rectangle-set buffered-window dx dy))
+
+(defmethod copy-image-to-buffered-window (image rectangle-set (buffered-window buffered-window)
+                                          dx dy)
+  (with-slots (updated-region-set) buffered-window
+    (let ((dst-image (buffered-window-image buffered-window)))
+      (let ((w (cldk-render:image-width dst-image))
+            (h (cldk-render:image-height dst-image)))
+        (if (and (>= w (- (cldk-render:image-width image) 2))
+                 (>= h (- (cldk-render:image-height image) 2)))
+            (progn
+              (map-over-rectangle-set-regions
+               #'(lambda (x1 y1 x2 y2)
+                   (cldk-render:copy-image image x1 y1 (- x2 x1) (- y2 y1)
+                                           dst-image (+ dx x1) (+ dy y1))
+                   (setf updated-region-set (rectangle-set-union
+                                             updated-region-set
+                                             (rectangle->rectangle-set (+ dx x1) (+ dy y1)
+                                                                       (+ dx x2) (+ dy y2)))))
+               rectangle-set)
+              t)
+            (progn
+              (log:warn "skip copy image to buffered window. ~A => ~A"
+                        (list (cldk-render:image-width image)
+                              (cldk-render:image-height image))
+                        (list w h))
+              nil))))))
 
 
 
@@ -49,44 +77,27 @@
 (defmethod destroy-window :before ((window kerneled-buffered-window-mixin))
   )
 
-;;;
-;;; TO FIX
-;;;
-
-;;; refresh
-(defgeneric k-refresh-window (window &key max-fps)
-  (:method ((kwindow t) &key max-fps)
-    (declare (ignore max-fps))))
-
-(defun k-refresh-windows (kernel)
+(defmethod refresh-window ((window kerneled-buffered-window-mixin) &key (max-fps 10))
   (check-kernel-mode)
-  (dolist (win (kernel-kwindows kernel))
-    (k-refresh-window win)))
+  (with-buffered-window-locked (window)
+    (let ((image (buffered-window-image window)))
+      (with-slots (last-refresh-time updated-region-set) window
+        (when image
+          (if (or (null last-refresh-time)
+                  (> (- (get-internal-real-time) last-refresh-time)
+                     (* (/ 1 max-fps) internal-time-units-per-second)))
+              (when updated-region-set
+                (flush-buffered-window window))
+              (progn
+                (when (null last-refresh-time)
+                  (setf last-refresh-time (get-internal-real-time)))
+                (when updated-region-set
+                  (log:info "skip")))))))))
 
-;;;
-;;; buffered windows
-;;;
-
-(defmethod driver-cb-window-configuration-event :before ((handler driver-callback-handler)
-                                                         kernel (win kerneled-buffered-window-mixin)
-                                                         x y width height time)
-  (check-kernel-mode)
-  (k-notify-resize-buffered-window win width height))
-
-(defun k-notify-resize-buffered-window (window width height)
-  (k-flush-buffered-window window)
-  (with-buffered-window-image (window image)
-    (log:warn "Update ~A => ~A"
-              (list (cldk-render:image-width image)
-                    (cldk-render:image-height image))
-              (list width height))
-    (setf (buffered-window-image window) (cldk-render:make-image window :rgb width height))
-    (cldki::update-image image width height)))
-
-(defun k-flush-buffered-window (kwindow)
+(defun flush-buffered-window (kwindow)
   (let ((image (buffered-window-image kwindow)))
     (when image
-      (with-slots (updated-region-set) image
+      (with-slots (updated-region-set) kwindow
         (map-over-rectangle-set-regions 
          #'(lambda (x1 y1 x2 y2)
              (driver-copy-image-to-window image
@@ -97,21 +108,20 @@
                                           x1 y1))
          updated-region-set)
         (setf updated-region-set nil)))))
-  
-(defmethod k-refresh-window ((window kerneled-buffered-window-mixin) &key (max-fps 10))
+
+;;;
+;;; buffered windows
+;;;
+
+(defmethod driver-cb-window-configuration-event :before ((handler driver-callback-handler)
+                                                         kernel (window kerneled-buffered-window-mixin)
+                                                         x y width height time)
   (check-kernel-mode)
-  (with-buffered-window-image (window image)
-    (with-slots (last-refresh-time) window
-      (when image
-        (with-slots (updated-region-set) image
-          (if (or (null last-refresh-time)
-                  (> (- (get-internal-real-time) last-refresh-time)
-                     (* (/ 1 max-fps) internal-time-units-per-second)))
-              (when updated-region-set
-                (k-flush-buffered-window window))
-              (progn
-                (when (null last-refresh-time)
-                  (setf last-refresh-time (get-internal-real-time)))
-                (when updated-region-set
-                  (log:info "skip")))))))))
+  (flush-buffered-window window)
+  (with-buffered-window-locked (window)
+    (setf (buffered-window-image window)
+          (cldk-render:make-image window :rgb width height))))
+
+
+  
 

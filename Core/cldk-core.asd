@@ -30,22 +30,20 @@
   :depends-on (#:cldk-core/driver )
   :components ((:module "mirror"
                         :components
-                        ((:file "display-kernel")
-                         (:file "buffer" :depends-on ("display-kernel"))
+                        ((:file "display")
                          (:file "image" :depends-on ())
-                         (:file "root" :depends-on ("display-kernel"))
-                         (:file "window" :depends-on ("display-kernel" "event-handler"))
-                         (:file "buffered-window" :depends-on ("window" "buffer"))
-                         (:file "event-handler" :depends-on ("display-kernel"))
-                         (:file "display-kernel-callback"
-                                :depends-on ("display-kernel" "event-handler"))))))
+                         (:file "root" :depends-on ("display"))
+                         (:file "window" :depends-on ("display" "event-handler"))
+                         (:file "buffered-window" :depends-on ("window" "image"))
+                         (:file "event-handler" :depends-on ("display"))))))
+
 (defsystem #:cldk-core/server
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
   :depends-on (#:cldk-core/mirror)
   :components
-  ((:module "core"
+  ((:module "server"
             :components
             ((:file "server")))))
 

@@ -9,21 +9,7 @@
    (pointer :reader port-pointer)
    (font-families :initform nil :accessor font-families)))
 
-(defmethod port-display-driver ((port fb-port))
-  port
-  #+nil(fb-port-server port))
-
-(defmethod port-display-mirror ((port fb-port))
-  port
-  #+nil(fb-port-server port))
  
-
-(defun parse-cldk-server-path (path)
-  path)
-
-(setf (get :cldk :port-type) 'fb-port)
-(setf (get :cldk :server-path-parser) 'parse-cldk-server-path)
-
 (defclass fb-pointer (standard-pointer)
   ((cursor :accessor pointer-cursor :initform :upper-left)))
 
@@ -33,12 +19,8 @@
          (driver (getf options :cldk-driver :null)))
     (remf options :cldk-driver)
     (setf (fb-port-server port) port)
-    #+nil (let ((server (cldk:find-display-server :server-path (cons driver
-                                                               options))))
-      (sleep 0.1)
-      (setf (fb-port-server port) server)
-      (setf (cldk:server-event-handler server)
-            (make-instance 'clim-fb::fb-event-handler :port port))))
+    (setf (cldk:event-handler port)
+          (make-instance 'clim-fb::fb-event-handler :port port)))
   (sleep 0.1)
   (log:warn "HELP!!")
   (make-graft port)
@@ -47,9 +29,6 @@
   (clim-extensions:port-all-font-families port)
   (push (make-instance 'fb-frame-manager :port port)
 	(slot-value port 'frame-managers)))
-
-(defmethod clim:destroy-port ((port fb-port))
-  (cldk:destroy-server (fb-port-server port)))
 
 (defun round-coordinate (x)
   "Function used for rounding coordinates."
@@ -124,8 +103,7 @@
                             (t
                               +white+))))
       (let ((mirror
-
-             (cldk:create-buffered-window (fb-port-server port) name
+             (cldk:create-buffered-window (port-display-driver port) name
                                           :pretty-name pretty-name
                                           :x nil :y nil
                                           :width width :height height 
@@ -184,38 +162,21 @@
 
 (defmethod graft ((port fb-port))
   (first (port-grafts port)))
-#|
-(defmethod make-graft ((port fb-port) &key (orientation :default) (units :device))
-  (let ((graft (make-instance 'fb-graft
-                              :port port
-                              :mirror nil
-                              ;;:mirror (clx-port-window port)
-                              :orientation orientation
-                              :units units)))
-    (multiple-value-bind (w h)
-        (cldk:screen-size (fb-port-server port) units)
-      (climi::%%set-sheet-region 
-       (make-bounding-rectangle 0 0 w h)
-       graft))
-    (push graft (port-grafts port))
-    graft))
-|#
+
 (defmethod port-force-output ((port fb-port))
   (maphash #'(lambda (key val)
                (declare (ignore val))
                (when (typep key 'fb-mirrored-sheet-mixin)
                  (cldk-render-internals::%mirror-force-output
                   (sheet-mirror key))))
-           (slot-value port 'climi::sheet->mirror))
-  
-  (cldki::server-force-output (fb-port-server port)))
+           (slot-value port 'climi::sheet->mirror)))
 
 (defmethod synthesize-pointer-motion-event ((pointer fb-pointer))
   (let* ((port (port pointer))
 	 (sheet (port-pointer-sheet port)))
     (when sheet
       (let ((mirror (sheet-direct-mirror sheet))
-            (eh (cldk:server-event-handler
+            (eh (cldk:event-handler
                  (fb-port-server port))))
 	(when mirror
 	  (multiple-value-bind (x y)
@@ -249,7 +210,7 @@
 
 (defmethod clim:pointer-button-state ((pointer fb-pointer))
   (cldk:event-handler-pressed-buttons
-   (cldk:server-event-handler (fb-port-server (port pointer)))))
+   (cldk:event-handler (fb-port-server (port pointer)))))
   
   #+nil (multiple-value-bind (x y same-screen-p child mask)
       (xlib:query-pointer (clx-port-window (port pointer)))

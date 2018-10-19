@@ -7,9 +7,9 @@
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
-  :depends-on (#:cldk/core #:cldk-display/kernel)
+  :depends-on (#:cldk-core)
   :components ((:module "image"
                         :components
-                        ((:file "image")
+                        (
                          (:file "rectangle-set"))))
   :description "Common Lisp Drawing Kit")

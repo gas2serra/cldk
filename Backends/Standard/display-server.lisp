@@ -4,7 +4,9 @@
 ;;;
 ;;;
 
-(defclass single-thread-display-server (display-server
+(defclass single-thread-display-server (server
+                                        cldki::display
+                                        cldki::kerneled-display-mixin
                                         ;;event-server-mixin
                                         callback-queue-with-thread-mixin
                                         ;;lparallel-kernel-call-mixin
@@ -17,11 +19,12 @@
   (driver-process-next-events server)
   (process-next-calls server)
   (unless (server-stopping-p server)
-    (k-refresh-windows server)
+    (refresh-windows server)
     (driver-force-output server)))
 
 
-(defclass multi-thread-display-server (display-server
+(defclass multi-thread-display-server (server cldki::display
+                                              cldki::kerneled-display-mixin
                                        event-server-mixin
                                        ;;callback-queue-with-thread-mixin
                                        command-server-mixin
@@ -32,5 +35,5 @@
 (defmethod server-loop-step ((server multi-thread-display-server))
   (driver-process-next-events server)
   (unless (server-stopping-p server)
-    (k-refresh-windows server)
+    (refresh-windows server)
     (driver-force-output server)))

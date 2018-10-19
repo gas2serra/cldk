@@ -8,18 +8,6 @@
 
 
 ;;;
-;;;
-;;;
-
-
-(defmethod initialize-instance :after ((server cldk-clx-port-mixin) &rest args)
-  (declare (ignore args))
-  (setf (driver-options server) (cons :id (clim:port-server-path server)))
-  (cldk-server:start-server server)
-  (setf (cldk:server-event-handler server)
-        (make-instance 'clim-fb::fb-event-handler :port server)))
-
-;;;
 ;;; server-path parser
 ;;;
 
@@ -122,5 +110,5 @@
 (setf (get :cldk-fb-clx :port-type) 'clx-fb-port)
 (setf (get :cldk-fb-clx :server-path-parser) 'cldk-clx-backend::parse-clx-server-path)
 
-(defmethod cldk:create-buffer ((server clx-fb-port) width height)
-  (make-instance 'cldk-clx-backend::clx-buffer :driver server :width width :height height))
+(defmethod cldk:create-buffer ((port clx-fb-port) width height)
+  (make-instance 'cldk-clx-backend::clx-buffer :driver port :width width :height height))

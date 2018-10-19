@@ -80,4 +80,4 @@
 
 (defmethod make-image ((window cldk-driver-sdl2::sdl2-driver-window) (type (eql :rgb)) width height)
   (make-instance 'sdl2-rgb-image :width width :height height
-                 :device window))
+                 :medium window))

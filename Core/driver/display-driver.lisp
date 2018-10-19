@@ -62,22 +62,6 @@
 (defgeneric driver-destroy-cursor (cursor))
 (defgeneric driver-set-window-cursor (window cursor))
 
-;;; buffer
-(defclass driver-buffer (display-driver-object)
-  ())
-
-(defgeneric driver-initialize-buffer (driver buffer width height)
-  (:method :after ((driver display-driver) buffer width height)
-           (register-driver-object driver buffer)))
-(defgeneric driver-update-buffer (buffer width height))
-(defgeneric driver-destroy-buffer (buffer)
-  (:method :before (buffer)
-           (unregister-driver-object (driver buffer) buffer)))
-(defgeneric driver-copy-buffer-to-window (buffer x y width height
-                                          window to-x to-y))
-(defgeneric driver-buffer-rgb-get-fn (buffer dx dy))
-(defgeneric driver-buffer-rgb-set-fn (buffer dx dy))
-
 ;;;
 ;;; driver callback
 ;;;

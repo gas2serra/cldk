@@ -6,7 +6,18 @@
 (defgeneric port-display-driver (port))
 (defgeneric port-display-mirror (port))
 
-(defgeneric port-graft-mirror-class (port))
+(defmethod port-display-driver ((port cldk-port-mixin))
+  port)
+
+(defmethod port-display-mirror ((port cldk-port-mixin))
+  port)
+
+(defmethod initialize-instance :after ((port cldk-port-mixin) &rest args)
+  (declare (ignore args))
+  (setf (driver-options (port-display-driver port))
+        (cons :id (clim:port-server-path port)))
+  (cldk-server:start-server port))
+
 (defgeneric port-graft-class (port))
 
 (defmethod clim-backend:make-graft ((port cldk-port-mixin)
@@ -19,3 +30,9 @@
                               :units units)))
     (push graft (port-grafts port))
     graft))
+
+(defmethod clim:destroy-port ((port cldk-port-mixin))
+  (cldk:destroy-server (port-display-driver port)))
+
+(defmethod port-force-output :after ((port cldk-port-mixin))
+  (cldki::server-force-output (port-display-driver port)))

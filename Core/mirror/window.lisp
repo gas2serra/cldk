@@ -32,6 +32,9 @@
 (defgeneric set-window-cursor (window named-cursor &key block-p))
 
 (defgeneric copy-image-to-window (image x y w h window to-x to-y &key block-p))
+(defgeneric refresh-window (window &key max-fps))
+
+
 ;;;
 ;;; kerneled window
 ;;;
@@ -157,6 +160,10 @@
   (within-kernel-mode ((driver window) :block-p block-p)
                       (driver-copy-image-to-window
                        image x y w h window to-x to-y)))
+
+(defmethod refresh-window (window &key max-fps)
+  (declare (ignore max-fps))
+  nil)
 
 ;;;
 ;;; caching protocol

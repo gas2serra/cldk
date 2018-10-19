@@ -7,7 +7,8 @@
     :version "0.3"
     :author "Alessandro Serra"
     :license "LGPL"
-    :depends-on (#:cldk #:cldk-display #:mcclim #:mcclim-backend-common)
+    :depends-on (#:cldk #:cldk-core #:cldk-image
+                        #:mcclim #:mcclim-backend-common)
     :components
     ((:file "package")
      (:file "graft" :depends-on ("package" "port"))

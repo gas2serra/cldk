@@ -23,16 +23,6 @@
 (defclass sdl2-buffered-window (buffered-window sdl2-driver-window kerneled-buffered-window-mixin)
   ())
 
-
-(defmethod initialize-instance :after ((server cldk-sdl2-port-mixin) &rest args)
-  (declare (ignore args))
-  (setf (driver-options server) (cons :id (clim:port-server-path server)))
-  (cldk-server:start-server server)
-  (setf (cldk:server-event-handler server)
-        (make-instance 'clim-fb::fb-event-handler :port server)))
-
-
-
 (in-package :clim-fb)
 
 (defclass sdl2-fb-port (fb-port cldk-sdl2-backend:cldk-sdl2-port-mixin)
@@ -65,5 +55,5 @@
 (setf (get :cldk-fb-sdl2 :port-type) 'sdl2-fb-port)
 (setf (get :cldk-fb-sdl2 :server-path-parser) 'parse-sdl2-server-path)
 
-(defmethod cldk:create-buffer ((server sdl2-fb-port) width height)
-  (make-instance 'cldk-sdl2-backend::sdl2-buffer :driver server :width width :height height))
+(defmethod cldk:create-buffer ((port sdl2-fb-port) width height)
+  (make-instance 'cldk-sdl2-backend::sdl2-buffer :driver port :width width :height height))
