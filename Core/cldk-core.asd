@@ -45,7 +45,7 @@
   :components
   ((:module "server"
             :components
-            ((:file "server")))))
+            (#+nil(:file "server")))))
 
 (defsystem #:cldk-core
   :version "0.3"

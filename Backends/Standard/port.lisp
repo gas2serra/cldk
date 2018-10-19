@@ -16,7 +16,7 @@
   (declare (ignore args))
   (setf (driver-options (port-display-driver port))
         (cons :id (clim:port-server-path port)))
-  (cldk-server:start-server port))
+  (cldki::driver-start-thread port))
 
 (defgeneric port-graft-class (port))
 
@@ -32,7 +32,7 @@
     graft))
 
 (defmethod clim:destroy-port ((port cldk-port-mixin))
-  (cldk:destroy-server (port-display-driver port)))
+  (cldki::driver-destroy (port-display-driver port)))
 
 (defmethod port-force-output :after ((port cldk-port-mixin))
-  (cldki::server-force-output (port-display-driver port)))
+  (cldki::driver-force-output (port-display-driver port)))

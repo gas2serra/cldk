@@ -78,6 +78,10 @@
       (when (kernel-enabled-p driver)
         (funcall continuation))))
 
+(defmethod driver-loop-fn :around ((driver kerneled-driver-mixin))
+  (let ((*kernel-mode* t))
+    (call-next-method)))
+
 ;;;
 ;;; queue 
 ;;;
@@ -154,3 +158,39 @@
 (defmethod driver-kill :after ((driver callback-queued-kerneled-driver-mixin))
   (%empty-kernel-queue driver (kernel-callback-queue driver))
   (%inqueue-kernel-continuation driver (kernel-callback-queue driver) #'(lambda ())))
+
+;;;
+;;;
+;;;
+
+(defclass callback-queued-kerneled-driver-with-thread-mixin
+    (callback-queued-kerneled-driver-mixin driver-with-thread-mixin)
+  ((callback-thread :initform nil
+                    :reader driver-callback-thread)))
+
+(defmethod driver-start-thread :after ((driver callback-queued-kerneled-driver-with-thread-mixin))
+  (with-slots (callback-thread) driver
+    (setf callback-thread (bt:make-thread #'(lambda ()
+                                              (callback-loop-fn driver))
+                                          :name (format nil "cldk callback driver ~A"
+                                                        (driver-id driver))))))
+
+(defmethod driver-kill :after ((driver callback-queued-kerneled-driver-with-thread-mixin))
+  (call-next-method)
+  (with-slots (callback-thread) driver
+    (bt:destroy-thread callback-thread)
+    (setf callback-thread nil)))
+
+(defgeneric callback-loop (driver)
+  (:method ((driver callback-queued-kerneled-driver-with-thread-mixin))
+    (process-next-kernel-callback-loop driver)))
+
+(defun callback-loop-fn (driver)
+  (log:warn "callback thrtead started")
+  (block loop
+    (loop
+       (with-simple-restart
+           (restart-callback-loop
+            "restart cldk's callback loop.")
+         (callback-loop driver)
+         (return-from loop)))))

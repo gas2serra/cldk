@@ -32,7 +32,7 @@
   :components
   ((:module "display"
             :components
-            ((:file "display-server" :depends-on ()))))
+            (#+nil(:file "display-server" :depends-on ()))))
   :description "Common Lisp Drawing Kit")
 
 (defsystem #:cldk-display

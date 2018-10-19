@@ -5,10 +5,22 @@
 ;;;
 
 (defclass driver ()
-  ((options :accessor driver-options)
+  ((status :initform :stopped
+           :type (member :starting :running :stopping :stopped)
+           :reader driver-status)
+   (options :accessor driver-options)
    (driver-object-id->driver-object :initform (make-hash-table))
    (callback-handler :accessor driver-callback-handler
                      :initarg :callback-handler)))
+
+(defun driver-running-p (driver)
+  (eql (driver-status driver) :running))
+
+(defun driver-stopped-p (driver)
+  (eql (driver-status driver) :stopped))
+
+(defun driver-stopping-p (driver)
+  (eql (driver-status driver) :stopping))
 
 (defgeneric driver-id (driver)
   (:method ((driver driver))
@@ -43,7 +55,44 @@
                     (< (get-internal-real-time) end-time)))
       (when (> (get-internal-real-time) end-time)
         (log:info "event time exceded")))))
-  
+
+
+(defmethod driver-start :around ((driver driver))
+  (if (driver-running-p driver)
+      (error "cldk driver is already running")
+      (call-next-method)))
+(defmethod driver-start :before ((driver driver))
+  (with-slots (status) driver
+    (setf status :starting)))
+(defmethod driver-start :after ((driver driver))
+  (with-slots (status) driver
+    (setf status :running)))
+
+(defmethod driver-stop :around ((driver driver))
+  (if (not (driver-running-p driver))
+      (error "cldk driver is not running")
+      (call-next-method)))
+(defmethod driver-top :before ((driver driver))
+  (with-slots (status) driver
+    (setf status :stopping)))
+(defmethod driver-stop :after ((driver driver))
+  (with-slots (status) driver
+    (setf status :stopped)))
+(defmethod driver-kill :around ((driver driver))
+  (if (driver-stopped-p driver)
+      (error "cldk driver is already stopped")
+      (progn
+        (log:warn "killing cldk driver")
+        (call-next-method))))
+
+(defmethod driver-restart ((driver driver))
+  (driver-stop driver)
+  (driver-start driver))
+
+(defmethod driver-destroy ((driver driver))
+  (when (driver-running-p driver)
+    (driver-stop driver)))
+
 ;;;
 ;;; callback handler
 ;;;

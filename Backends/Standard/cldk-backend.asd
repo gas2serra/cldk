@@ -19,7 +19,7 @@
             ("package" "port" "mirrored-sheet" "mirror"))
      (:file "mirrored-sheet" :depends-on ("package"))
      (:file "port" :depends-on ("package"))
-     (:file "server" :depends-on ("package"))
-     (:file "display-server" :depends-on ("server" "package")))
+     #+nil (:file "server" :depends-on ("package"))
+     (:file "display-server" :depends-on ("package")))
     :description "Common Lisp Drawing Kit: Standard Backend")
 
