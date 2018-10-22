@@ -3,6 +3,6 @@
 ;;;
 ;;;
 
-(defclass shared-image (cldk-render-internals::basic-image)
-  ((medium :initarg :medium :reader image-medium)))
+(defclass shared-image (basic-image)
+  ((device :initarg :device :reader image-device)))
 

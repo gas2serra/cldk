@@ -1,9 +1,9 @@
 (in-package :cldk-internals)
 
 (defclass display-driver (driver)
-  ((default-screen-index :initform 0
+  ((screen-index :initform 0
      :initarg :screen
-     :accessor driver-default-screen-index)))
+     :accessor driver-screen-index)))
 
 (defclass display-driver-object (driver-object)
   ())

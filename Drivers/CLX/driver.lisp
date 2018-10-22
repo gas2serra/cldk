@@ -20,7 +20,7 @@
 (defmethod driver-start ((driver clx-driver))
   (with-slots (display screen root-window) driver
     (let ((options (driver-options driver)))
-      (setf (driver-default-screen-index driver) (getf options :screen-id 0))
+      (setf (driver-screen-index driver) (getf options :screen-id 0))
       (setf display (xlib:open-display (getf options :host) 
                                        :display (getf options :display-id 0) 
                                        :protocol (getf options :protocol 0)))
@@ -248,7 +248,7 @@
 
 (defmethod driver-copy-image-to-window (image x y width height
                                         (window clx-driver-window) to-x to-y)
-  (let ((ximage (cldk-render-internals::clx-image->xlib-image image)))
+  (let ((ximage (clx-image->xlib-image image)))
     (with-slots (xwindow gcontext) window
       (when (and ximage
                  (>= x 0) (>= y 0) (> width 0) (> height 0) (>= to-x 0) (>= to-y 0))

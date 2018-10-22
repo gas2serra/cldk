@@ -19,21 +19,12 @@
 ;;;
 
 (defclass kerneled-driver-mixin (driver)
-  ((enabled-p :initform t
-              :reader kernel-enabled-p)))
-
-(defmethod driver-stop :before ((driver kerneled-driver-mixin))
-  (with-slots (enabled-p) driver
-    (setf enabled-p nil)))
-
-(defmethod driver-kill :before ((driver kerneled-driver-mixin))
-  (with-slots (enabled-p) driver
-    (setf enabled-p nil)))
+  ())
   
 (defgeneric kernel-call (driver continuation block-p)
   (:method :around ((driver kerneled-driver-mixin) continuation block-p)
            (declare (ignore continuation block-p))
-           (when (kernel-enabled-p driver)
+           (when (driver-running-p driver)
              (call-next-method)))
   (:method ((driver kerneled-driver-mixin) continuation block-p)
     (declare (ignore driver block-p))
@@ -43,7 +34,7 @@
 (defgeneric kernel-callback (driver continuation block-p)
   (:method :around ((driver kerneled-driver-mixin) continuation block-p)
            (declare (ignore continuation block-p))
-           (when (kernel-enabled-p driver)
+           (when (driver-running-p driver)
              (call-next-method)))
   (:method ((driver kerneled-driver-mixin) continuation block-p)
     (declare (ignore driver block-p))
@@ -60,7 +51,7 @@
 
 (defmethod invoke-within-kernel-mode ((driver kerneled-driver-mixin) continuation block-p)
   (if *kernel-mode*
-      (when (kernel-enabled-p driver)
+      (when (driver-running-p driver)
         (funcall continuation))
       (kernel-call driver continuation block-p)))
 
@@ -75,12 +66,36 @@
 (defmethod invoke-within-user-mode ((driver kerneled-driver-mixin) continuation block-p)
   (if *kernel-mode*
       (kernel-callback driver continuation block-p)
-      (when (kernel-enabled-p driver)
+      (when (driver-running-p driver)
         (funcall continuation))))
 
 (defmethod driver-loop-fn :around ((driver kerneled-driver-mixin))
   (let ((*kernel-mode* t))
     (call-next-method)))
+
+(defmethod destroy-driver ((driver kerneled-driver-mixin))
+  (within-kernel-mode (driver :block-p t)
+    (driver-stop driver)
+    (sleep 0.1)))
+  
+(defmethod driver-start :around ((driver kerneled-driver-mixin))
+  (check-kernel-mode)
+  (call-next-method))
+(defmethod driver-stop :around ((driver kerneled-driver-mixin))
+  (check-kernel-mode)
+  (call-next-method))
+(defmethod driver-kill :around ((driver kerneled-driver-mixin))
+  (check-kernel-mode)
+  (call-next-method))
+(defmethod driver-ping :around ((driver kerneled-driver-mixin))
+  (check-kernel-mode)
+  (call-next-method))
+(defmethod driver-force-output :around ((driver kerneled-driver-mixin))
+  (check-kernel-mode)
+  (call-next-method))
+(defmethod driver-process-next-event :around ((driver kerneled-driver-mixin))
+  (check-kernel-mode)
+  (call-next-method))
 
 ;;;
 ;;; queue 
@@ -102,7 +117,7 @@
 (defgeneric next-kernel-call (driver block-p)
   (:method :around ((driver call-queued-kerneled-driver-mixin) block-p)
            (declare (ignore block-p))
-           (if (kernel-enabled-p driver)
+           (if (driver-running-p driver)
                (call-next-method)
                :disabled))
   (:method ((driver call-queued-kerneled-driver-mixin) block-p)
@@ -138,7 +153,8 @@
 (defgeneric next-kernel-callback (driver block-p)
   (:method :around ((driver callback-queued-kerneled-driver-mixin) block-p)
            (declare (ignore block-p))
-           (if (kernel-enabled-p driver)
+           (if (or (eql (driver-status driver) :starting)
+                   (driver-running-p driver))
                (call-next-method)
                :disabled))
   (:method ((driver callback-queued-kerneled-driver-mixin) block-p)
@@ -168,29 +184,30 @@
   ((callback-thread :initform nil
                     :reader driver-callback-thread)))
 
-(defmethod driver-start-thread :after ((driver callback-queued-kerneled-driver-with-thread-mixin))
+(defmethod start-driver :after ((driver callback-queued-kerneled-driver-with-thread-mixin))
   (with-slots (callback-thread) driver
     (setf callback-thread (bt:make-thread #'(lambda ()
                                               (callback-loop-fn driver))
-                                          :name (format nil "cldk callback driver ~A"
+                                          :name (format nil "cldk ~A callback driver"
                                                         (driver-id driver))))))
 
-(defmethod driver-kill :after ((driver callback-queued-kerneled-driver-with-thread-mixin))
-  (call-next-method)
+(defmethod destroy-driver :after ((driver callback-queued-kerneled-driver-with-thread-mixin))
   (with-slots (callback-thread) driver
-    (bt:destroy-thread callback-thread)
-    (setf callback-thread nil)))
+    (when (and callback-thread
+               (bt:thread-alive-p callback-thread))
+      (log:warn "destroy cldk ~A callback thread" (driver-id driver))
+      (bt:destroy-thread callback-thread)
+      (setf callback-thread nil))))
 
 (defgeneric callback-loop (driver)
   (:method ((driver callback-queued-kerneled-driver-with-thread-mixin))
     (process-next-kernel-callback-loop driver)))
 
 (defun callback-loop-fn (driver)
-  (log:warn "callback thrtead started")
   (block loop
     (loop
        (with-simple-restart
            (restart-callback-loop
-            "restart cldk's callback loop.")
+            "restart cldk ~A callback loop."  (driver-id driver))
          (callback-loop driver)
          (return-from loop)))))

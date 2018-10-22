@@ -5,7 +5,7 @@
 
 (defmethod driver-start ((driver sdl2-driver))
   (let ((options (driver-options driver)))
-    (setf (driver-default-screen-index driver) (getf options :screen-id 0)))
+    (setf (driver-screen-index driver) (getf options :screen-id 0)))
   (sdl2:init :everything))
      
 (defmethod driver-stop ((driver sdl2-driver))
@@ -35,7 +35,7 @@
 
 (defmethod driver-initialize-root ((driver sdl2-driver) root)
   (with-slots (screen-index) root
-    (setf screen-index (driver-default-screen-index driver))))
+    (setf screen-index (driver-screen-index driver))))
 
 (defmethod driver-destroy-root ((root sdl2-driver-root))
   (with-slots (screen-index) root
@@ -73,22 +73,6 @@
 (defmethod driver-object-id ((window sdl2-driver-window))
   (with-slots (sdlwindow) window
     (sdl2-ffi.functions::sdl-get-window-id sdlwindow)))
-
-(defmethod driver-create-window ((driver sdl2-driver) name pretty-name x y width height mode)
-  (let ((window-flags (sdl2::mask-apply 'sdl2::sdl-window-flags
-                                        (if (eql mode :managed)
-                                            '(:hidden :resizable)
-                                            '(:hidden :borderless)))))
-    ;; INPUT_GRABBED INPUT_FOCUS MOUSE_FOCUSSDL_WINDOW_ALWAYS_ON_TOP
-    ;; SKIP_TASKBAR WINDOW_UTILITY WINDOW_TOOLTIP
-    ;; WINDOW_POPUP_MENU
-    (let ((window (sdl2::sdl-create-window pretty-name
-                                           (or x (sdl2:windowpos-undefined))
-                                           (or y (sdl2:windowpos-undefined))
-                                           width
-                                           height
-                                           window-flags)))
-      (make-instance 'sdl2-driver-window :sdlwindow window))))
 
 (defmethod driver-initialize-window ((driver sdl2-driver) win name pretty-name x y width height mode)
   (let ((window-flags (sdl2::mask-apply 'sdl2::sdl-window-flags
@@ -169,7 +153,7 @@
 
 (defmethod driver-copy-image-to-window (image x y width height
                                         (window sdl2-driver-window) to-x to-y)
-  (let ((surface (cldk-render-internals::sdl2-image->sdl2-surface image)))
+  (let ((surface (sdl2-image->sdl2-surface image)))
     (with-slots (sdlwindow) window
       (when (and surface sdlwindow
                  (>= x 0) (>= y 0) (> width 0) (> height 0) (>= to-x 0) (>= to-y 0))

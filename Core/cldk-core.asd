@@ -7,7 +7,7 @@
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
-  :depends-on (#:log4cl #:bordeaux-threads #:lparallel #:cldk/core #:mcclim #:cldk-render))
+  :depends-on (#:log4cl #:bordeaux-threads #:lparallel #:cldk/core))
 
 (defsystem #:cldk-core/driver
   :version "0.3"
@@ -23,11 +23,22 @@
              (:file "lparallel-kernel" :depends-on ("kernel"))
              (:file "display-driver" :depends-on ("driver"))))))
 
+(defsystem #:cldk-core/image
+  :version "0.3"
+  :author "Alessandro Serra (gas2serra@gmail.com)"
+  :license "LGPL"
+  :depends-on (#:cldk-core/core)
+  :components
+  ((:module "image"
+            :components
+            ((:file "image" :depends-on ())
+             (:file "rectangle-set")))))
+
 (defsystem #:cldk-core/mirror
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
-  :depends-on (#:cldk-core/driver )
+  :depends-on (#:cldk-core/driver #:cldk-core/image)
   :components ((:module "mirror"
                         :components
                         ((:file "display")
@@ -37,20 +48,10 @@
                          (:file "buffered-window" :depends-on ("window" "image"))
                          (:file "event-handler" :depends-on ("display"))))))
 
-(defsystem #:cldk-core/server
-  :version "0.3"
-  :author "Alessandro Serra (gas2serra@gmail.com)"
-  :license "LGPL"
-  :depends-on (#:cldk-core/mirror)
-  :components
-  ((:module "server"
-            :components
-            (#+nil(:file "server")))))
-
 (defsystem #:cldk-core
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
-  :depends-on (#:cldk/core #:cldk-core/driver #:cldk-core/mirror #:cldk-core/server)
+  :depends-on (#:cldk/core #:cldk-core/driver #:cldk-core/mirror #:cldk-core/image)
   :components ()
   :description "Common Lisp Drawing Kit")

@@ -10,17 +10,10 @@
   :depends-on (#:log4cl #:bordeaux-threads)
   :components ((:file "package")))
 
-(defsystem #:cldk/basic
-  :version "0.3"
-  :author "Alessandro Serra (gas2serra@gmail.com)"
-  :license "LGPL"
-  :depends-on (:cldk-core)
-  :components ())
 
 (defsystem #:cldk
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
-  :depends-on (:cldk/basic)
-  :components ()
+  :depends-on (#:cldk/core :cldk-core)
   :description "Common Lisp Drawing Kit")

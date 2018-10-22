@@ -1,16 +1,19 @@
-(in-package :cldk-render-internals)
+(in-package :cldk-driver-clx)
 
 #+nil (declaim (optimize speed))
 
 ;;;
 ;;; Pixel - RGB translators
 ;;;
+(deftype octet ()
+  '(unsigned-byte 8))
+
 (defun mask->byte (mask)
   (let ((h (integer-length mask)))
     (let ((l (integer-length (logxor mask (1- (ash 1 h))))))
       (byte (- h l) l))))
 
-(defvar *translator-cache-lock* (clim-sys:make-lock "translator cache lock"))
+(defvar *translator-cache-lock* (bt:make-lock "translator cache lock"))
 (defparameter *rgb->pixel-translator-cache* (make-hash-table :test #'equal))
 (defparameter *pixel->rgb-translator-cache* (make-hash-table :test #'equal))
 
@@ -27,7 +30,7 @@
                                   (xlib:visual-info-green-mask info)
                                   (xlib:visual-info-blue-mask info)))))
          (key (list rbyte gbyte bbyte)))
-    (clim-sys:with-lock-held (*translator-cache-lock*)
+    (bt:with-lock-held (*translator-cache-lock*)
       (or (gethash key *rgb->pixel-translator-cache*)
           (setf (gethash key *rgb->pixel-translator-cache*)
                 (compile nil
@@ -51,7 +54,7 @@
                                   (xlib:visual-info-green-mask info)
                                   (xlib:visual-info-blue-mask info)))))
          (key (list rbyte gbyte bbyte)))
-    (clim-sys:with-lock-held (*translator-cache-lock*)
+    (bt:with-lock-held (*translator-cache-lock*)
       (or (gethash key *pixel->rgb-translator-cache*)
           (setf (gethash key *pixel->rgb-translator-cache*)
                 (compile nil
@@ -68,7 +71,7 @@
   ())
 
 (defun clx-image-colormap (image)
-  (xlib:window-colormap (cldki::driver-object-id (cldki::image-medium image))))
+  (xlib:window-colormap (cldki::driver-object-id (cldki::image-device image))))
 
 ;;;
 ;;; RGB
@@ -88,23 +91,13 @@
                         :element-type '(unsigned-byte 32)
                         :initial-element #xFFFFFFFF)))))
 
-(defmethod cldki::update-image ((image clx-image) width height)
-  (when (and width height)
-    (with-slots (cldk-render-internals::width
-                 cldk-render-internals::height)
-        image
-      (setf cldk-render-internals::width width
-            cldk-render-internals::height height)
-      (setf (slot-value image 'pixels)
-            (make-array (list height width)
-                        :element-type '(unsigned-byte 32)
-                        :initial-element #xFFFFFFFF)))))
 ;;;
 ;;; RGBA
 ;;;
 (defclass clx-rgba-image (clx-basic-image rgba-image-mixin)
   ())
 
+#|
 (defmethod image-rgba-get-fn ((image clx-rgba-image) &key (dx 0) (dy 0) (region nil))
   (let ((pixels (image-pixels image))
         (translator (pixel->rgb-translator (clx-image-colormap image))))
@@ -119,6 +112,7 @@
                 (funcall translator p)
               (values r g b a)))
           (values 0 0 0 0)))))
+|#
 
 (defmethod image-rgba-set-fn ((image clx-rgba-image) &key (dx 0) (dy 0))
   (let ((pixels (image-pixels image))
@@ -146,12 +140,13 @@
              (type (function (fixnum) (values octet octet octet octet)) translator))
     (lambda (x y)
       (declare (type fixnum x y))
-      (if (or (not region) (clim:region-contains-position-p region x y))
-          (let ((p (aref pixels (+ y dy) (+ x dx))))
-            (multiple-value-bind (r g b a)
-                (funcall translator p)
-              (rgba->rgb r g b a)))
-          (values 0 0 0)))))
+      (let ((p (aref pixels (+ y dy) (+ x dx))))
+        (multiple-value-bind (r g b a)
+            (funcall translator p)
+          #+nil(rgba->rgb r g b a)
+          (values r g b)
+          ))
+      (values 0 0 0))))
 
 (defmethod image-rgb-set-fn ((image clx-rgb-image) &key (dx 0) (dy 0))
   (let ((pixels (image-pixels image))
@@ -163,7 +158,8 @@
       (declare (type fixnum x y)
                (type octet red green blue))
       (multiple-value-bind (r g b a)
-          (rgb->rgba red green blue)
+          #+nil(rgb->rgba red green blue)
+          (values red green blue 255)
         (setf (aref pixels (+ y dy) (+ x dx))
               (funcall translator r g b a))))))
 
@@ -172,7 +168,7 @@
 ;;;
 (defclass clx-gray-image (clx-basic-image gray-image-mixin)
   ())
-
+#|
 (defmethod image-gray-get-fn ((image clx-gray-image) &key (dx 0) (dy 0) (region nil))
   (let ((pixels (image-pixels image))
         (translator (pixel->rgb-translator (clx-image-colormap image))))
@@ -187,7 +183,7 @@
                 (funcall translator p)
               (rgba->gray r g b a)))
           0))))
-
+|#
 (defmethod image-gray-set-fn ((image clx-gray-image) &key (dx 0) (dy 0))
   (let ((pixels (image-pixels image))
         (translator (rgb->pixel-translator (clx-image-colormap image))))
@@ -205,35 +201,18 @@
 ;;;
 ;;; making
 ;;;
-(defmethod make-image ((window cldk-driver-clx::clx-driver-window) (type (eql :rgba)) width height)
+(defmethod create-image ((window cldk-driver-clx::clx-driver-window) (type (eql :rgba)) width height)
   (make-instance 'clx-rgba-image :width width :height height
-                 :medium window))
+                 :device window))
 
-(defmethod make-image ((window cldk-driver-clx::clx-driver-window) (type (eql :rgb)) width height)
+(defmethod create-image ((window cldk-driver-clx::clx-driver-window) (type (eql :rgb)) width height)
   (make-instance 'clx-rgb-image :width width :height height
-                 :medium window))
+                 :device window))
 
-(defmethod make-image ((window cldk-driver-clx::clx-driver-window) (type (eql :gray)) width height)
+(defmethod create-image ((window cldk-driver-clx::clx-driver-window) (type (eql :gray)) width height)
   (make-instance 'clx-gray-image :width width :height height
-                 :medium window))
+                 :device window))
 
-#|
-(defmethod make-image ((medium clim-clx::clx-medium) (type (eql :rgba)) width height)
-  (make-instance 'clx-rgba-image :width width :height height
-                 :medium medium))
-
-(defmethod make-image ((medium clim-clx::clx-medium) (type (eql :rgb)) width height)
-  (make-instance 'clx-rgb-image :width width :height height
-                 :medium medium))
-
-(defmethod make-image ((medium clim-clx::clx-medium) (type (eql :gray)) width height)
-  (make-instance 'clx-gray-image :width width :height height
-                 :medium medium))
-
-(defmethod make-image ((medium clim-clx::clx-medium) (type (eql :auto)) width height)
-  (make-instance 'clx-rgb-image :width width :height height
-                 :medium medium))
-|#
 
 ;;;
 ;;; To xlib image/pixmap
@@ -241,7 +220,7 @@
 
 (defun clx-image->xlib-image (image)
   (let ((depth (xlib:drawable-depth
-                (cldki::driver-object-id (cldki::image-medium image)))))
+                (cldki::driver-object-id (image-device image)))))
     (xlib:create-image :width (image-width image)
                        :height (image-height image)
                        :depth depth
@@ -252,7 +231,7 @@
 (defun clx-image->pixmap (image &optional (x 0) (y 0)
                                   (w (image-width image))
                                   (h (image-height image)))
-  (let* ((drawable (cldki::image-medium image))
+  (let* ((drawable (image-device image))
          (xlib-image (clx-image->xlib-image image))
          (pixmap (xlib:create-pixmap :drawable drawable
 				     :width w
@@ -288,9 +267,9 @@
 (defun clx-rgba-image->pixmap-mask (image &optional (x 0) (y 0)
                                             (w (image-width image))
                                             (h (image-height image)))
-  (rgba-image->pixmap-mask (image-medium image) image x y w h))
+  (rgba-image->pixmap-mask (image-device image) image x y w h))
  
-
+#|
 (defun rgba-image->pixmap-mask (medium image &optional (x 0) (y 0)
                                                (w (image-width image))
                                                (h (image-height image)))
@@ -310,3 +289,4 @@
 		      :width w :height h))
     (xlib:free-gcontext gc)
     pixmap))
+|#

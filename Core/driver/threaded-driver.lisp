@@ -48,37 +48,28 @@
 ;;;
 
 (defclass driver-with-thread-mixin ()
-  ((kernel-thread :initform nil
-                  :reader driver-kernel-thread)))
+  ((driver-thread :initform nil
+                  :reader driver-thread)))
 
 (defgeneric driver-start-thread (driver))
+(defgeneric driver-destroy-thread (driver))
+(defgeneric driver-loop-step (driver))
+(defgeneric driver-loop (driver &key min-loop-time))
+(defgeneric driver-loop-fn (driver))
+
 (defmethod driver-start-thread ((driver driver-with-thread-mixin))
-  (with-slots (kernel-thread) driver
-    (setf kernel-thread
+  (with-slots (driver-thread) driver
+    (setf driver-thread
           (bt:make-thread #'(lambda ()
                               (driver-loop-fn driver))
-                          :name (format nil "cldk driver ~A" (driver-id driver))))))
+                          :name (format nil "cldk ~A driver" (driver-id driver))))))
 
-(defmethod driver-stop :after ((driver driver-with-thread-mixin))
-  (bt:join-thread (driver-kernel-thread driver))
-  (when (bt:thread-alive-p (driver-kernel-thread driver))
-    (driver-kill driver)))
-
-(defmethod driver-kill :after ((driver driver-with-thread-mixin))
-  (with-slots (kernel-thread) driver
-    (when kernel-thread
-      (bt:destroy-thread kernel-thread)
-      (setf kernel-thread nil))))
-
-(defmethod driver-destroy :around ((driver driver-with-thread-mixin))
-  (unwind-protect
-       (call-next-method)
-    (when (bt:thread-alive-p (driver-kernel-thread driver))
-      (driver-kill driver))))
-
-(defgeneric driver-loop-step (driver))
-
-(defgeneric driver-loop (driver &key min-loop-time))
+(defmethod driver-destroy-thread ((driver driver-with-thread-mixin))
+  (with-slots (driver-thread) driver
+    (when (and driver-thread
+               (bt:thread-alive-p driver-thread))
+      (log:warn "destroy cldk ~A thread" (driver-id driver))
+      (bt:destroy-thread driver-thread))))
 
 (defmethod driver-loop ((driver driver-with-thread-mixin)  &key (min-loop-time 0.01))
   (block loop
@@ -92,13 +83,19 @@
                  (driver-stopped-p driver))
          (return-from loop)))))
   
-(defgeneric driver-loop-fn (driver))
 (defmethod driver-loop-fn ((driver driver-with-thread-mixin))
   (driver-start driver)
   (block loop
     (loop
        (with-simple-restart
            (restart-driver-loop
-            "restart cldk's driver loop.")
+            "restart cldk ~A driver loop." (driver-id driver))
          (driver-loop driver)
          (return-from loop)))))
+
+(defmethod start-driver ((driver driver-with-thread-mixin))
+  (driver-start-thread driver))
+
+(defmethod destroy-driver :after ((driver driver-with-thread-mixin))
+  (driver-destroy-thread driver))
+

@@ -1,4 +1,7 @@
-(in-package :cldk-render-internals)
+(in-package :cldk-driver-sdl2)
+
+(deftype octet ()
+  '(unsigned-byte 8))
 
 (deftype sdl2-basic-image-pixels () 'cffi-sys:foreign-pointer)
 
@@ -14,18 +17,6 @@
   (let ((width (image-width image))
         (height (image-height image)))
     (when (and width height (not (slot-boundp image 'pixels)))
-      (with-slots (svector pixels) image
-        (setf svector (static-vectors:make-static-vector (* width height 4)
-                                                         :element-type '(unsigned-byte 8)))
-        (setf pixels (static-vectors:static-vector-pointer svector))))))
-
-(defmethod cldki::update-image ((image sdl2-basic-image) width height)
-  (when (and width height)
-    (with-slots (cldk-render-internals::width
-                 cldk-render-internals::height)
-        image
-      (setf cldk-render-internals::width width
-            cldk-render-internals::height height)
       (with-slots (svector pixels) image
         (setf svector (static-vectors:make-static-vector (* width height 4)
                                                          :element-type '(unsigned-byte 8)))
@@ -58,7 +49,7 @@
       (declare (type fixnum x y)
                (type octet red green blue))
       (multiple-value-bind (r g b a)
-          (rgb->rgba red green blue)
+          (values red green blue 255)
         (cffi-sys:%mem-set
          (dpb a (byte 8 0)
               (dpb b (byte 8 8)
@@ -78,6 +69,6 @@
    (* 4 (image-width image))
    :format sdl2:+pixelformat-rgba8888+))
 
-(defmethod make-image ((window cldk-driver-sdl2::sdl2-driver-window) (type (eql :rgb)) width height)
+(defmethod create-image ((window cldk-driver-sdl2::sdl2-driver-window) (type (eql :rgb)) width height)
   (make-instance 'sdl2-rgb-image :width width :height height
-                 :medium window))
+                 :device window))

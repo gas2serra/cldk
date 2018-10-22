@@ -1,4 +1,7 @@
-(in-package :cldk-render-internals)
+(in-package :cldk-driver-xcb)
+
+(deftype octet ()
+  '(unsigned-byte 8))
 
 (deftype xcb-basic-image-pixels () 'cffi-sys:foreign-pointer)
 
@@ -46,7 +49,7 @@
       (declare (type fixnum x y)
                (type octet red green blue))
       (multiple-value-bind (r g b a)
-          (rgb->rgba red green blue)
+          (values red green blue 255)
         (cffi-sys:%mem-set
          (dpb b (byte 8 0)
               (dpb g (byte 8 8)
@@ -58,9 +61,9 @@
                                   (+ x dx))))))))
 
 
-(defmethod make-image ((window cldk-driver-xcb::xcb-driver-window) (type (eql :rgb)) width height)
+(defmethod create-image ((window cldk-driver-xcb::xcb-driver-window) (type (eql :rgb)) width height)
   (make-instance 'xcb-rgb-image :width width :height height
-                 :medium window))
+                 :device window))
 
 (defmethod cldki::copy-image* (src-image rectangle-set
                                (dst-image xcb-rgb-image) dx dy)

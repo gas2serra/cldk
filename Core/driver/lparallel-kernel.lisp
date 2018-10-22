@@ -9,17 +9,17 @@
 
 (defmethod %next-kernel-queued-continuation ((driver queued-kerneled-driver-mixin) queue
                                              &key block-p kernel-mode-p)
-  (labels ((%exec-cont (kernel cont)
+  (labels ((%exec-cont (driver cont)
              (handler-case
                  (funcall cont)
                (error (condition)
-                 (log:error "~A ~A ~A" kernel cont condition))))
-           (%exec-cont-and-prom (kernel cont-and-prom &key (kernel-mode-p t))
+                 (log:error "~A driver: ~A" (driver-id driver) condition))))
+           (%exec-cont-and-prom (driver cont-and-prom &key (kernel-mode-p t))
              (if kernel-mode-p
                  (check-kernel-mode)
                  (check-user-mode))
              (if (cdr cont-and-prom)
-                 (lparallel:fulfill (cdr cont-and-prom) #1=(%exec-cont kernel (car cont-and-prom)))
+                 (lparallel:fulfill (cdr cont-and-prom) #1=(%exec-cont driver (car cont-and-prom)))
                  #1#)))
     (let ((command-and-promise
            (if block-p

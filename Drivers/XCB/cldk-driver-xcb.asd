@@ -7,7 +7,7 @@
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
-  :depends-on (#:cffi #:cffi-libffi #:static-vectors #:cldk-core/driver)
+  :depends-on (#:cffi #:cffi-libffi #:static-vectors #:cldk-core)
   :components
   ((:file "package")
    (:file "cffi"

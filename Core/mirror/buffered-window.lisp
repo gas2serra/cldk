@@ -24,15 +24,15 @@
                                           dx dy)
   (with-slots (updated-region-set) buffered-window
     (let ((dst-image (buffered-window-image buffered-window)))
-      (let ((w (cldk-render:image-width dst-image))
-            (h (cldk-render:image-height dst-image)))
-        (if (and (>= w (- (cldk-render:image-width image) 2))
-                 (>= h (- (cldk-render:image-height image) 2)))
+      (let ((w (image-width dst-image))
+            (h (image-height dst-image)))
+        (if (and (>= w (- (image-width image) 2))
+                 (>= h (- (image-height image) 2)))
             (progn
               (map-over-rectangle-set-regions
                #'(lambda (x1 y1 x2 y2)
-                   (cldk-render:copy-image image x1 y1 (- x2 x1) (- y2 y1)
-                                           dst-image (+ dx x1) (+ dy y1))
+                   (copy-image image x1 y1 (- x2 x1) (- y2 y1)
+                               dst-image (+ dx x1) (+ dy y1))
                    (setf updated-region-set (rectangle-set-union
                                              updated-region-set
                                              (rectangle->rectangle-set (+ dx x1) (+ dy y1)
@@ -41,8 +41,8 @@
               t)
             (progn
               (log:warn "skip copy image to buffered window. ~A => ~A"
-                        (list (cldk-render:image-width image)
-                              (cldk-render:image-height image))
+                        (list (image-width image)
+                              (image-height image))
                         (list w h))
               nil))))))
 
@@ -52,7 +52,7 @@
 ;;;
 ;;;
 (defclass kerneled-buffered-window-mixin (kerneled-window-mixin)
-  ((image :initform nil
+  ((image2 :initform nil
           :initarg :image
           :accessor buffered-window-image)))
 
@@ -68,7 +68,8 @@
                             :name name :pretty-name pretty-name
                             :x x :y y
                             :width width :height height :mode mode)))
-    (setf (buffered-window-image win) (cldk-render:make-image win :rgb width height))
+    (setf (buffered-window-image win) (create-image win :rgb width height))
+    (log:warn "++ ~A" (buffered-window-image win))
     win))
 
 (defmethod initialize-buffered-window ((win kerneled-buffered-window-mixin) width height)
@@ -97,6 +98,7 @@
 (defun flush-buffered-window (kwindow)
   (let ((image (buffered-window-image kwindow)))
     (when image
+      (log:warn "-- ~A" image)
       (with-slots (updated-region-set) kwindow
         (map-over-rectangle-set-regions 
          #'(lambda (x1 y1 x2 y2)
@@ -120,7 +122,8 @@
   (flush-buffered-window window)
   (with-buffered-window-locked (window)
     (setf (buffered-window-image window)
-          (cldk-render:make-image window :rgb width height))))
+          (create-image window :rgb width height))
+    (log:warn "+++ ~A" (buffered-window-image window))))
 
 
   

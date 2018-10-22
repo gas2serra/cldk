@@ -9,7 +9,7 @@
 (defmethod driver-start ((driver xcb-driver))
   (with-slots (display screen root-window gc) driver
     (let ((options (driver-options driver)))
-      (setf (driver-default-screen-index driver) (getf options :screen-id 0))
+      (setf (driver-screen-index driver) (getf options :screen-id 0))
       (setf display (connect (getf options :host "") (cffi:null-pointer)))
       #+nil(setf screen (nth (getf options :screen-id 0)
                              (getf (setup-roots-iterator (get-setup display)) 'data)))
@@ -246,9 +246,9 @@
 
 (defmethod driver-copy-image-to-window (image x y width height
                                         (window xcb-driver-window) to-x to-y)
-  (let ((xpixels (cldk-render:image-pixels image))
-        (width (cldk-render:image-width image))
-        (height (cldk-render:image-height image)))
+  (let ((xpixels (image-pixels image))
+        (width (image-width image))
+        (height (image-height image)))
     (with-slots (display screen gc) (driver window)
       (cffi:with-foreign-slots ((root-depth)
                                 screen
@@ -323,88 +323,4 @@
                   display xwindow
                   (+ CW-CURSOR)
                   vals)))))))
-
-;;; buffer
-(defclass xcb-driver-buffer (driver-buffer)
-  ((xpixels :initarg :ximage
-           :initform nil)
-   (w :initform :w)
-   (h :initform :h)))
-
-(deftype xcb-rgb-image-pixels () 'cffi-sys:foreign-pointer)
-
-(defmethod driver-initialize-buffer ((driver xcb-driver) buffer width height)
-  (driver-update-buffer buffer width height))
-
-(defmethod driver-update-buffer ((buffer xcb-driver-buffer) width height)
-  (with-slots (display screen) (driver buffer)
-    (cffi:with-foreign-slots ((root-depth)
-                              screen
-			      (:struct screen-t))
-      (with-slots (xpixels w h) buffer
-        (when xpixels
-          (static-vectors:free-static-vector xpixels))
-        (setf w width
-              h height
-              xpixels (static-vectors:make-static-vector (* width height 4)
-                                                        :element-type '(unsigned-byte 8)))))))
-                   
-(defmethod driver-destroy-buffer ((buffer xcb-driver-buffer))
-  (with-slots (xpixels) buffer
-    (when xpixels
-      (static-vectors:free-static-vector xpixels)
-      (setf xpixels nil))))
-
-(defmethod driver-copy-buffer-to-window ((buffer xcb-driver-buffer)
-                                         src-x src-y
-                                         width height
-                                         window to-x to-y)
-  (with-slots (display screen gc) (driver buffer)
-    (cffi:with-foreign-slots ((root-depth)
-                              screen
-			      (:struct screen-t))
-      (log:info "~A ~A => ~A (~A)" (list src-x src-y)
-                (list width height) (list to-x to-y) root-depth)
-        
-    (with-slots (xpixels w h) buffer
-      (with-slots (xwindow) window
-        (check (xcb-put-image display IMAGE-FORMAT-Z-PIXMAP xwindow gc
-                              100 100
-                              10 10
-                              0 root-depth
-                              (+ (* 4 100 100) (* 0 100))
-                              (static-vectors:static-vector-pointer xpixels
-                                                                    :offset
-                                                                    0
-                                                                    ))))))))
-
-#+nil(xcb-image-put display xwindow gc xpixels to-x to-y)
-
-(defmethod driver-buffer-rgb-get-fn ((buffer xcb-driver-buffer) dx dy)
-  (with-slots (xpixels w) buffer
-    (let ((pixels (static-vectors:static-vector-pointer xpixels))
-          (width w))
-      (declare (type xcb-rgb-image-pixels pixels))
-      (lambda (x y)
-        (cffi-sys:%mem-ref
-         pixels :UNSIGNED-INT (* 4
-                                 (+
-                                  (* (+ y dy) width)
-                                  (+ x dx))))))))
-
-(defmethod driver-buffer-rgb-set-fn ((buffer xcb-driver-buffer) dx dy)
-  (with-slots (xpixels w) buffer
-    (let ((pixels (static-vectors:static-vector-pointer xpixels))
-          (width w))
-      (declare (type xcb-rgb-image-pixels pixels))
-      (lambda (x y r g b)
-        (cffi-sys:%mem-set
-         (dpb b (byte 8 0)
-              (dpb g (byte 8 8)
-                   (dpb r (byte 8 16)
-                        (dpb 255 (byte 8 24) 0))))
-         pixels :UNSIGNED-INT (* 4
-                                 (+
-                                  (* (+ y dy) width)
-                                  (+ x dx))))))))
 

@@ -10,26 +10,7 @@
    #:server-event-handler
    #:restart-server
    #:destroy-server
-   #:map-over-servers
-
-   #|
-   #:+pointer-left-button+
-   #:+pointer-middle-button+
-   #:+pointer-right-button+
-   #:+pointer-wheel-up+
-   #:+pointer-wheel-down+
-   #:+pointer-wheel-left+
-   #:+pointer-wheel-right+
-   #:+pointer-x1-button+
-   #:+pointer-x2-button+
-   #:+shift-key+
-   #:+control-key+
-   #:+meta-key+
-   #:+super-key+
-   #:+hyper-key+
-   #:+alt-key+
-   |#
-
+   #:map-over-server
 
    #:event-handler
    #:log-event-handler
@@ -104,39 +85,66 @@
    
    #:image-rgb-get-fn
    #:image-rgb-set-fn
-  ))
+
+   #:image
+   #:image-width
+   #:image-height
+   #:image-device
+   #:image-mixin
+   #:image-pixels
+   #:pixels
+   #:rgba-image-mixin
+   #:rgb-image-mixin
+   #:gray-image-mixin
+   #:image-rgba-get-fn
+   #:image-rgba-set-fn
+   #:image-rgb-get-fn
+   #:image-rgb-set-fn
+   #:image-gray-get-fn
+   #:image-gray-set-fn
+   #:image-type
+   #:basic-image
+   #:create-image
+   #:copy-image
+   ))
+
+(defpackage :cldk-driver-impl
+  (:use :common-lisp)
+  (:export
+   ))
 
 (defpackage :cldk-driver
   (:use :common-lisp)
   (:export
    ;;
-   ;;  driver
+   ;; driver
    ;;
    #:driver
    #:driver-options
-   #:driver-id
+   #:driver-callback-handler
    #:driver-start
    #:driver-stop
    #:driver-kill
    #:driver-ping
    #:driver-force-output
    #:driver-process-next-event
+   #:driver-id
    #:driver-process-next-events
-   ;; callback hanlder
    #:register-driver-object
    #:unregister-driver-object
    #:lookup-driver-object
-   #:driver-callback-handler
+   #:start-driver
+   #:stop-driver
    ;; driver object
    #:driver-object
    #:driver-object-id
    ;; threaded driver
    #:threaded-driver-mixin
-   #:driver-lock
    #:with-driver-locked
-   #:invoke-with-driver-locked
    #:single-threaded-driver-mixin
    #:multi-threaded-driver-mixin
+   #:driver-with-thread-mixin
+   #:driver-loop-step
    ;;
    ;; display drivers
    ;;
@@ -144,11 +152,7 @@
    #:display-driver-object
    #:display-driver-callback-handler
    
-   #:driver-default-screen-index
-   #:driver-screen-num
-   #:driver-screen-size
-   #:driver-screen-dpi
-   #:driver-screen-pointer-position
+   #:driver-screen-index
    ;; display root
    #:driver-root
    #:driver-initialize-root
@@ -180,15 +184,6 @@
    #:driver-create-cursor
    #:driver-destroy-cursor
    #:driver-set-window-cursor
-
-   ;; display buffer
-   #:driver-buffer
-   #:driver-initialize-buffer
-   #:driver-update-buffer
-   #:driver-destroy-buffer
-   #:driver-copy-buffer-to-window
-   #:driver-buffer-rgb-get-fn
-   #:driver-buffer-rgb-set-fn
    
    ;; callback
    #:+pointer-left-button+ 
@@ -213,6 +208,8 @@
    #:driver-cb-leave-event
    #:driver-cb-wm-delete-event
    ))
+
+
 
 (defpackage :cldk-mirror
   (:use :common-lisp :cldk-driver)
@@ -285,6 +282,6 @@
    ;;#:UPDATED-REGION-SET
    ))
 (defpackage :cldk-internals
-  (:use :cldk :cldk-driver :cldk-mirror :cldk-server
+  (:use :cldk :cldk-driver :cldk-driver-impl :cldk-mirror :cldk-server
         :common-lisp)
   (:nicknames :cldki))
