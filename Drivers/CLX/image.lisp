@@ -71,7 +71,7 @@
   ())
 
 (defun clx-image-colormap (image)
-  (xlib:window-colormap (cldki::driver-object-id (cldki::image-device image))))
+  (xlib:window-colormap (cldki::driver-object-id (cldki::image-medium image))))
 
 ;;;
 ;;; RGB
@@ -132,7 +132,7 @@
 (defclass clx-rgb-image (clx-basic-image rgb-image-mixin)
   ())
 
-(defmethod image-rgb-get-fn ((image clx-rgb-image) &key (dx 0) (dy 0) (region nil))
+(defmethod image-rgb-get-fn ((image clx-rgb-image) &key (dx 0) (dy 0))
   (let ((pixels (image-pixels image))
         (translator (pixel->rgb-translator (clx-image-colormap image))))
     (declare (type clx-basic-image-pixels pixels)
@@ -201,17 +201,17 @@
 ;;;
 ;;; making
 ;;;
-(defmethod create-image ((window cldk-driver-clx::clx-driver-window) (type (eql :rgba)) width height)
+(defmethod make-image ((window cldk-driver-clx::clx-driver-window) (type (eql :rgba)) width height)
   (make-instance 'clx-rgba-image :width width :height height
-                 :device window))
+                 :medium window))
 
-(defmethod create-image ((window cldk-driver-clx::clx-driver-window) (type (eql :rgb)) width height)
+(defmethod make-image ((window cldk-driver-clx::clx-driver-window) (type (eql :rgb)) width height)
   (make-instance 'clx-rgb-image :width width :height height
-                 :device window))
+                 :medium window))
 
-(defmethod create-image ((window cldk-driver-clx::clx-driver-window) (type (eql :gray)) width height)
+(defmethod make-image ((window cldk-driver-clx::clx-driver-window) (type (eql :gray)) width height)
   (make-instance 'clx-gray-image :width width :height height
-                 :device window))
+                 :medium window))
 
 
 ;;;
@@ -220,7 +220,7 @@
 
 (defun clx-image->xlib-image (image)
   (let ((depth (xlib:drawable-depth
-                (cldki::driver-object-id (image-device image)))))
+                (cldki::driver-object-id (image-medium image)))))
     (xlib:create-image :width (image-width image)
                        :height (image-height image)
                        :depth depth
@@ -231,7 +231,7 @@
 (defun clx-image->pixmap (image &optional (x 0) (y 0)
                                   (w (image-width image))
                                   (h (image-height image)))
-  (let* ((drawable (image-device image))
+  (let* ((drawable (image-medium image))
          (xlib-image (clx-image->xlib-image image))
          (pixmap (xlib:create-pixmap :drawable drawable
 				     :width w
@@ -267,7 +267,7 @@
 (defun clx-rgba-image->pixmap-mask (image &optional (x 0) (y 0)
                                             (w (image-width image))
                                             (h (image-height image)))
-  (rgba-image->pixmap-mask (image-device image) image x y w h))
+  (rgba-image->pixmap-mask (image-medium image) image x y w h))
  
 #|
 (defun rgba-image->pixmap-mask (medium image &optional (x 0) (y 0)

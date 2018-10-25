@@ -25,7 +25,7 @@
 (defclass xcb-rgb-image (xcb-basic-image rgb-image-mixin)
   ())
 
-(defmethod image-rgb-get-fn ((image xcb-rgb-image) &key (dx 0) (dy 0) (region nil))
+(defmethod image-rgb-get-fn ((image xcb-rgb-image) &key (dx 0) (dy 0))
   #+nil (let ((pixels (image-pixels image))
         (translator (pixel->xcb-translator (clx-image-colormap image))))
     (declare (type clx-basic-image-pixels pixels)
@@ -33,12 +33,10 @@
              (type (function (fixnum) (values octet octet octet octet)) translator))
     (lambda (x y)
       (declare (type fixnum x y))
-      (if (or (not region) (clim:region-contains-position-p region x y))
-          (let ((p (aref pixels (+ y dy) (+ x dx))))
-            (multiple-value-bind (r g b a)
-                (funcall translator p)
-              (xcba->xcb r g b a)))
-          (values 0 0 0)))))
+      (let ((p (aref pixels (+ y dy) (+ x dx))))
+        (multiple-value-bind (r g b a)
+            (funcall translator p)
+          (xcba->xcb r g b a))))))
 
 (defmethod image-rgb-set-fn ((image xcb-rgb-image) &key (dx 0) (dy 0))
   (let ((pixels (image-pixels image))
@@ -61,9 +59,9 @@
                                   (+ x dx))))))))
 
 
-(defmethod create-image ((window cldk-driver-xcb::xcb-driver-window) (type (eql :rgb)) width height)
+(defmethod make-image ((window cldk-driver-xcb::xcb-driver-window) (type (eql :rgb)) width height)
   (make-instance 'xcb-rgb-image :width width :height height
-                 :device window))
+                 :medium window))
 
 (defmethod cldki::copy-image* (src-image rectangle-set
                                (dst-image xcb-rgb-image) dx dy)

@@ -1,7 +1,7 @@
 (in-package :common-lisp-user)
 
 (defpackage :cldk-driver-clx
-  (:use :cldk-driver :cldk :common-lisp)
+  (:use :cldk-driver :cldk-mirror :cldk :common-lisp)
   (:export
    #:clx-driver
    #:clx-driver-root

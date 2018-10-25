@@ -31,7 +31,11 @@
   :components
   ((:module "image"
             :components
-            ((:file "image" :depends-on ())
+            ((:file "color" :depends-on ())
+             (:file "image" :depends-on ("color"))
+             (:file "image-prim" :depends-on ("image"))
+             (:file "pixeled-design" :depends-on ("image"))
+             (:file "image-ops" :depends-on ("image-prim" "pixeled-design"))
              (:file "rectangle-set")))))
 
 (defsystem #:cldk-core/mirror

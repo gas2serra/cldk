@@ -9,6 +9,8 @@
 (defclass display ()
   ())
 
+(defgeneric create-display (id options))
+
 (defgeneric avaiable-cursor-names (display))
 
 (defgeneric refresh-windows (display))

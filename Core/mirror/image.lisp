@@ -4,5 +4,5 @@
 ;;;
 
 (defclass shared-image (basic-image)
-  ((device :initarg :device :reader image-device)))
+  ((medium :initarg :medium :reader image-medium)))
 

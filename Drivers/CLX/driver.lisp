@@ -21,7 +21,7 @@
   (with-slots (display screen root-window) driver
     (let ((options (driver-options driver)))
       (setf (driver-screen-index driver) (getf options :screen-id 0))
-      (setf display (xlib:open-display (getf options :host) 
+      (setf display (xlib:open-display (getf options :host "") 
                                        :display (getf options :display-id 0) 
                                        :protocol (getf options :protocol 0)))
       (setf screen (nth (getf options :screen-id 0)

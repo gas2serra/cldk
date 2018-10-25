@@ -25,7 +25,7 @@
 (defclass sdl2-rgb-image (sdl2-basic-image rgb-image-mixin)
   ())
 
-(defmethod image-rgb-get-fn ((image sdl2-rgb-image) &key (dx 0) (dy 0) (region nil))
+(defmethod image-rgb-get-fn ((image sdl2-rgb-image) &key (dx 0) (dy 0))
   #+nil (let ((pixels (image-pixels image))
         (translator (pixel->sdl2-translator (clx-image-colormap image))))
     (declare (type clx-basic-image-pixels pixels)
@@ -33,12 +33,10 @@
              (type (function (fixnum) (values octet octet octet octet)) translator))
     (lambda (x y)
       (declare (type fixnum x y))
-      (if (or (not region) (clim:region-contains-position-p region x y))
-          (let ((p (aref pixels (+ y dy) (+ x dx))))
-            (multiple-value-bind (r g b a)
-                (funcall translator p)
-              (sdl2a->sdl2 r g b a)))
-          (values 0 0 0)))))
+      (let ((p (aref pixels (+ y dy) (+ x dx))))
+        (multiple-value-bind (r g b a)
+            (funcall translator p)
+          (sdl2a->sdl2 r g b a))))))
 
 (defmethod image-rgb-set-fn ((image sdl2-rgb-image) &key (dx 0) (dy 0))
   (let ((pixels (image-pixels image))
@@ -69,6 +67,6 @@
    (* 4 (image-width image))
    :format sdl2:+pixelformat-rgba8888+))
 
-(defmethod create-image ((window cldk-driver-sdl2::sdl2-driver-window) (type (eql :rgb)) width height)
+(defmethod make-image ((window cldk-driver-sdl2::sdl2-driver-window) (type (eql :rgb)) width height)
   (make-instance 'sdl2-rgb-image :width width :height height
-                 :device window))
+                 :medium window))

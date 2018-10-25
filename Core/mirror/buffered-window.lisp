@@ -68,7 +68,7 @@
                             :name name :pretty-name pretty-name
                             :x x :y y
                             :width width :height height :mode mode)))
-    (setf (buffered-window-image win) (create-image win :rgb width height))
+    (setf (buffered-window-image win) (make-image win :rgb width height))
     (log:warn "++ ~A" (buffered-window-image win))
     win))
 
@@ -122,7 +122,7 @@
   (flush-buffered-window window)
   (with-buffered-window-locked (window)
     (setf (buffered-window-image window)
-          (create-image window :rgb width height))
+          (make-image window :rgb width height))
     (log:warn "+++ ~A" (buffered-window-image window))))
 
 

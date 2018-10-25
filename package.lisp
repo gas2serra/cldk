@@ -3,6 +3,113 @@
 (defpackage :cldk
   (:use :common-lisp)
   (:export
+   ;;;
+   ;;; images
+   ;;;
+   ;; colors
+   #:octet
+   #:octet-mult
+   #:octet-blend-function
+   #:octet-rgba-blend-function
+   #:octet-rgb-blend-function
+   #:octet-gray-blend-function
+   #:octet-alpha-blend-function
+   #:rgba->rgb
+   #:rgba->gray
+   #:rgba->gray-alpha
+   #:rgba->alpha
+   #:rgb->rgba
+   #:rgb->gray
+   #:rgb->alpha
+   #:gray->rgba
+   #:gray->rgb
+   #:gray->alpha
+   #:alpha->gray
+   ;; image
+   #:image
+   #:image-width
+   #:image-height
+   #:image-medium
+   #:image-mixin
+   #:image-pixels
+   #:pixels
+   #:rgba-image-mixin
+   #:rgb-image-mixin
+   #:gray-image-mixin
+   #:image-rgba-get-fn
+   #:image-rgba-set-fn
+   #:image-rgb-get-fn
+   #:image-rgb-set-fn
+   #:image-gray-get-fn
+   #:image-gray-set-fn
+   #:image-type
+   #:basic-image
+   #:read-image
+   #:write-image
+   #:define-image-file-reader
+   #:image-format-read-supported-p
+   #:define-image-file-writer
+   #:image-format-write-supported-p
+   #:image-rgba-blend-fn
+   #:image-rgb-blend-fn
+   #:image-gray-blend-fn
+   #:image-rgba-xor-blend-fn
+   #:image-rgb-xor-blend-fn
+   #:image-gray-xor-blend-fn
+   #:image-alpha-get-fn
+   #:image-alpha-set-fn
+   #:image-rgba-set-span-fn
+   #:image-rgb-set-span-fn
+   #:image-gray-set-span-fn
+   #:image-rgba-blend-span-fn
+   #:image-rgb-blend-span-fn
+   #:image-gray-blend-span-fn
+   #:image-rgba-xor-blend-span-fn
+   #:image-rgb-xor-blend-span-fn
+   #:image-gray-xor-blend-span-fn
+   ;; operations
+   #:make-image
+   #:coerce-image
+   #:clone-image
+   #:copy-image   
+   #:blend-image
+   #:crop-image
+   #:coerce-alpha-channel
+   #:clone-alpha-channel
+   #:set-image-color
+   #:set-image
+   #:fill-image-color
+   #:fill-image
+
+   #:do-image
+   #:%image-get-fn
+   #:%image-set-fn
+   #:%image-set-span-fn
+   #:%image-blend-fn
+   #:%image-xor-blend-fn
+   #:%image-blend-span-fn
+   #:%image-xor-blend-span-fn
+   #:%call-image-rgba-get-fn
+   #:%call-image-rgb-get-fn
+   #:%call-image-gray-get-fn
+   #:%call-set-image-fn
+   #:%call-set-image-span-fn
+   #:%call-blend-image-fn
+   #:%call-blend-image-span-fn
+
+   #:pixeled-design-fn
+   #:pixeled-design
+   #:pixeled-design-region
+   #:pixeled-design-rgba-get-fn
+   #:pixeled-design-rgba-get-unsafe-fn
+   #:pixeled-uniform-design
+   #:make-pixeled-uniform-design
+   #:pixeled-uniform-design-red
+   #:pixeled-uniform-design-green
+   #:pixeled-uniform-design-blue
+   #:pixeled-uniform-design-alpha
+   
+   
       #:*default-server-path*
    #:find-server
    #:find-display-server
@@ -86,26 +193,7 @@
    #:image-rgb-get-fn
    #:image-rgb-set-fn
 
-   #:image
-   #:image-width
-   #:image-height
-   #:image-device
-   #:image-mixin
-   #:image-pixels
-   #:pixels
-   #:rgba-image-mixin
-   #:rgb-image-mixin
-   #:gray-image-mixin
-   #:image-rgba-get-fn
-   #:image-rgba-set-fn
-   #:image-rgb-get-fn
-   #:image-rgb-set-fn
-   #:image-gray-get-fn
-   #:image-gray-set-fn
-   #:image-type
-   #:basic-image
-   #:create-image
-   #:copy-image
+   
    ))
 
 (defpackage :cldk-driver-impl

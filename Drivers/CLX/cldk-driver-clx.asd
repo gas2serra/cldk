@@ -7,7 +7,7 @@
   :version "0.3"
   :author "Alessandro Serra (gas2serra@gmail.com)"
   :license "LGPL"
-  :depends-on (#:clx #:cldk-core/driver)
+  :depends-on (#:clx #:cldk-core)
   :components
   ((:file "package")
    (:file "input-keysyms-common"
@@ -20,5 +20,7 @@
           :depends-on ("package"))
    (:file "driver"
           :depends-on ("input"))
+   (:file "server"
+          :depends-on ("driver" "image"))
    (:file "image" :depends-on ("package" "driver")))
   :description "Common Lisp Drawing Kit: CLX driver")
