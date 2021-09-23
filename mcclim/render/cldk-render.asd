@@ -7,7 +7,7 @@
 (defsystem #:cldk-render/core
     :depends-on (#:cldk-core
                  #:clim-basic
-                 #:mcclim-image
+;;                 #:mcclim-image
                  #:mcclim-fonts/truetype)
   :serial t
   :components ((:file "package")

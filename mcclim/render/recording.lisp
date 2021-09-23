@@ -1,5 +1,6 @@
 (in-package :cldk-render-internals)
 
+#|
 (def-grecording draw-image (() image x y) ()
   (let ((width (image-width image))
         (height (image-height image))
@@ -24,3 +25,4 @@
 	 (coordinate= (slot-value climi::record 'y) y))
        (if-supplied (image image)
          (eq (slot-value climi::record 'image) image))))
+|#

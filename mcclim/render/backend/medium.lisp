@@ -271,10 +271,10 @@
       (let ((i 0))
         (map nil (lambda (segment)
                    (incf i)
-                   (with-slots ((p0 mcclim-bezier:p0)
-                                (p1 mcclim-bezier:p1)
-                                (p2 mcclim-bezier:p2)
-                                (p3 mcclim-bezier:p3))
+                   (with-slots ((p0 mcclim-bezier::p0)
+                                (p1 mcclim-bezier::p1)
+                                (p2 mcclim-bezier::p2)
+                                (p3 mcclim-bezier::p3))
                        segment
                      (when bezier-draw-control-lines
                        (draw-point medium p0 :ink +blue+ :line-thickness 6)

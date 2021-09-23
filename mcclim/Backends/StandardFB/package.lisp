@@ -51,7 +51,7 @@
                 #:image-mirror-mixin
                 #:opticl-rgb-image-pixels
                 )
-  (:import-from :clim-standard
+  #+nil(:import-from :clim-standard
                 #:standard-port
                 #:standard-event-port-mixin
                 #:mirrored-sheet-mixin

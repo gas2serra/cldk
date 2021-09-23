@@ -191,14 +191,14 @@
 (defmethod render-draw-bezier-design ((render image-render) image design filled)
   ;;(format *debug-io* "render: draw bezier (aa)~%")
   (let ((segments (mcclim-bezier:segments design)))
-    (let ((p0 (slot-value (elt segments 0) 'mcclim-bezier:p0)))
+    (let ((p0 (slot-value (elt segments 0) 'mcclim-bezier::p0)))
       (let ((path (make-path (point-x p0) (point-y p0))))
         (map nil (lambda (segment)
-                   (with-slots (mcclim-bezier:p1 mcclim-bezier:p2 mcclim-bezier:p3) segment
+                   (with-slots (mcclim-bezier::p1 mcclim-bezier::p2 mcclim-bezier::p3) segment
                      (curve-to path
-                               (point-x mcclim-bezier:p1) (point-y mcclim-bezier:p1)
-                               (point-x mcclim-bezier:p2) (point-y mcclim-bezier:p2)
-                               (point-x mcclim-bezier:p3) (point-y mcclim-bezier:p3))))
+                               (point-x mcclim-bezier::p1) (point-y mcclim-bezier::p1)
+                               (point-x mcclim-bezier::p2) (point-y mcclim-bezier::p2)
+                               (point-x mcclim-bezier::p3) (point-y mcclim-bezier::p3))))
              segments)
         (if filled
                 (render-fill-paths render image (list path))

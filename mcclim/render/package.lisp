@@ -367,28 +367,29 @@
                 #:pixmap-mirror
                 #:pixmap-medium)
   (:import-from :mcclim-truetype
-                #:truetype-font-size
-                #:truetype-font-face
-                #:glyph-pixarray
-                #:ensure-gethash
-                #:invoke-with-truetype-path-restart
-                #:*truetype-font-path*
-                #:*family-names*
-                #:zpb-ttf-font-loader
-                #:*zpb-font-lock*
-                #:*fontconfig-faces*
-                #:*families/faces*
-                #:truetype-device-font-name
-                #:fontconfig-font-name
-                #:make-truetype-device-font-name
-                #:make-fontconfig-font-name
-                #:truetype-font-family
-                #:truetype-font
-                #:truetype-face
-                #:truetype-font-size
-                #:truetype-font-ascent
-                #:truetype-font-descent
-                #:zpb-ttf-font-units->pixels)
+                ;;#:truetype-font-size
+                ;;#:truetype-font-face
+                ;;#:glyph-pixarray
+                ;;#:ensure-gethash
+                ;;#:invoke-with-truetype-path-restart
+                ;;#:*truetype-font-path*
+                ;;#:*family-names*
+                ;;#:zpb-ttf-font-loader
+                ;;#:*zpb-font-lock*
+                ;;#:*fontconfig-faces*
+                ;;#:*families/faces*
+                ;;#:truetype-device-font-name
+                ;;#:fontconfig-font-name
+                ;;#:make-truetype-device-font-name
+                ;;#:make-fontconfig-font-name
+                ;;#:truetype-font-family
+                ;;#:truetype-font
+               ;;#:truetype-face
+                ;;#:truetype-font-size
+                ;;#:truetype-font-ascent
+                ;;#:truetype-font-descent
+                ;;#:zpb-ttf-font-units->pixels)
+                )
   (:import-from :clim-backend
                 #:port-set-mirror-region
                 #:port-set-mirror-transformation)

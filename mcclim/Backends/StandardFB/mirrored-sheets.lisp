@@ -43,7 +43,7 @@
         nil))
 
   
-(defmethod clim-standard::%update-mirror-geometry :around ((sheet fb-mirrored-sheet-mixin))
+(defmethod climi::%update-mirror-geometry :around ((sheet fb-mirrored-sheet-mixin))
   (log:info "***UPDATE> ~A" (fb-mirrored-sheet-state sheet))
   (when (or
          (not (eq (fb-mirrored-sheet-state sheet) :notadopted))

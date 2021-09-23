@@ -2,9 +2,10 @@
 
 (defpackage :cldk-backend
   (:use :cldk-mirror :cldk :common-lisp :cldk-driver :cldk-server)
-  (:import-from :clim-standard
-                #:standard-graft
-                #:standard-port)
+  #+nil(:import-from :clim-standard
+                ;;#:standard-graft
+                ;;#:standard-port
+                )
   (:import-from :climi
                 #:mirrored-sheet-mixin
                 #:port-grafts

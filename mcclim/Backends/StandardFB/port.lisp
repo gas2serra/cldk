@@ -192,7 +192,7 @@
              ;; reasonable timestamp.
              :timestamp 0)))))))
 
-(defmethod climi::port-grab-pointer ((port fb-port) pointer sheet)
+(defmethod climi::port-grab-pointer ((port fb-port) pointer sheet &key multiple-window)
   ;; FIXME: Use timestamps?
   (let ((grab-result (cldk:grab-window-pointer
                       (sheet-mirror sheet)

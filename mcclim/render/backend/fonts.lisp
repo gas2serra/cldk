@@ -33,7 +33,7 @@
     (font-glyph-width xfont #\m)))
 
 (defmethod climi::text-bounding-rectangle*
-    ((medium render-medium-mixin) string &key text-style (start 0) end)
+    ((medium render-medium-mixin) string &key text-style (start 0) end &allow-other-keys)
   (unless text-style
     (setf text-style (medium-text-style medium)))
   (let ((text-font (text-style-to-font (port medium) text-style)))
